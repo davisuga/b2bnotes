@@ -1,129 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
-@custom-variant dark (&:is(.dark *));
+@theme {
+  --font-sans: var(--font-sans-var);
+  --font-display: var(--font-display-var);
+  --font-mono: var(--font-mono-var);
+
+  --color-bg-base: var(--theme-bg-base);
+  --color-bg-surface: var(--theme-bg-surface);
+  --color-bg-inverse: var(--theme-bg-inverse);
+  
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-text-inverse: var(--theme-text-inverse);
+  
+  --color-accent: var(--theme-accent);
+  --color-accent-fg: var(--theme-accent-fg);
+  --color-success: var(--theme-success);
+  --color-danger: var(--theme-danger);
+  --color-border: var(--theme-border);
+
+  --radius-sm: var(--theme-radius-sm);
+  --radius-md: var(--theme-radius-md);
+  --radius-lg: var(--theme-radius-lg);
+  --radius-xl: var(--theme-radius-xl);
+  --radius-full: var(--theme-radius-full);
+
+  --shadow-soft: var(--theme-shadow-soft);
+  --shadow-floating: var(--theme-shadow-floating);
+}
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0.008 326);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0.008 326);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0.008 326);
-    --primary: oklch(0.508 0.118 165.612);
-    --primary-foreground: oklch(0.979 0.021 166.113);
-    --secondary: oklch(0.967 0.001 286.375);
-    --secondary-foreground: oklch(0.21 0.006 285.885);
-    --muted: oklch(0.96 0.003 325.6);
-    --muted-foreground: oklch(0.542 0.034 322.5);
-    --accent: oklch(0.96 0.003 325.6);
-    --accent-foreground: oklch(0.212 0.019 322.12);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0.005 325.62);
-    --input: oklch(0.922 0.005 325.62);
-    --ring: oklch(0.711 0.019 323.02);
-    --chart-1: oklch(0.845 0.143 164.978);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.596 0.145 163.225);
-    --chart-4: oklch(0.508 0.118 165.612);
-    --chart-5: oklch(0.432 0.095 166.913);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0.008 326);
-    --sidebar-primary: oklch(0.596 0.145 163.225);
-    --sidebar-primary-foreground: oklch(0.979 0.021 166.113);
-    --sidebar-accent: oklch(0.96 0.003 325.6);
-    --sidebar-accent-foreground: oklch(0.212 0.019 322.12);
-    --sidebar-border: oklch(0.922 0.005 325.62);
-    --sidebar-ring: oklch(0.711 0.019 323.02);
+  /* =========================================
+     THEME: MODERN ENTERPRISE (Friendly & Soft)
+     ========================================= */
+  --theme-bg-base: #F2F2F7;
+  --theme-bg-surface: #FFFFFF;
+  --theme-bg-inverse: #1C1C1E;
+  
+  --theme-text-primary: #1C1C1E;
+  --theme-text-secondary: #8E8E93;
+  --theme-text-inverse: #FFFFFF;
+  
+  --theme-accent: #1C1C1E;
+  --theme-accent-fg: #FFFFFF;
+  --theme-success: #34C759;
+  --theme-danger: #FF3B30;
+  --theme-border: #E5E5EA;
+
+  --theme-radius-sm: 12px;
+  --theme-radius-md: 16px;
+  --theme-radius-lg: 24px;
+  --theme-radius-xl: 32px;
+  --theme-radius-full: 9999px;
+
+  --theme-shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.04);
+  --theme-shadow-floating: 0 20px 40px rgba(0, 0, 0, 0.12);
+
+  --font-sans-var: "Inter", system-ui, sans-serif;
+  --font-display-var: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono-var: "JetBrains Mono", monospace;
 }
 
-.dark {
-    --background: oklch(0.145 0.008 326);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.212 0.019 322.12);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.212 0.019 322.12);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.432 0.095 166.913);
-    --primary-foreground: oklch(0.979 0.021 166.113);
-    --secondary: oklch(0.274 0.006 286.033);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.263 0.024 320.12);
-    --muted-foreground: oklch(0.711 0.019 323.02);
-    --accent: oklch(0.263 0.024 320.12);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.542 0.034 322.5);
-    --chart-1: oklch(0.845 0.143 164.978);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.596 0.145 163.225);
-    --chart-4: oklch(0.508 0.118 165.612);
-    --chart-5: oklch(0.432 0.095 166.913);
-    --sidebar: oklch(0.212 0.019 322.12);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.696 0.17 162.48);
-    --sidebar-primary-foreground: oklch(0.262 0.051 172.552);
-    --sidebar-accent: oklch(0.263 0.024 320.12);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.542 0.034 322.5);
-}
+/* 
+  =========================================
+  HOW TO CHANGE THEMES
+  =========================================
+  To change the entire look and feel of the app, 
+  simply replace the variables in :root with one of the themes below.
+*/
 
-@theme inline {
-    --font-sans: 'Geist Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+/* 
+--- THEME: BRUTALIST ---
+:root {
+  --theme-bg-base: #F4F4F0;
+  --theme-bg-surface: #FFFFFF;
+  --theme-bg-inverse: #0A0A0A;
+  --theme-text-primary: #0A0A0A;
+  --theme-text-secondary: #8E8E8E;
+  --theme-text-inverse: #F4F4F0;
+  --theme-accent: #E5FF00;
+  --theme-accent-fg: #0A0A0A;
+  --theme-success: #00FF00;
+  --theme-danger: #FF3366;
+  --theme-border: #0A0A0A;
+  --theme-radius-sm: 0px;
+  --theme-radius-md: 0px;
+  --theme-radius-lg: 0px;
+  --theme-radius-xl: 0px;
+  --theme-radius-full: 0px;
+  --theme-shadow-soft: 4px 4px 0px #0A0A0A;
+  --theme-shadow-floating: 8px 8px 0px #0A0A0A;
+  --font-sans-var: "Outfit", sans-serif;
+  --font-display-var: "Bricolage Grotesque", sans-serif;
 }
+*/
+
+/* 
+--- THEME: PLAYFUL / FUN ---
+:root {
+  --theme-bg-base: #FDF8F5;
+  --theme-bg-surface: #FFFFFF;
+  --theme-bg-inverse: #5D5FEF;
+  --theme-text-primary: #2B2B2B;
+  --theme-text-secondary: #A0A0B0;
+  --theme-text-inverse: #FFFFFF;
+  --theme-accent: #FF90E8;
+  --theme-accent-fg: #2B2B2B;
+  --theme-success: #23C180;
+  --theme-danger: #FF6B6B;
+  --theme-border: #F0EBF8;
+  --theme-radius-sm: 16px;
+  --theme-radius-md: 24px;
+  --theme-radius-lg: 32px;
+  --theme-radius-xl: 48px;
+  --theme-radius-full: 9999px;
+  --theme-shadow-soft: 0 10px 40px rgba(93, 95, 239, 0.08);
+  --theme-shadow-floating: 0 20px 50px rgba(93, 95, 239, 0.15);
+  --font-sans-var: "Quicksand", sans-serif;
+  --font-display-var: "Fredoka", sans-serif;
+}
+*/
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-    }
   body {
-    @apply bg-background text-foreground;
-    }
-  html {
-    @apply font-sans;
-    }
+    background-color: var(--theme-bg-base);
+    color: var(--theme-text-primary);
+    font-family: var(--font-sans-var);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display-var);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Hide scrollbar for clean UI */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
 }

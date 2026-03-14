@@ -16,13 +16,13 @@ const ReceiptsQuery = graphql(`
   }
 `)
 export const Route = createFileRoute('/scan')({
-  component: RouteComponent,
+    component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { data } = useQuery({
-    queryKey: ['receipts'],
-    queryFn: () => execute(ReceiptsQuery),
-  })
-  return <div>Hello "/scan"! {JSON.stringify(data)}</div>
+    const { data } = useQuery({
+        queryKey: ['receipts'],
+        queryFn: () => execute(ReceiptsQuery),
+    })
+    return <div>Hello "/scan"! {JSON.stringify(data, null, 2)}</div>
 }
