@@ -322,8 +322,169 @@ describe("dashboard GraphQL integration", () => {
       totalPrice: "42.50",
     })
 
+    const personalReceipt = await postGraphQl<{
+      insertReceipts: {
+        returning: Array<{
+          id: string
+        }>
+      }
+    }>(
+      `
+        mutation InsertPersonalDashboardReceipt($objects: [InsertReceiptsObjectInput!]!) {
+          insertReceipts(objects: $objects) {
+            returning {
+              id
+            }
+          }
+        }
+      `,
+      {
+        objects: [
+          {
+            companyId: seededCompanyId,
+            flaggedReason: "personal_purchase",
+            rawText: "ITEM DE USO PESSOAL",
+            receiptDate: "2026-03-13",
+            status: "flagged",
+            totalAmount: "18.90",
+            userId: seededUserId,
+            vendorName: `${vendorName} Personal`,
+            vendorTaxId: "11444777000161",
+            vendorTaxIdValid: true,
+          },
+        ],
+      }
+    )
+
+    const personalReceiptId = personalReceipt.insertReceipts.returning[0]?.id
+
+    if (!personalReceiptId) {
+      throw new Error("The personal-expense receipt was not created.")
+    }
+
+    createdReceiptIds.push(personalReceiptId)
+
+    const personalReceiptItem = await postGraphQl<{
+      insertReceiptItems: {
+        returning: Array<{
+          id: string
+          receiptId: string
+        }>
+      }
+    }>(
+      `
+        mutation InsertPersonalDashboardReceiptItem($objects: [InsertReceiptItemsObjectInput!]!) {
+          insertReceiptItems(objects: $objects) {
+            returning {
+              id
+              receiptId
+            }
+          }
+        }
+      `,
+      {
+        objects: [
+          {
+            category: "Outros",
+            normalizedDescription: "Item revisado",
+            quantity: "1.00",
+            rawDescription: "ITEM DE USO PESSOAL",
+            receiptId: personalReceiptId,
+            totalPrice: "18.90",
+            unitPrice: "18.90",
+          },
+        ],
+      }
+    )
+
+    createdReceiptItemIds.push(
+      personalReceiptItem.insertReceiptItems.returning[0].id
+    )
+    expect(personalReceiptItem.insertReceiptItems.returning[0]?.receiptId).toBe(
+      personalReceiptId
+    )
+
+    const duplicateReceipt = await postGraphQl<{
+      insertReceipts: {
+        returning: Array<{
+          id: string
+        }>
+      }
+    }>(
+      `
+        mutation InsertDuplicateDashboardReceipt($objects: [InsertReceiptsObjectInput!]!) {
+          insertReceipts(objects: $objects) {
+            returning {
+              id
+            }
+          }
+        }
+      `,
+      {
+        objects: [
+          {
+            companyId: seededCompanyId,
+            receiptDate: "2026-03-14",
+            status: "approved",
+            totalAmount: "42.50",
+            userId: seededUserId,
+            vendorName,
+            vendorTaxId: "11444777000161",
+            vendorTaxIdValid: true,
+          },
+        ],
+      }
+    )
+
+    const duplicateReceiptId = duplicateReceipt.insertReceipts.returning[0]?.id
+
+    if (!duplicateReceiptId) {
+      throw new Error("The duplicate receipt was not created.")
+    }
+
+    createdReceiptIds.push(duplicateReceiptId)
+
+    const duplicateItem = await postGraphQl<{
+      insertReceiptItems: {
+        returning: Array<{
+          id: string
+          receiptId: string
+        }>
+      }
+    }>(
+      `
+        mutation InsertDuplicateDashboardReceiptItem($objects: [InsertReceiptItemsObjectInput!]!) {
+          insertReceiptItems(objects: $objects) {
+            returning {
+              id
+              receiptId
+            }
+          }
+        }
+      `,
+      {
+        objects: [
+          {
+            category: "Alimentação",
+            normalizedDescription: "Arroz 5kg",
+            quantity: "1.00",
+            rawDescription: "ARROZ TIPO 1 5KG",
+            receiptId: duplicateReceiptId,
+            totalPrice: "42.50",
+            unitPrice: "42.50",
+          },
+        ],
+      }
+    )
+
+    createdReceiptItemIds.push(duplicateItem.insertReceiptItems.returning[0].id)
+    expect(duplicateItem.insertReceiptItems.returning[0]?.receiptId).toBe(
+      duplicateReceiptId
+    )
+
     const dashboardViews = await postGraphQl<{
       dashboardAlerts: Array<{
+        alertId: string
         alertType: string
       }> | null
       dashboardCategorySpend: Array<{
@@ -398,6 +559,7 @@ describe("dashboard GraphQL integration", () => {
           dashboardAlerts(
             where: { companyId: { _eq: $companyId }, periodKey: { _eq: $periodKey } }
           ) {
+            alertId
             alertType
           }
         }
@@ -452,6 +614,18 @@ describe("dashboard GraphQL integration", () => {
     expect(
       dashboardViews.dashboardAlerts?.some(
         (entry) => entry.alertType === "tax_invalid"
+      )
+    ).toBe(true)
+
+    expect(
+      dashboardViews.dashboardAlerts?.some(
+        (entry) => entry.alertType === "personal_purchase"
+      )
+    ).toBe(true)
+
+    expect(
+      dashboardViews.dashboardAlerts?.some(
+        (entry) => entry.alertType === "duplicate_receipts"
       )
     ).toBe(true)
   }, 20_000)

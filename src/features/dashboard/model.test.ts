@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import type {DashboardBootstrap} from "@/features/dashboard/model";
-import {
-  
-  buildDashboardView
-} from "@/features/dashboard/model"
+import type { DashboardBootstrap } from "@/features/dashboard/model"
+import { buildDashboardView } from "@/features/dashboard/model"
 
 const companyId = "company-1"
 
@@ -171,6 +168,7 @@ const dashboardFixture: DashboardBootstrap = {
     {
       createdAt: "2026-03-11T12:00:00Z",
       id: "current-6",
+      flaggedReason: "personal_purchase",
       imageRef: null,
       items: [
         {
@@ -266,12 +264,20 @@ describe("buildDashboardView", () => {
         "policy:current-1:fuel",
         "policy:current-2:food",
         "tax:current-3",
-        "personal:item-3",
-        "duplicate:office max:30.00",
+        "personal:current-6",
+        "duplicate:office max:2026-03-11:30.00",
         "bulk:printer paper",
         "price:printer paper",
-        "peer:alice",
       ])
     )
+
+    expect(
+      view.alerts.find((alert) => alert.id === "personal:current-6")
+    ).toMatchObject({
+      metric: expect.stringContaining("32"),
+      text: expect.stringContaining(
+        "A IA classificou o recibo enviado por Charlie Stone em Office Max West"
+      ),
+    })
   })
 })

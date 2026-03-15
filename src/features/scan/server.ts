@@ -2,6 +2,7 @@ import { Output, generateText } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createOpenAI } from "@ai-sdk/openai"
 import { createServerFn } from "@tanstack/react-start"
+import * as z from "zod"
 
 import type { TypedDocumentString } from "@/graphql/graphql"
 import { graphql } from "@/graphql"
@@ -118,6 +119,56 @@ const ReceiptItemIdsQuery = graphql(`
   }
 `)
 
+const ReceiptRawTextQuery = `
+  query ScanReceiptRawText($id: Uuid!) {
+    receiptsById(id: $id) {
+      id
+      rawText
+    }
+  }
+` as unknown as TypedDocumentString<
+  {
+    receiptsById?: {
+      id: string
+      rawText?: string | null
+    } | null
+  },
+  { id: string }
+>
+
+const DuplicateReceiptCandidatesQuery = `
+  query ScanDuplicateReceiptCandidates(
+    $companyId: Uuid!
+    $receiptDate: Date!
+    $totalAmount: Bigdecimal!
+  ) {
+    receipts(
+      where: {
+        companyId: { _eq: $companyId }
+        receiptDate: { _eq: $receiptDate }
+        totalAmount: { _eq: $totalAmount }
+        status: { _neq: "processing" }
+      }
+      order_by: [{ createdAt: Desc }]
+    ) {
+      id
+      vendorName
+    }
+  }
+` as unknown as TypedDocumentString<
+  {
+    receipts?: Array<{
+      id: string
+      vendorName: string
+    }> | null
+  },
+  {
+    companyId: string
+    receiptDate: string
+    totalAmount: string
+  }
+>
+
 const DeleteReceiptItemMutation = graphql(`
   mutation DeleteScanReceiptItem($id: Uuid!) {
     deleteReceiptItemsById(keyId: $id) {
@@ -187,6 +238,49 @@ const parsedReceiptStatus = "extracted"
 const finalizedReceiptStatus = "approved"
 const failedReceiptStatus = "flagged"
 const modalOcrEndpoint = "https://0xthiagomartins--glm-ocr-ocr.modal.run"
+const duplicateFlaggedReason = "duplicate"
+const personalPurchaseFlaggedReason = "personal_purchase"
+const parseFailedFlaggedReason = "parse_failed"
+const personalExpenseConfidenceThreshold = 0.85
+
+const personalExpenseClassificationSchema = z.object({
+  confidence: z.number().min(0).max(1),
+  primaryItemId: z.string().trim().optional().default(""),
+  reason: z.string().trim().min(1).max(240),
+  verdict: z.enum(["personal", "business", "uncertain"]),
+})
+
+type PersonalExpenseClassification = z.infer<
+  typeof personalExpenseClassificationSchema
+>
+
+export function resolveReviewedReceiptFraudState(input: {
+  hasDuplicateReceipt: boolean
+  personalExpenseClassification?: PersonalExpenseClassification | null
+}) {
+  if (input.hasDuplicateReceipt) {
+    return {
+      flaggedReason: duplicateFlaggedReason,
+      status: failedReceiptStatus,
+    } as const
+  }
+
+  if (
+    input.personalExpenseClassification?.verdict === "personal" &&
+    input.personalExpenseClassification.confidence >=
+      personalExpenseConfidenceThreshold
+  ) {
+    return {
+      flaggedReason: personalPurchaseFlaggedReason,
+      status: failedReceiptStatus,
+    } as const
+  }
+
+  return {
+    flaggedReason: null,
+    status: finalizedReceiptStatus,
+  } as const
+}
 
 function getParserModel() {
   if (process.env.GOOGLE_AI_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
@@ -234,6 +328,22 @@ function getGoogleVisionModel() {
   )
 }
 
+function getPersonalExpenseModel() {
+  if (process.env.GOOGLE_AI_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    return (
+      process.env.GOOGLE_AI_PERSONAL_EXPENSE_MODEL ??
+      process.env.GOOGLE_AI_MODEL ??
+      "gemini-2.5-flash"
+    )
+  }
+
+  return (
+    process.env.OPENAI_PERSONAL_EXPENSE_MODEL ??
+    process.env.OPENAI_MODEL ??
+    "gpt-4.1-mini"
+  )
+}
+
 async function fetchUserContext(userId: string) {
   const data = await execute(UserContextQuery, { id: userId })
   const user = data.usersById
@@ -264,8 +374,48 @@ function getVendorTaxUpdateColumns(vendorTaxId: string | undefined) {
   }
 }
 
+function normalizeDuplicateVendorName(vendorName: string) {
+  return vendorName
+    .normalize("NFKD")
+    .replaceAll(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/g, " ")
+    .trim()
+}
+
+async function hasDuplicateReceipt(input: {
+  companyId: string
+  receiptDate: string
+  receiptId?: string
+  totalAmount: number
+  vendorName: string
+}) {
+  const normalizedVendorName = normalizeDuplicateVendorName(input.vendorName)
+
+  if (!normalizedVendorName) {
+    return false
+  }
+
+  const data = await execute(DuplicateReceiptCandidatesQuery, {
+    companyId: input.companyId,
+    receiptDate: input.receiptDate,
+    totalAmount: formatReceiptNumber(input.totalAmount),
+  })
+
+  return (data.receipts ?? []).some((receipt) => {
+    if (receipt.id === input.receiptId) {
+      return false
+    }
+
+    return (
+      normalizeDuplicateVendorName(receipt.vendorName) === normalizedVendorName
+    )
+  })
+}
+
 async function persistReceipt(input: {
   companyId: string
+  flaggedReason?: string | null
   imageReference?: string
   items: Array<{
     category?: string
@@ -275,6 +425,7 @@ async function persistReceipt(input: {
     unitPrice: number
   }>
   receiptDate: string
+  rawText?: string | null
   status: string
   totalAmount: number
   userId: string
@@ -287,7 +438,9 @@ async function persistReceipt(input: {
     objects: [
       {
         companyId: input.companyId,
+        flaggedReason: input.flaggedReason ?? undefined,
         imageUrl: input.imageReference,
+        rawText: input.rawText ?? undefined,
         receiptDate: input.receiptDate,
         status: input.status,
         totalAmount: input.totalAmount.toFixed(2),
@@ -334,7 +487,9 @@ async function persistReceipt(input: {
 }
 
 async function updateReceipt(input: {
+  flaggedReason?: string | null
   imageReference?: string
+  rawText?: string | null
   receiptDate?: string
   receiptId: string
   status?: string
@@ -354,6 +509,18 @@ async function updateReceipt(input: {
   if (input.receiptDate !== undefined) {
     updateColumns.receiptDate = {
       set: input.receiptDate,
+    }
+  }
+
+  if (input.rawText !== undefined) {
+    updateColumns.rawText = {
+      set: input.rawText,
+    }
+  }
+
+  if (input.flaggedReason !== undefined) {
+    updateColumns.flaggedReason = {
+      set: input.flaggedReason,
     }
   }
 
@@ -451,6 +618,8 @@ async function ensureProcessingReceipt(input: {
   if (input.receiptId) {
     const updatedReceipt = await updateReceipt({
       imageReference: input.imageReference,
+      flaggedReason: null,
+      rawText: null,
       receiptDate: getTodayDate(),
       receiptId: input.receiptId,
       status: processingReceiptStatus,
@@ -466,8 +635,10 @@ async function ensureProcessingReceipt(input: {
 
   const saved = await persistReceipt({
     companyId: input.companyId,
+    flaggedReason: null,
     imageReference: input.imageReference,
     items: [],
+    rawText: null,
     receiptDate: getTodayDate(),
     status: processingReceiptStatus,
     totalAmount: 0,
@@ -616,16 +787,91 @@ async function runOcrFromR2(input: { objectKey: string }) {
   })
 }
 
+async function getReceiptRawText(receiptId: string) {
+  const data = await execute(ReceiptRawTextQuery, { id: receiptId })
+  return data.receiptsById?.rawText ?? null
+}
+
+async function classifyReceiptForPersonalExpense(input: {
+  items: Array<{
+    category?: string
+    id: string
+    name: string
+    rawName?: string
+    quantity: number
+    unitPrice: number
+  }>
+  rawText?: string | null
+  receiptDate: string
+  totalAmount: number
+  vendorName: string
+  vendorTaxId?: string
+}) {
+  try {
+    const provider = getParserProvider()
+    const reviewedReceipt = {
+      items: input.items.map((item) => ({
+        category: item.category ?? "",
+        id: item.id,
+        lineTotal: calculateItemTotal(item.quantity, item.unitPrice),
+        normalizedName: item.name,
+        quantity: item.quantity,
+        rawName: item.rawName?.trim() || item.name,
+        unitPrice: item.unitPrice,
+      })),
+      rawText: input.rawText?.trim() || "",
+      receiptDate: input.receiptDate,
+      totalAmount: input.totalAmount,
+      vendorName: input.vendorName,
+      vendorTaxId: normalizeVendorTaxId(input.vendorTaxId ?? ""),
+    }
+
+    const { output } = await generateText({
+      model: provider(getPersonalExpenseModel()),
+      output: Output.object({
+        name: "PersonalExpenseClassification",
+        description:
+          "Receipt-level decision about whether the reviewed receipt likely includes personal expenses.",
+        schema: personalExpenseClassificationSchema,
+      }),
+      prompt: `
+Classify whether this reviewed receipt clearly includes personal expenses.
+
+Be conservative:
+- Return "personal" only when the receipt clearly contains likely non-business or personal spending.
+- Return "business" when the receipt is clearly consistent with normal business spending.
+- Return "uncertain" when the evidence is mixed, weak, or ambiguous.
+- Do not infer personal spending from generic retail vendors alone.
+- Prefer "uncertain" over a false positive.
+- If you return "personal", set primaryItemId to the strongest supporting item when possible.
+- Confidence must be between 0 and 1 and should reflect how certain you are.
+
+Reviewed receipt:
+${JSON.stringify(reviewedReceipt, null, 2)}
+      `.trim(),
+      temperature: 0,
+    })
+
+    return output
+  } catch {
+    return null
+  }
+}
+
 async function runReceiptParsingJob(input: {
   objectKey: string
   receiptId: string
 }) {
+  let ocrText: string | null = null
+
   try {
-    const ocrText = await runOcrFromR2({ objectKey: input.objectKey })
+    ocrText = await runOcrFromR2({ objectKey: input.objectKey })
     const parsedDraft = await parseReceiptText(ocrText)
 
     await replaceReceiptItems(input.receiptId, parsedDraft.items)
     await updateReceipt({
+      flaggedReason: null,
+      rawText: ocrText,
       receiptDate: parsedDraft.receiptDate,
       receiptId: input.receiptId,
       status: parsedReceiptStatus,
@@ -636,6 +882,8 @@ async function runReceiptParsingJob(input: {
   } catch {
     await clearReceiptItems(input.receiptId)
     await updateReceipt({
+      flaggedReason: parseFailedFlaggedReason,
+      rawText: ocrText,
       receiptId: input.receiptId,
       status: failedReceiptStatus,
     })
@@ -880,14 +1128,39 @@ export const saveReceiptDraft = createServerFn({ method: "POST" })
     const imageReference = data.objectKey
       ? getStoredImageReference(data.objectKey)
       : undefined
+    const isDuplicateReceipt = await hasDuplicateReceipt({
+      companyId: user.companyId,
+      receiptDate: data.receiptDate,
+      receiptId: data.receiptId,
+      totalAmount: data.totalAmount,
+      vendorName: data.vendorName,
+    })
+    const rawText = data.receiptId
+      ? await getReceiptRawText(data.receiptId)
+      : null
+    const personalExpenseClassification = isDuplicateReceipt
+      ? null
+      : await classifyReceiptForPersonalExpense({
+          items: data.items,
+          rawText,
+          receiptDate: data.receiptDate,
+          totalAmount: data.totalAmount,
+          vendorName: data.vendorName,
+          vendorTaxId: data.vendorTaxId,
+        })
+    const reviewedReceiptFraudState = resolveReviewedReceiptFraudState({
+      hasDuplicateReceipt: isDuplicateReceipt,
+      personalExpenseClassification,
+    })
     const saved = data.receiptId
       ? {
           items: await replaceReceiptItems(data.receiptId, data.items),
           receipt: await updateReceipt({
+            flaggedReason: reviewedReceiptFraudState.flaggedReason,
             imageReference,
             receiptDate: data.receiptDate,
             receiptId: data.receiptId,
-            status: finalizedReceiptStatus,
+            status: reviewedReceiptFraudState.status,
             totalAmount: data.totalAmount,
             userId: data.userId,
             vendorName: data.vendorName,
@@ -896,10 +1169,11 @@ export const saveReceiptDraft = createServerFn({ method: "POST" })
         }
       : await persistReceipt({
           companyId: user.companyId,
+          flaggedReason: reviewedReceiptFraudState.flaggedReason,
           imageReference,
           items: data.items,
           receiptDate: data.receiptDate,
-          status: finalizedReceiptStatus,
+          status: reviewedReceiptFraudState.status,
           totalAmount: data.totalAmount,
           userId: data.userId,
           vendorName: data.vendorName,
@@ -908,7 +1182,6 @@ export const saveReceiptDraft = createServerFn({ method: "POST" })
 
     return {
       receiptId: saved.receipt.id,
-      savedReceipt: saved,
     }
   })
 

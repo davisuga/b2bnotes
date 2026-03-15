@@ -357,7 +357,9 @@ function buildAlertText(
         }),
         text: i18n.t("dashboard.alerts.policyExceeded", {
           category: getCategoryLabel(alert.category ?? "other").toLowerCase(),
-          categoryTotal: preciseCurrencyFormatter.format(toNumber(alert.amount)),
+          categoryTotal: preciseCurrencyFormatter.format(
+            toNumber(alert.amount)
+          ),
           limitAmount: preciseCurrencyFormatter.format(
             toNumber(alert.limitAmount)
           ),
@@ -382,7 +384,6 @@ function buildAlertText(
       return {
         metric: preciseCurrencyFormatter.format(toNumber(alert.amount)),
         text: i18n.t("dashboard.alerts.personalPurchase", {
-          itemDescription: alert.productName ?? i18n.t("dashboard.labels.other"),
           userName: alert.userName ?? "Funcionário desconhecido",
           vendorName: alert.vendorName ?? "Fornecedor desconhecido",
         }),
@@ -418,19 +419,6 @@ function buildAlertText(
           maxPrice: preciseCurrencyFormatter.format(toNumber(alert.maxPrice)),
           minPrice: preciseCurrencyFormatter.format(toNumber(alert.minPrice)),
           productName: alert.productName ?? i18n.t("dashboard.labels.other"),
-        }),
-      }
-    case "peer_overspend":
-      return {
-        metric: i18n.t("dashboard.alerts.metrics.overPeers", {
-          percent: Math.round(toNumber(alert.percentDelta)),
-        }),
-        text: i18n.t("dashboard.alerts.peerOverspend", {
-          teamMedian: preciseCurrencyFormatter.format(toNumber(alert.teamMedian)),
-          totalSpent: preciseCurrencyFormatter.format(
-            toNumber(alert.teamTotalSpent)
-          ),
-          userName: alert.userName ?? "Funcionário desconhecido",
         }),
       }
     default:
@@ -532,22 +520,27 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
 
     for (const alert of alerts) {
       for (const userId of alert.userIds) {
-        alertCountByUserId.set(userId, (alertCountByUserId.get(userId) ?? 0) + 1)
+        alertCountByUserId.set(
+          userId,
+          (alertCountByUserId.get(userId) ?? 0) + 1
+        )
       }
     }
 
-    const receipts = (dataSnapshot.dashboardReceiptHistory ?? []).map((receipt) => ({
-      createdAt: receipt.createdAt ?? null,
-      id: receipt.receiptId,
-      itemCount: toCount(receipt.itemCount),
-      primaryCategory: getCategoryLabel(receipt.primaryCategory),
-      primaryCategoryKey: receipt.primaryCategory,
-      receiptDate: receipt.receiptDate,
-      totalAmount: toNumber(receipt.totalAmount),
-      userId: receipt.userId,
-      userName: receipt.userName,
-      vendorName: receipt.vendorName,
-    }))
+    const receipts = (dataSnapshot.dashboardReceiptHistory ?? []).map(
+      (receipt) => ({
+        createdAt: receipt.createdAt ?? null,
+        id: receipt.receiptId,
+        itemCount: toCount(receipt.itemCount),
+        primaryCategory: getCategoryLabel(receipt.primaryCategory),
+        primaryCategoryKey: receipt.primaryCategory,
+        receiptDate: receipt.receiptDate,
+        totalAmount: toNumber(receipt.totalAmount),
+        userId: receipt.userId,
+        userName: receipt.userName,
+        vendorName: receipt.vendorName,
+      })
+    )
 
     return {
       alerts,
@@ -563,15 +556,19 @@ export const getDashboardSnapshot = createServerFn({ method: "POST" })
           total: toNumber(row?.totalSpent),
         }
       }),
-      employees: (dataSnapshot.dashboardEmployeeSpend ?? []).map((employee) => ({
-        alertCount: alertCountByUserId.get(employee.userId) ?? 0,
-        receiptCount: toCount(employee.receiptCount),
-        receipts: receipts.filter((receipt) => receipt.userId === employee.userId),
-        topCategory: getCategoryLabel(employee.topCategory),
-        totalSpent: toNumber(employee.totalSpent),
-        userId: employee.userId,
-        userName: employee.userName,
-      })),
+      employees: (dataSnapshot.dashboardEmployeeSpend ?? []).map(
+        (employee) => ({
+          alertCount: alertCountByUserId.get(employee.userId) ?? 0,
+          receiptCount: toCount(employee.receiptCount),
+          receipts: receipts.filter(
+            (receipt) => receipt.userId === employee.userId
+          ),
+          topCategory: getCategoryLabel(employee.topCategory),
+          totalSpent: toNumber(employee.totalSpent),
+          userId: employee.userId,
+          userName: employee.userName,
+        })
+      ),
       receipts,
       products: (dataSnapshot.dashboardProducts ?? []).map((product) => ({
         employeeCount: toCount(product.employeeCount),

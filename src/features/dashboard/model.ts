@@ -248,63 +248,6 @@ const CATEGORY_KEYWORDS: Array<{
   },
 ]
 
-const PERSONAL_KEYWORDS = [
-  "personal",
-  "cosmetic",
-  "beauty",
-  "makeup",
-  "perfume",
-  "shampoo",
-  "conditioner",
-  "deodorant",
-  "toothpaste",
-  "toothbrush",
-  "razor",
-  "skincare",
-  "pet",
-  "baby",
-  "diaper",
-  "toy",
-  "alcohol",
-  "beer",
-  "wine",
-  "cigarette",
-  "tobacco",
-  "pharmacy",
-  "medicine",
-  "medication",
-  "clothing",
-  "shirt",
-  "shoe",
-  "pessoal",
-  "cosmetico",
-  "cosmético",
-  "beleza",
-  "perfume",
-  "desodorante",
-  "escova de dente",
-  "pasta de dente",
-  "barbeador",
-  "pele",
-  "pet",
-  "bebe",
-  "bebê",
-  "fralda",
-  "brinquedo",
-  "cerveja",
-  "vinho",
-  "cigarro",
-  "tabaco",
-  "farmacia",
-  "farmácia",
-  "remedio",
-  "remédio",
-  "medicamento",
-  "roupa",
-  "camisa",
-  "sapato",
-]
-
 type ProductAggregate = DashboardProductRow & {
   employeeIds: Set<string>
   maxUnitPrice: number
@@ -402,11 +345,6 @@ function getTopCategory(receipts: Array<DashboardReceipt>) {
   return getCategoryLabel(rankedCategories[0][0])
 }
 
-function isLikelyPersonalItem(item: DashboardReceiptItem) {
-  const source = `${item.category} ${item.description}`.trim().toLowerCase()
-  return PERSONAL_KEYWORDS.some((keyword) => source.includes(keyword))
-}
-
 function getReceiptCategoryTotals(receipt: DashboardReceipt) {
   const totals = new Map<DashboardCategoryKey, number>()
 
@@ -420,21 +358,6 @@ function getReceiptCategoryTotals(receipt: DashboardReceipt) {
 
 function getPolicyMap(policyLimits: Array<DashboardPolicyLimit>) {
   return new Map(policyLimits.map((policy) => [policy.category, policy]))
-}
-
-function getMedian(values: Array<number>) {
-  if (!values.length) {
-    return null
-  }
-
-  const sortedValues = [...values].sort((left, right) => left - right)
-  const middleIndex = Math.floor(sortedValues.length / 2)
-
-  if (sortedValues.length % 2 === 0) {
-    return (sortedValues[middleIndex - 1] + sortedValues[middleIndex]) / 2
-  }
-
-  return sortedValues[middleIndex]
 }
 
 function buildProductAggregates(receipts: Array<DashboardReceipt>) {
@@ -558,7 +481,11 @@ function buildAlerts(input: {
   const duplicateGroups = new Map<string, Array<DashboardReceipt>>()
 
   for (const receipt of input.filteredReceipts) {
-    const duplicateKey = `${normalizeText(receipt.vendorName)}::${receipt.totalAmount.toFixed(2)}`
+    const duplicateKey = [
+      normalizeText(receipt.vendorName),
+      receipt.receiptDate,
+      receipt.totalAmount.toFixed(2),
+    ].join("::")
     duplicateGroups.set(duplicateKey, [
       ...(duplicateGroups.get(duplicateKey) ?? []),
       receipt,
@@ -606,17 +533,12 @@ function buildAlerts(input: {
       })
     }
 
-    for (const item of receipt.items) {
-      if (!isLikelyPersonalItem(item)) {
-        continue
-      }
-
+    if (receipt.flaggedReason === "personal_purchase") {
       alerts.push({
-        id: `personal:${item.id}`,
-        metric: preciseCurrencyFormatter.format(item.totalPrice),
-        priority: 70 + item.totalPrice,
+        id: `personal:${receipt.id}`,
+        metric: preciseCurrencyFormatter.format(receipt.totalAmount),
+        priority: 70 + receipt.totalAmount,
         text: i18n.t("dashboard.alerts.personalPurchase", {
-          itemDescription: item.description,
           userName: receipt.userName,
           vendorName: receipt.vendorName,
         }),
@@ -656,7 +578,9 @@ function buildAlerts(input: {
         limitAmount: preciseCurrencyFormatter.format(limitAmount),
         totalSpent: preciseCurrencyFormatter.format(totalSpent),
       }),
-      userIds: [...new Set(receiptsInCategory.map((receipt) => receipt.userId))],
+      userIds: [
+        ...new Set(receiptsInCategory.map((receipt) => receipt.userId)),
+      ],
     })
   }
 
@@ -670,7 +594,7 @@ function buildAlerts(input: {
     )[0]
 
     alerts.push({
-      id: `duplicate:${normalizeText(newestReceipt.vendorName)}:${newestReceipt.totalAmount.toFixed(2)}`,
+      id: `duplicate:${normalizeText(newestReceipt.vendorName)}:${newestReceipt.receiptDate}:${newestReceipt.totalAmount.toFixed(2)}`,
       metric: i18n.t("dashboard.alerts.metrics.duplicateReceipts", {
         count: group.length,
       }),
@@ -728,37 +652,6 @@ function buildAlerts(input: {
           productName: product.name,
         }),
         userIds: [...product.employeeIds],
-      })
-    }
-  }
-
-  const teamMedian = getMedian(
-    input.employees.map((employee) => employee.totalSpent)
-  )
-
-  if (teamMedian && teamMedian > 0) {
-    for (const employee of input.employees) {
-      if (
-        employee.totalSpent <= teamMedian * 1.75 ||
-        employee.totalSpent - teamMedian < 100
-      ) {
-        continue
-      }
-
-      alerts.push({
-        id: `peer:${employee.userId}`,
-        metric: i18n.t("dashboard.alerts.metrics.overPeers", {
-          percent: Math.round(
-            ((employee.totalSpent - teamMedian) / teamMedian) * 100
-          ),
-        }),
-        priority: 75 + (employee.totalSpent - teamMedian),
-        text: i18n.t("dashboard.alerts.peerOverspend", {
-          teamMedian: preciseCurrencyFormatter.format(teamMedian),
-          totalSpent: preciseCurrencyFormatter.format(employee.totalSpent),
-          userName: employee.userName,
-        }),
-        userIds: [employee.userId],
       })
     }
   }

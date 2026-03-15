@@ -3,8 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useServerFn } from "@tanstack/react-start"
 import { useTranslation } from "react-i18next"
-import { Check, Loader2, TriangleAlert } from "lucide-react"
-import { motion } from "motion/react"
+import { Loader2, TriangleAlert } from "lucide-react"
 
 import type { EditableReceiptDraft } from "@/features/scan/types"
 import { Card } from "@/components/ui/card"
@@ -38,7 +37,6 @@ function ScanReviewRoute() {
   const [initializedReceiptId, setInitializedReceiptId] = React.useState<
     string | null
   >(null)
-  const [saved, setSaved] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState("")
 
   const receiptQuery = useQuery({
@@ -60,20 +58,6 @@ function ScanReviewRoute() {
     setInitializedReceiptId(receiptId)
   }, [initializedReceiptId, receiptId, receiptQuery.data])
 
-  React.useEffect(() => {
-    if (!saved) {
-      return
-    }
-
-    const timer = window.setTimeout(() => {
-      void navigate({ to: "/scan" })
-    }, 1600)
-
-    return () => {
-      window.clearTimeout(timer)
-    }
-  }, [navigate, saved])
-
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!receiptQuery.data || !draft) {
@@ -85,17 +69,20 @@ function ScanReviewRoute() {
           items: draft.items,
           receiptId,
           receiptDate: draft.receiptDate,
-          totalAmount: draft.totalAmount,
+          totalAmount: sumItemTotals(draft.items),
           userId: receiptQuery.data.receipt.userId,
           vendorName: draft.vendorName,
           vendorTaxId: draft.vendorTaxId,
         },
       })
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["scan-bootstrap"] })
-      await queryClient.invalidateQueries({ queryKey: ["dashboard-bootstrap"] })
-      setSaved(true)
+    onSuccess: () => {
+      void Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey: ["scan-bootstrap"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard-bootstrap"] }),
+      ])
+
+      void navigate({ replace: true, to: "/scan" })
     },
     onError: (error) => {
       setErrorMessage(
@@ -253,28 +240,6 @@ function ScanReviewRoute() {
           </div>
         </Card>
       </div>
-    )
-  }
-
-  if (saved) {
-    return (
-      <motion.div
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex min-h-[calc(100vh-120px)] flex-col items-center justify-center gap-6 p-6"
-        initial={{ opacity: 0, scale: 0.95 }}
-      >
-        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-success text-white shadow-floating">
-          <Check size={44} />
-        </div>
-        <div className="space-y-2 text-center">
-          <h2 className="font-display text-3xl font-bold">
-            {t("scan.savedTitle")}
-          </h2>
-          <p className="text-sm text-text-secondary">
-            {t("scan.savedFor", { name: receiptQuery.data.receipt.userName })}
-          </p>
-        </div>
-      </motion.div>
     )
   }
 

@@ -319,18 +319,20 @@ duplicate_groups AS (
   SELECT
     company_id,
     period_key,
+    receipt_date,
     LOWER(vendor_name) AS vendor_key,
     MAX(vendor_name) AS vendor_name,
     total_amount AS amount,
     COUNT(*) AS count_value
   FROM receipt_periods
-  GROUP BY company_id, period_key, LOWER(vendor_name), total_amount
+  GROUP BY company_id, period_key, receipt_date, LOWER(vendor_name), total_amount
   HAVING COUNT(*) >= 2
 ),
 duplicate_users AS (
   SELECT DISTINCT
     duplicate_groups.company_id,
     duplicate_groups.period_key,
+    duplicate_groups.receipt_date,
     duplicate_groups.vendor_key,
     duplicate_groups.vendor_name,
     duplicate_groups.amount,
@@ -341,6 +343,7 @@ duplicate_users AS (
   INNER JOIN receipt_periods
     ON receipt_periods.company_id = duplicate_groups.company_id
    AND receipt_periods.period_key = duplicate_groups.period_key
+   AND receipt_periods.receipt_date = duplicate_groups.receipt_date
    AND LOWER(receipt_periods.vendor_name) = duplicate_groups.vendor_key
    AND receipt_periods.total_amount = duplicate_groups.amount
 ),
@@ -365,24 +368,6 @@ product_users AS (
     user_id,
     user_name
   FROM item_periods
-),
-team_totals AS (
-  SELECT
-    company_id,
-    period_key,
-    user_id,
-    user_name,
-    SUM(total_amount) AS total_spent
-  FROM receipt_periods
-  GROUP BY company_id, period_key, user_id, user_name
-),
-team_medians AS (
-  SELECT
-    company_id,
-    period_key,
-    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY total_spent) AS team_median
-  FROM team_totals
-  GROUP BY company_id, period_key
 ),
 category_users AS (
   SELECT DISTINCT
@@ -494,18 +479,18 @@ WHERE spend_policies.max_per_month IS NOT NULL
 UNION ALL
 
 SELECT
-  item_periods.company_id,
-  item_periods.period_key,
-  'personal:' || item_periods.item_id::text AS alert_id,
+  receipt_periods.company_id,
+  receipt_periods.period_key,
+  'personal:' || receipt_periods.receipt_id::text AS alert_id,
   'personal_purchase'::text AS alert_type,
-  (70 + item_periods.total_price)::numeric AS priority,
-  item_periods.user_id,
-  item_periods.user_name,
-  item_periods.receipt_id,
-  item_periods.vendor_name,
-  item_periods.normalized_description AS product_name,
-  item_periods.dashboard_category AS category,
-  item_periods.total_price AS amount,
+  (70 + receipt_periods.total_amount)::numeric AS priority,
+  receipt_periods.user_id,
+  receipt_periods.user_name,
+  receipt_periods.receipt_id,
+  receipt_periods.vendor_name,
+  NULL::text AS product_name,
+  NULL::text AS category,
+  receipt_periods.total_amount AS amount,
   NULL::numeric AS limit_amount,
   NULL::bigint AS count_value,
   NULL::bigint AS employee_count,
@@ -515,15 +500,15 @@ SELECT
   NULL::numeric AS team_median,
   NULL::numeric AS team_total_spent,
   NULL::text AS vendor_tax_id
-FROM item_periods
-WHERE item_periods.source_text ~ '(personal|cosmetic|beauty|makeup|perfume|shampoo|conditioner|deodorant|toothpaste|toothbrush|razor|skincare|pet|baby|diaper|toy|alcohol|beer|wine|cigarette|tobacco|pharmacy|medicine|medication|clothing|shirt|shoe|pessoal|cosmetico|cosmético|beleza|desodorante|escova de dente|pasta de dente|barbeador|pele|bebe|bebê|fralda|brinquedo|cerveja|vinho|cigarro|tabaco|farmacia|farmácia|remedio|remédio|medicamento|roupa|camisa|sapato)'
+FROM receipt_periods
+WHERE receipt_periods.flagged_reason = 'personal_purchase'
 
 UNION ALL
 
 SELECT
   duplicate_users.company_id,
   duplicate_users.period_key,
-  'duplicate:' || duplicate_users.vendor_key || ':' || duplicate_users.amount::text AS alert_id,
+  'duplicate:' || duplicate_users.vendor_key || ':' || duplicate_users.receipt_date::text || ':' || duplicate_users.amount::text AS alert_id,
   'duplicate_receipts'::text AS alert_type,
   (85 + duplicate_users.count_value * 5)::numeric AS priority,
   duplicate_users.user_id,
@@ -611,35 +596,4 @@ WHERE product_stats.employee_count >= 2
   AND product_stats.min_price > 0
   AND product_stats.max_price >= product_stats.min_price * 1.35
   AND product_stats.max_price - product_stats.min_price >= 5
-
-UNION ALL
-
-SELECT
-  team_totals.company_id,
-  team_totals.period_key,
-  'peer:' || team_totals.user_id::text AS alert_id,
-  'peer_overspend'::text AS alert_type,
-  (75 + (team_totals.total_spent - team_medians.team_median))::numeric AS priority,
-  team_totals.user_id,
-  team_totals.user_name,
-  NULL::uuid AS receipt_id,
-  NULL::text AS vendor_name,
-  NULL::text AS product_name,
-  NULL::text AS category,
-  NULL::numeric AS amount,
-  NULL::numeric AS limit_amount,
-  NULL::bigint AS count_value,
-  NULL::bigint AS employee_count,
-  NULL::numeric AS min_price,
-  NULL::numeric AS max_price,
-  (((team_totals.total_spent - team_medians.team_median) / team_medians.team_median) * 100)::numeric AS percent_delta,
-  team_medians.team_median,
-  team_totals.total_spent AS team_total_spent,
-  NULL::text AS vendor_tax_id
-FROM team_totals
-INNER JOIN team_medians
-  ON team_medians.company_id = team_totals.company_id
- AND team_medians.period_key = team_totals.period_key
-WHERE team_medians.team_median > 0
-  AND team_totals.total_spent > team_medians.team_median * 1.75
-  AND team_totals.total_spent - team_medians.team_median >= 100;
+;

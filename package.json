@@ -7,6 +7,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:e2e": "/Users/davi/.nvm/versions/node/v22.15.1/bin/node node_modules/playwright/cli.js test --config=playwright.config.cjs",
+    "test:e2e:scan-review": "/Users/davi/.nvm/versions/node/v22.15.1/bin/node node_modules/playwright/cli.js test tests/e2e/scan-review-save.spec.mjs --config=playwright.config.cjs",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
     "typecheck": "tsc --noEmit"
@@ -52,6 +54,7 @@
     "@graphql-codegen/cli": "^6.2.1",
     "@graphql-codegen/schema-ast": "^5.0.1",
     "@parcel/watcher": "^2.5.6",
+    "@playwright/test": "^1.58.2",
     "@tanstack/devtools-vite": "^0.3.11",
     "@tanstack/eslint-config": "^0.3.0",
     "@testing-library/dom": "^10.4.0",

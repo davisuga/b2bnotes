@@ -194,7 +194,7 @@ const resources = {
           policyMonthlyExceeded:
             "{{category}} acumulou {{totalSpent}} no período, acima do limite mensal de {{limitAmount}}.",
           personalPurchase:
-            "{{userName}} enviou {{itemDescription}} em {{vendorName}}, e isso parece uma compra pessoal.",
+            "A IA classificou o recibo enviado por {{userName}} em {{vendorName}} como provável despesa pessoal.",
           duplicateReceipts:
             "{{count}} recibos de {{vendorName}} têm o mesmo total de {{totalAmount}}.",
           bulkBuying:
