@@ -6,6 +6,7 @@
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",
+    "deploy:graphql-vps": "bash scripts/redeploy-hasura-vps.sh",
     "test": "vitest run",
     "test:e2e": "/Users/davi/.nvm/versions/node/v22.15.1/bin/node node_modules/playwright/cli.js test --config=playwright.config.cjs",
     "test:e2e:scan-review": "/Users/davi/.nvm/versions/node/v22.15.1/bin/node node_modules/playwright/cli.js test tests/e2e/scan-review-save.spec.mjs --config=playwright.config.cjs",
