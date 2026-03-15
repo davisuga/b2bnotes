@@ -30,6 +30,7 @@ export async function execute<TResult, TVariables>(
   })
 
   if (!response.ok) {
+    console.error(response)
     throw new Error("A resposta de rede não foi bem-sucedida.")
   }
 
