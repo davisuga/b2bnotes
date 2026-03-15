@@ -2,6 +2,7 @@ import { Output, generateText } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createOpenAI } from "@ai-sdk/openai"
 import { createServerFn } from "@tanstack/react-start"
+import { waitUntil } from "@vercel/functions"
 import * as z from "zod"
 
 import type { TypedDocumentString } from "@/graphql/graphql"
@@ -1183,10 +1184,16 @@ export const startReceiptParsing = createServerFn({ method: "POST" })
       receiptId: receipt.id,
     })
 
-    void runReceiptParsingJob({
+    const parsingJob = runReceiptParsingJob({
       objectKey: data.objectKey,
       receiptId: receipt.id,
     })
+
+    if (process.env.VERCEL) {
+      waitUntil(parsingJob)
+    } else {
+      void parsingJob
+    }
 
     logScanEvent("info", "start-parsing.job-dispatched", {
       objectKey: data.objectKey,
