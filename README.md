@@ -14,6 +14,7 @@ Aplicação para captura, extração e auditoria de recibos com:
 - GraphQL local (DDN engine): `http://localhost:3280/graphql`
 - subscriptions: derivadas automaticamente de `GRAPHQL_URL`
 - conector Postgres do DDN: exposto pelo compose do `graphql-api`
+- Postgres local opcional para desenvolvimento: `localhost:6170`
 
 ## Pré-requisitos
 
@@ -74,6 +75,7 @@ Observações:
 - `GRAPHQL_URL` deve apontar para o engine local do DDN.
 - `GRAPHQL_AUTH_TOKEN` é opcional no código. Se seu engine local exigir token, preencha.
 - `APP_MY_PG_CONNECTION_URI` também é usada no fluxo de atualização de schema.
+- para upload direto do navegador, o bucket R2 precisa de CORS liberando o origin da app local e o metodo `PUT`.
 - para parsing de recibos, basta Google ou OpenAI. Não precisa configurar os dois.
 
 ### 2. DDN local: `./graphql-api/.env`
@@ -81,30 +83,44 @@ Observações:
 Crie ou ajuste `./graphql-api/.env`:
 
 ```dotenv
-APP_MY_PG_AUTHORIZATION_HEADER=
+APP_MY_PG_AUTHORIZATION_HEADER=Bearer dev-secret
 APP_MY_PG_CONNECTION_URI=postgres://USER:PASSWORD@HOST:5432/DBNAME
 APP_MY_PG_HASURA_CONNECTOR_PORT=8080
 APP_MY_PG_HASURA_SERVICE_TOKEN_SECRET=dev-secret
 APP_MY_PG_OTEL_EXPORTER_OTLP_ENDPOINT=http://local.hasura.dev:4317
 APP_MY_PG_OTEL_SERVICE_NAME=app_my_pg
-APP_MY_PG_READ_URL=postgres://USER:PASSWORD@HOST:5432/DBNAME
-APP_MY_PG_WRITE_URL=postgres://USER:PASSWORD@HOST:5432/DBNAME
+APP_MY_PG_READ_URL=http://app_my_pg:8080
+APP_MY_PG_WRITE_URL=http://app_my_pg:8080
 ```
 
 Observações:
 
-- `APP_MY_PG_CONNECTION_URI`, `APP_MY_PG_READ_URL` e `APP_MY_PG_WRITE_URL` normalmente apontam para o mesmo banco no ambiente local.
+- `APP_MY_PG_CONNECTION_URI` e a string do Postgres usada pelo conector.
+- `APP_MY_PG_READ_URL` e `APP_MY_PG_WRITE_URL` sao URLs HTTP do conector, nao do banco.
 - `APP_MY_PG_HASURA_SERVICE_TOKEN_SECRET` pode ser qualquer segredo estável no desenvolvimento local.
+- `APP_MY_PG_AUTHORIZATION_HEADER` precisa bater com o segredo do conector. No setup local padrao, use `Bearer dev-secret`.
+- para usar o Postgres local opcional deste repo, você pode usar `postgresql://user:password@local.hasura.dev:6170/dev`
 - o repo já contém `graphql-api/.env.cloud`, mas para rodar localmente o arquivo relevante é `graphql-api/.env`.
 
 ## Banco de dados
 
-Este repo não provisiona do zero o schema-base inteiro da aplicação. Ele assume um Postgres já existente com as tabelas principais, como:
+Este repo pode rodar de dois jeitos:
+
+- com um Postgres já existente
+- com o Postgres local opcional do compose em `graphql-api/app/connector/my_pg/compose.postgres-adminer.yaml`
+
+Se você usar um Postgres externo, ele precisa ter as tabelas principais, como:
 
 - `companies`
 - `users`
 - `receipts`
 - `receipt_items`
+
+Se você usar o Postgres local opcional do repo, o banco já sobe com:
+
+- schema-base dessas tabelas
+- seed local mínimo de `company` e `user`
+- SQLs de expansão e views do dashboard aplicados automaticamente
 
 Além disso, o repo inclui SQLs idempotentes com as expansões usadas pelo MVP atual:
 
@@ -135,6 +151,14 @@ psql "$APP_MY_PG_CONNECTION_URI" -f graphql-api/sql/20260314_receiptiq_policy_an
 psql "$APP_MY_PG_CONNECTION_URI" -f graphql-api/sql/20260315_receiptiq_schema_expansion.sql
 psql "$APP_MY_PG_CONNECTION_URI" -f graphql-api/sql/20260315_dashboard_views.sql
 ```
+
+Se você optar pelo Postgres local opcional do repo, primeiro suba:
+
+```bash
+docker compose -f graphql-api/app/connector/my_pg/compose.postgres-adminer.yaml up -d
+```
+
+Nesse caso, o bootstrap do banco ja cria o schema-base, aplica os SQLs e deixa o banco pronto em `postgresql://user:password@local.hasura.dev:6170/dev`, entao voce pode pular este passo 2.
 
 ### 3. Construir o supergraph local
 
@@ -261,6 +285,18 @@ GRAPHQL_URL=http://localhost:3280/graphql
 
 Preencha todas as envs `R2_*` em `./.env`.
 
+### Upload do recibo falha com `Failed to fetch`
+
+Isso normalmente significa que o bucket R2 ainda nao tem CORS para upload direto do navegador.
+
+No bucket, libere pelo menos:
+
+- origins: `http://localhost:3000` e `http://127.0.0.1:3000`
+- methods: `PUT`, `GET`, `HEAD`
+- allowed headers: `Content-Type`
+
+Se voce usa outra porta ou host na app, inclua o origin exato correspondente.
+
 ### `Defina GOOGLE_AI_KEY ou OPENAI_API_KEY antes de analisar recibos`
 
 Configure pelo menos uma destas opções em `./.env`:
@@ -276,6 +312,25 @@ Verifique:
 - Docker está rodando
 - `graphql-api/.env` existe e tem `APP_MY_PG_CONNECTION_URI`
 - o banco configurado está acessível
+
+### Quero um banco local do zero
+
+Suba o Postgres opcional com:
+
+```bash
+docker compose -f graphql-api/app/connector/my_pg/compose.postgres-adminer.yaml up -d
+```
+
+Depois aponte `APP_MY_PG_CONNECTION_URI`, `APP_MY_PG_AUTHORIZATION_HEADER`, `APP_MY_PG_READ_URL` e `APP_MY_PG_WRITE_URL` para:
+
+```dotenv
+APP_MY_PG_CONNECTION_URI=postgresql://user:password@local.hasura.dev:6170/dev
+APP_MY_PG_AUTHORIZATION_HEADER=Bearer dev-secret
+APP_MY_PG_READ_URL=http://app_my_pg:8080
+APP_MY_PG_WRITE_URL=http://app_my_pg:8080
+```
+
+O schema-base, o seed mínimo e os SQLs do dashboard são aplicados automaticamente na primeira inicialização do volume.
 
 ### O dashboard abre, mas não mostra dados
 

@@ -277,10 +277,10 @@ function ScanRoute() {
     onError: (error) => {
       setErrorState({
         allowManualEntry: false,
-        message: toErrorMessage(
-          error,
-          "Falha ao enviar a foto. Tente outra imagem."
-        ),
+        message:
+          error instanceof TypeError && /Failed to fetch/i.test(error.message)
+            ? t("scan.uploadCorsFallback")
+            : toErrorMessage(error, t("scan.uploadErrorFallback")),
       })
       setStep("error")
     },

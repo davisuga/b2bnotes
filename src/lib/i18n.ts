@@ -234,6 +234,10 @@ const resources = {
         uploadingNow: "Enviando agora...",
         storedAndReady: "Armazenado com segurança e pronto para análise.",
         waitingUpload: "Aguardando o fim do envio.",
+        uploadErrorFallback:
+          "Falha ao enviar a foto. Tente outra imagem ou verifique a configuracao do armazenamento.",
+        uploadCorsFallback:
+          "Falha ao enviar a foto. O bucket R2 parece sem CORS para upload direto do navegador. Libere o origin da app e o metodo PUT no bucket.",
         chooseAnother: "Escolher outra",
         analyze: "Analisar",
         analyzingTitle: "Lendo seu recibo...",
