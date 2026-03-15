@@ -8,9 +8,28 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { toErrorMessage } from "@/features/scan/utils"
 import type { TypedDocumentString } from "@/graphql/graphql"
-import { subscribeClient } from "@/graphql/subscribe-client"
+import { executeClient, subscribeClient } from "@/graphql/subscribe-client"
 
 type ProcessingState = "processing" | "flagged" | "error"
+
+type ReceiptProcessingRecord = {
+  id: string
+  status?: string | null
+}
+
+const ReceiptProcessingStatusQuery = `
+  query ScanReceiptProcessingStatus($id: Uuid!) {
+    receiptsById(id: $id) {
+      id
+      status
+    }
+  }
+` as unknown as TypedDocumentString<
+  {
+    receiptsById?: ReceiptProcessingRecord | null
+  },
+  { id: string }
+>
 
 const ReceiptProcessingSubscription = `
   subscription ScanReceiptProcessing($id: Uuid!) {
@@ -33,10 +52,7 @@ const ReceiptProcessingSubscription = `
   }
 ` as unknown as TypedDocumentString<
   {
-    receiptsById?: {
-      id: string
-      status?: string | null
-    } | null
+    receiptsById?: ReceiptProcessingRecord | null
   },
   { id: string }
 >
@@ -55,6 +71,98 @@ function ScanProcessingRoute() {
   React.useEffect(() => {
     let cancelled = false
     let completed = false
+    let pollingTimer: ReturnType<typeof setTimeout> | null = null
+
+    const clearPollingTimer = () => {
+      if (pollingTimer) {
+        clearTimeout(pollingTimer)
+        pollingTimer = null
+      }
+    }
+
+    const handleReceiptState = async (
+      receipt: ReceiptProcessingRecord | null | undefined
+    ) => {
+      if (!receipt || cancelled) {
+        return false
+      }
+
+      if (receipt.status === "extracted" || receipt.status === "approved") {
+        completed = true
+        clearPollingTimer()
+        await navigate({
+          params: {
+            receiptId: receipt.id,
+          },
+          replace: true,
+          to: "/scan/revisar/$receiptId",
+        })
+        return true
+      }
+
+      if (receipt.status === "flagged") {
+        completed = true
+        clearPollingTimer()
+        setState("flagged")
+        return true
+      }
+
+      setState("processing")
+      setErrorMessage("")
+      return false
+    }
+
+    const loadCurrentReceiptState = async () => {
+      const result = await executeClient(ReceiptProcessingStatusQuery, {
+        id: receiptId,
+      })
+
+      return handleReceiptState(result.receiptsById)
+    }
+
+    const startPollingFallback = () => {
+      if (cancelled || completed || pollingTimer) {
+        return
+      }
+
+      const poll = async () => {
+        pollingTimer = null
+
+        if (cancelled || completed) {
+          return
+        }
+
+        try {
+          const resolved = await loadCurrentReceiptState()
+
+          if (!resolved && !cancelled && !completed) {
+            pollingTimer = setTimeout(() => {
+              void poll()
+            }, 1500)
+          }
+        } catch (error) {
+          if (cancelled || completed) {
+            return
+          }
+
+          setErrorMessage(toErrorMessage(error, t("scan.errorFallback")))
+          setState("error")
+        }
+      }
+
+      pollingTimer = setTimeout(() => {
+        void poll()
+      }, 1500)
+    }
+
+    void loadCurrentReceiptState().catch((error) => {
+      if (cancelled) {
+        return
+      }
+
+      setErrorMessage(toErrorMessage(error, t("scan.errorFallback")))
+      setState("error")
+    })
 
     const unsubscribe = subscribeClient(
       ReceiptProcessingSubscription,
@@ -65,41 +173,14 @@ function ScanProcessingRoute() {
             return
           }
 
+          clearPollingTimer()
+
           if (payload.errors?.length) {
-            setErrorMessage(
-              payload.errors
-                .map((error) => error.message)
-                .filter(Boolean)
-                .join("\n") || t("scan.errorFallback")
-            )
-            setState("error")
+            startPollingFallback()
             return
           }
 
-          const receipt = payload.data?.receiptsById
-
-          if (!receipt) {
-            setErrorMessage(t("scan.errorFallback"))
-            setState("error")
-            return
-          }
-
-          if (receipt.status === "extracted") {
-            completed = true
-            await navigate({
-              params: {
-                receiptId: receipt.id,
-              },
-              replace: true,
-              to: "/scan/revisar/$receiptId",
-            })
-            return
-          }
-
-          if (receipt.status === "flagged") {
-            completed = true
-            setState("flagged")
-          }
+          await handleReceiptState(payload.data?.receiptsById)
         },
         error: (error) => {
           if (cancelled) {
@@ -107,21 +188,21 @@ function ScanProcessingRoute() {
           }
 
           setErrorMessage(toErrorMessage(error, t("scan.errorFallback")))
-          setState("error")
+          startPollingFallback()
         },
         complete: () => {
           if (cancelled || completed) {
             return
           }
 
-          setErrorMessage(t("scan.errorFallback"))
-          setState("error")
+          startPollingFallback()
         },
       }
     )
 
     return () => {
       cancelled = true
+      clearPollingTimer()
       unsubscribe()
     }
   }, [navigate, receiptId, t])
