@@ -1,0 +1,346 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateColumnSpendPoliciesCategory
+  description: Update the 'category' column in the 'spend_policies' collection
+  fields:
+    - name: set
+      type: String_1!
+      description: Set the column to this value
+  graphql:
+    typeName: UpdateColumnSpendPoliciesCategory
+    inputTypeName: UpdateColumnSpendPoliciesCategoryInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_column_spend_policies_category
+      fieldMapping:
+        set:
+          column:
+            name: _set
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateColumnSpendPoliciesCategory
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - set
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateColumnSpendPoliciesCompanyId
+  description: Update the 'company_id' column in the 'spend_policies' collection
+  fields:
+    - name: set
+      type: Uuid!
+      description: Set the column to this value
+  graphql:
+    typeName: UpdateColumnSpendPoliciesCompanyId
+    inputTypeName: UpdateColumnSpendPoliciesCompanyIdInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_column_spend_policies_company_id
+      fieldMapping:
+        set:
+          column:
+            name: _set
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateColumnSpendPoliciesCompanyId
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - set
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateColumnSpendPoliciesCreatedAt
+  description: Update the 'created_at' column in the 'spend_policies' collection
+  fields:
+    - name: set
+      type: Timestamptz
+      description: Set the column to this value
+  graphql:
+    typeName: UpdateColumnSpendPoliciesCreatedAt
+    inputTypeName: UpdateColumnSpendPoliciesCreatedAtInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_column_spend_policies_created_at
+      fieldMapping:
+        set:
+          column:
+            name: _set
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateColumnSpendPoliciesCreatedAt
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - set
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateColumnSpendPoliciesId
+  description: Update the 'id' column in the 'spend_policies' collection
+  fields:
+    - name: set
+      type: Uuid!
+      description: Set the column to this value
+  graphql:
+    typeName: UpdateColumnSpendPoliciesId
+    inputTypeName: UpdateColumnSpendPoliciesIdInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_column_spend_policies_id
+      fieldMapping:
+        set:
+          column:
+            name: _set
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateColumnSpendPoliciesId
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - set
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateColumnSpendPoliciesMaxPerMonth
+  description: Update the 'max_per_month' column in the 'spend_policies' collection
+  fields:
+    - name: set
+      type: Bigdecimal
+      description: Set the column to this value
+  graphql:
+    typeName: UpdateColumnSpendPoliciesMaxPerMonth
+    inputTypeName: UpdateColumnSpendPoliciesMaxPerMonthInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_column_spend_policies_max_per_month
+      fieldMapping:
+        set:
+          column:
+            name: _set
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateColumnSpendPoliciesMaxPerMonth
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - set
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateColumnSpendPoliciesMaxPerTransaction
+  description: Update the 'max_per_transaction' column in the 'spend_policies' collection
+  fields:
+    - name: set
+      type: Bigdecimal
+      description: Set the column to this value
+  graphql:
+    typeName: UpdateColumnSpendPoliciesMaxPerTransaction
+    inputTypeName: UpdateColumnSpendPoliciesMaxPerTransactionInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_column_spend_policies_max_per_transaction
+      fieldMapping:
+        set:
+          column:
+            name: _set
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateColumnSpendPoliciesMaxPerTransaction
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - set
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateSpendPoliciesByCategoryAndCompanyIdUpdateColumns
+  description: Update the columns of the 'spend_policies' collection
+  fields:
+    - name: category
+      type: UpdateColumnSpendPoliciesCategory
+      description: Update the 'category' column in the 'spend_policies' collection.
+    - name: companyId
+      type: UpdateColumnSpendPoliciesCompanyId
+      description: Update the 'company_id' column in the 'spend_policies' collection.
+    - name: createdAt
+      type: UpdateColumnSpendPoliciesCreatedAt
+      description: Update the 'created_at' column in the 'spend_policies' collection.
+    - name: id
+      type: UpdateColumnSpendPoliciesId
+      description: Update the 'id' column in the 'spend_policies' collection.
+    - name: maxPerMonth
+      type: UpdateColumnSpendPoliciesMaxPerMonth
+      description: Update the 'max_per_month' column in the 'spend_policies' collection.
+    - name: maxPerTransaction
+      type: UpdateColumnSpendPoliciesMaxPerTransaction
+      description: Update the 'max_per_transaction' column in the 'spend_policies'
+        collection.
+  graphql:
+    typeName: UpdateSpendPoliciesByCategoryAndCompanyIdUpdateColumns
+    inputTypeName: UpdateSpendPoliciesByCategoryAndCompanyIdUpdateColumnsInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_spend_policies_by_category_and_company_id_update_columns
+      fieldMapping:
+        category:
+          column:
+            name: category
+        companyId:
+          column:
+            name: company_id
+        createdAt:
+          column:
+            name: created_at
+        id:
+          column:
+            name: id
+        maxPerMonth:
+          column:
+            name: max_per_month
+        maxPerTransaction:
+          column:
+            name: max_per_transaction
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateSpendPoliciesByCategoryAndCompanyIdUpdateColumns
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - category
+          - companyId
+          - createdAt
+          - id
+          - maxPerMonth
+          - maxPerTransaction
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateSpendPoliciesByCategoryAndCompanyIdResponse
+  description: Responses from the
+    'update_spend_policies_by_category_and_company_id' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[SpendPolicies!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: UpdateSpendPoliciesByCategoryAndCompanyIdResponse
+    inputTypeName: UpdateSpendPoliciesByCategoryAndCompanyIdResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_spend_policies_by_category_and_company_id_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateSpendPoliciesByCategoryAndCompanyIdResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: UpdateSpendPoliciesByCategoryAndCompanyId
+  outputType: UpdateSpendPoliciesByCategoryAndCompanyIdResponse!
+  arguments:
+    - name: keyCategory
+      type: String_1!
+    - name: keyCompanyId
+      type: Uuid!
+    - name: postCheck
+      type: SpendPoliciesBoolExp
+      description: Update permission post-condition predicate over the
+        'spend_policies' collection
+    - name: preCheck
+      type: SpendPoliciesBoolExp
+      description: Update permission pre-condition predicate over the 'spend_policies'
+        collection
+    - name: updateColumns
+      type: UpdateSpendPoliciesByCategoryAndCompanyIdUpdateColumns!
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: update_spend_policies_by_category_and_company_id
+    argumentMapping:
+      keyCategory: key_category
+      keyCompanyId: key_company_id
+      postCheck: post_check
+      preCheck: pre_check
+      updateColumns: update_columns
+  graphql:
+    rootFieldName: updateSpendPoliciesByCategoryAndCompanyId
+    rootFieldKind: Mutation
+  description: Update any row on the 'spend_policies' collection using the
+    'category' and 'company_id' keys
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: UpdateSpendPoliciesByCategoryAndCompanyId
+  permissions:
+    - role: admin
+      allowExecution: true
+

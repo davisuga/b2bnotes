@@ -1,4 +1,5 @@
 import type { TypedDocumentString } from "./graphql"
+import { getGraphqlAuthHeaders } from "./auth"
 
 export async function execute<TResult, TVariables>(
   query: TypedDocumentString<TResult, TVariables>,
@@ -12,14 +13,16 @@ export async function execute<TResult, TVariables>(
     )
   }
 
-  const authToken = process.env.GRAPHQL_AUTH_TOKEN
+  const headers: Record<string, string> = {
+    Accept: "application/graphql-response+json",
+    "Content-Type": "application/json",
+  }
+
+  Object.assign(headers, getGraphqlAuthHeaders())
+
   const response = await fetch(graphqlUrl, {
     method: "POST",
-    headers: {
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-      "Content-Type": "application/json",
-      Accept: "application/graphql-response+json",
-    },
+    headers,
     body: JSON.stringify({
       query,
       variables,

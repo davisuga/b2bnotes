@@ -2,40 +2,44 @@
 kind: ObjectType
 version: v1
 definition:
-  name: InsertReceiptsObject
+  name: InsertDashboardReceiptsPeriodizedObject
   fields:
     - name: companyId
-      type: Uuid!
+      type: Uuid
     - name: createdAt
       type: Timestamptz
-    - name: id
-      type: Uuid
+    - name: flaggedReason
+      type: String_1
     - name: imageUrl
       type: String_1
+    - name: periodKey
+      type: String_1
+    - name: rawText
+      type: String_1
     - name: receiptDate
-      type: Date!
+      type: Date
+    - name: receiptId
+      type: Uuid
     - name: status
       type: String_1
     - name: totalAmount
-      type: Bigdecimal!
+      type: Bigdecimal
     - name: userId
-      type: Uuid!
+      type: Uuid
+    - name: userName
+      type: String_1
     - name: vendorName
-      type: String_1!
+      type: String_1
     - name: vendorTaxId
       type: String_1
     - name: vendorTaxIdValid
       type: Boolean_1
-    - name: flaggedReason
-      type: String_1
-    - name: rawText
-      type: String_1
   graphql:
-    typeName: InsertReceiptsObject
-    inputTypeName: InsertReceiptsObjectInput
+    typeName: InsertDashboardReceiptsPeriodizedObject
+    inputTypeName: InsertDashboardReceiptsPeriodizedObjectInput
   dataConnectorTypeMapping:
     - dataConnectorName: my_pg
-      dataConnectorObjectType: insert_receipts_object
+      dataConnectorObjectType: insert_dashboard_receipts_periodized_object
       fieldMapping:
         companyId:
           column:
@@ -43,15 +47,24 @@ definition:
         createdAt:
           column:
             name: created_at
-        id:
+        flaggedReason:
           column:
-            name: id
+            name: flagged_reason
         imageUrl:
           column:
             name: image_url
+        periodKey:
+          column:
+            name: period_key
+        rawText:
+          column:
+            name: raw_text
         receiptDate:
           column:
             name: receipt_date
+        receiptId:
+          column:
+            name: receipt_id
         status:
           column:
             name: status
@@ -61,6 +74,9 @@ definition:
         userId:
           column:
             name: user_id
+        userName:
+          column:
+            name: user_name
         vendorName:
           column:
             name: vendor_name
@@ -70,55 +86,51 @@ definition:
         vendorTaxIdValid:
           column:
             name: vendor_tax_id_valid
-        flaggedReason:
-          column:
-            name: flagged_reason
-        rawText:
-          column:
-            name: raw_text
 
 ---
 kind: TypePermissions
 version: v1
 definition:
-  typeName: InsertReceiptsObject
+  typeName: InsertDashboardReceiptsPeriodizedObject
   permissions:
     - role: admin
       output:
         allowedFields:
           - companyId
           - createdAt
-          - id
+          - flaggedReason
           - imageUrl
+          - periodKey
+          - rawText
           - receiptDate
+          - receiptId
           - status
           - totalAmount
           - userId
+          - userName
           - vendorName
           - vendorTaxId
           - vendorTaxIdValid
-          - flaggedReason
-          - rawText
 
 ---
 kind: ObjectType
 version: v1
 definition:
-  name: InsertReceiptsResponse
-  description: Responses from the 'insert_receipts' procedure
+  name: InsertDashboardReceiptsPeriodizedResponse
+  description: Responses from the 'insert_dashboard_receipts_periodized' procedure
   fields:
     - name: affectedRows
       type: Int32!
       description: The number of rows affected by the mutation
     - name: returning
-      type: "[Receipts!]!"
+      type: "[DashboardReceiptsPeriodized!]!"
       description: Data from rows affected by the mutation
   graphql:
-    typeName: InsertReceiptsResponse
-    inputTypeName: InsertReceiptsResponseInput
+    typeName: InsertDashboardReceiptsPeriodizedResponse
+    inputTypeName: InsertDashboardReceiptsPeriodizedResponseInput
   dataConnectorTypeMapping:
     - dataConnectorName: my_pg
-      dataConnectorObjectType: insert_receipts_response
+      dataConnectorObjectType: insert_dashboard_receipts_periodized_response
       fieldMapping:
         affectedRows:
           column:
@@ -131,7 +143,7 @@ definition:
 kind: TypePermissions
 version: v1
 definition:
-  typeName: InsertReceiptsResponse
+  typeName: InsertDashboardReceiptsPeriodizedResponse
   permissions:
     - role: admin
       output:
@@ -143,31 +155,32 @@ definition:
 kind: Command
 version: v1
 definition:
-  name: InsertReceipts
-  outputType: InsertReceiptsResponse!
+  name: InsertDashboardReceiptsPeriodized
+  outputType: InsertDashboardReceiptsPeriodizedResponse!
   arguments:
     - name: objects
-      type: "[InsertReceiptsObject!]!"
+      type: "[InsertDashboardReceiptsPeriodizedObject!]!"
     - name: postCheck
-      type: ReceiptsBoolExp
-      description: Insert permission predicate over the 'receipts' collection
+      type: DashboardReceiptsPeriodizedBoolExp
+      description: Insert permission predicate over the
+        'dashboard_receipts_periodized' collection
   source:
     dataConnectorName: my_pg
     dataConnectorCommand:
-      procedure: insert_receipts
+      procedure: insert_dashboard_receipts_periodized
     argumentMapping:
       objects: objects
       postCheck: post_check
   graphql:
-    rootFieldName: insertReceipts
+    rootFieldName: insertDashboardReceiptsPeriodized
     rootFieldKind: Mutation
-  description: Insert into the receipts table
+  description: Insert into the dashboard_receipts_periodized table
 
 ---
 kind: CommandPermissions
 version: v1
 definition:
-  commandName: InsertReceipts
+  commandName: InsertDashboardReceiptsPeriodized
   permissions:
     - role: admin
       allowExecution: true

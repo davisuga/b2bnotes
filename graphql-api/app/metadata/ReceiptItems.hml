@@ -22,6 +22,10 @@ definition:
       type: Bigdecimal!
     - name: unitPrice
       type: Bigdecimal!
+    - name: normalizedDescription
+      type: String_1!
+    - name: rawDescription
+      type: String_1!
   graphql:
     typeName: ReceiptItems
     inputTypeName: ReceiptItemsInput
@@ -37,7 +41,7 @@ definition:
             name: created_at
         description:
           column:
-            name: description
+            name: normalized_description
         id:
           column:
             name: id
@@ -56,6 +60,12 @@ definition:
         unitPrice:
           column:
             name: unit_price
+        normalizedDescription:
+          column:
+            name: normalized_description
+        rawDescription:
+          column:
+            name: raw_description
 
 ---
 kind: TypePermissions
@@ -75,6 +85,8 @@ definition:
           - receiptId
           - totalPrice
           - unitPrice
+          - normalizedDescription
+          - rawDescription
 
 ---
 kind: BooleanExpressionType
@@ -103,6 +115,10 @@ definition:
           booleanExpressionType: NumericBoolExp
         - fieldName: unitPrice
           booleanExpressionType: NumericBoolExp
+        - fieldName: normalizedDescription
+          booleanExpressionType: TextBoolExp
+        - fieldName: rawDescription
+          booleanExpressionType: TextBoolExp
       comparableRelationships:
         - relationshipName: receipt
   logicalOperators:
@@ -139,6 +155,10 @@ definition:
           aggregateExpression: NumericAggExp
         - fieldName: unitPrice
           aggregateExpression: NumericAggExp
+        - fieldName: normalizedDescription
+          aggregateExpression: TextAggExp
+        - fieldName: rawDescription
+          aggregateExpression: TextAggExp
   count:
     enable: true
     returnType: Int64
@@ -172,6 +192,10 @@ definition:
           orderByExpression: BigdecimalOrderByExp
         - fieldName: unitPrice
           orderByExpression: BigdecimalOrderByExp
+        - fieldName: normalizedDescription
+          orderByExpression: String1OrderByExp
+        - fieldName: rawDescription
+          orderByExpression: String1OrderByExp
       orderableRelationships:
         - relationshipName: receipt
   graphql:
@@ -234,4 +258,3 @@ definition:
       target:
         modelField:
           - fieldName: id
-

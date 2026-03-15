@@ -22,6 +22,10 @@ definition:
       type: Bigdecimal!
     - name: unitPrice
       type: Bigdecimal!
+    - name: normalizedDescription
+      type: String_1!
+    - name: rawDescription
+      type: String_1!
   graphql:
     typeName: InsertReceiptItemsObject
     inputTypeName: InsertReceiptItemsObjectInput
@@ -37,7 +41,7 @@ definition:
             name: created_at
         description:
           column:
-            name: description
+            name: normalized_description
         id:
           column:
             name: id
@@ -56,6 +60,12 @@ definition:
         unitPrice:
           column:
             name: unit_price
+        normalizedDescription:
+          column:
+            name: normalized_description
+        rawDescription:
+          column:
+            name: raw_description
 
 ---
 kind: TypePermissions
@@ -75,6 +85,8 @@ definition:
           - receiptId
           - totalPrice
           - unitPrice
+          - normalizedDescription
+          - rawDescription
 
 ---
 kind: ObjectType
@@ -147,4 +159,3 @@ definition:
   permissions:
     - role: admin
       allowExecution: true
-

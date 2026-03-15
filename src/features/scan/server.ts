@@ -5,10 +5,13 @@ import { createServerFn } from "@tanstack/react-start"
 
 import { graphql } from "@/graphql"
 import { execute } from "@/graphql/execute"
+import type { TypedDocumentString } from "@/graphql/graphql"
+import { subscribe } from "@/graphql/subscribe"
 import {
   analyzedReceiptDraftSchema,
   analyzeReceiptInputSchema,
   createReceiptUploadInputSchema,
+  graphQlUuidSchema,
   saveReceiptInputSchema,
 } from "@/features/scan/types"
 import {
@@ -21,6 +24,7 @@ import {
   isValidBrazilCnpj,
   normalizeOcrText,
   normalizeVendorTaxId,
+  getTodayDate,
 } from "@/features/scan/utils"
 
 type OcrProvider = "gemini" | "modal"
@@ -80,7 +84,76 @@ const InsertReceiptItemsMutation = graphql(`
   }
 `)
 
-const persistedReceiptStatus = "extracted"
+const UpdateReceiptMutation = graphql(`
+  mutation UpdateScanReceipt(
+    $keyId: Uuid!
+    $updateColumns: UpdateReceiptsByIdUpdateColumnsInput!
+  ) {
+    updateReceiptsById(keyId: $keyId, updateColumns: $updateColumns) {
+      returning {
+        id
+        vendorName
+        receiptDate
+        totalAmount
+        status
+        imageUrl
+        userId
+        vendorTaxId
+        vendorTaxIdValid
+        companyId
+      }
+    }
+  }
+`)
+
+const ReceiptItemIdsQuery = graphql(`
+  query ScanReceiptItemIds($id: Uuid!) {
+    receiptsById(id: $id) {
+      id
+      receiptItems {
+        id
+      }
+    }
+  }
+`)
+
+const DeleteReceiptItemMutation = graphql(`
+  mutation DeleteScanReceiptItem($id: Uuid!) {
+    deleteReceiptItemsById(keyId: $id) {
+      affectedRows
+    }
+  }
+`)
+
+const ReceiptParsingSubscription = `
+  subscription ScanReceiptParsingStatus($id: Uuid!) {
+    receiptsById(id: $id) {
+      id
+      status
+      vendorName
+      vendorTaxId
+      receiptDate
+      totalAmount
+      receiptItems(order_by: [{ totalPrice: Desc }, { description: Asc }]) {
+        id
+        description
+        category
+        quantity
+        unitPrice
+        totalPrice
+      }
+    }
+  }
+` as unknown as TypedDocumentString<
+  ReceiptParsingSubscriptionResult,
+  { id: string }
+>
+
+const draftReceiptPlaceholderName = "Processando recibo"
+const processingReceiptStatus = "processing"
+const parsedReceiptStatus = "extracted"
+const finalizedReceiptStatus = "approved"
+const failedReceiptStatus = "flagged"
 const modalOcrEndpoint = "https://0xthiagomartins--glm-ocr-ocr.modal.run"
 
 function getParserModel() {
@@ -140,12 +213,32 @@ async function fetchUserContext(userId: string) {
   return user
 }
 
+function formatReceiptNumber(value: number) {
+  return value.toFixed(2)
+}
+
+function getVendorTaxUpdateColumns(vendorTaxId: string | undefined) {
+  const normalizedVendorTaxId = normalizeVendorTaxId(vendorTaxId ?? "")
+
+  return {
+    vendorTaxId: {
+      set: normalizedVendorTaxId || null,
+    },
+    vendorTaxIdValid: {
+      set: normalizedVendorTaxId
+        ? isValidBrazilCnpj(normalizedVendorTaxId)
+        : false,
+    },
+  }
+}
+
 async function persistReceipt(input: {
   companyId: string
   imageReference?: string
   items: Array<{
     category?: string
     name: string
+    rawName?: string
     quantity: number
     unitPrice: number
   }>
@@ -182,11 +275,20 @@ async function persistReceipt(input: {
     throw new Error("Não foi possível salvar o recibo.")
   }
 
+  if (!input.items.length) {
+    return {
+      receipt: savedReceipt,
+      items: [],
+    }
+  }
+
   const itemsData = await execute(InsertReceiptItemsMutation, {
     objects: input.items.map((item) => ({
       category: item.category || undefined,
       description: item.name,
+      normalizedDescription: item.name,
       quantity: item.quantity.toFixed(2),
+      rawDescription: item.rawName?.trim() || item.name,
       receiptId: savedReceipt.id,
       totalPrice: calculateItemTotal(item.quantity, item.unitPrice).toFixed(2),
       unitPrice: item.unitPrice.toFixed(2),
@@ -197,6 +299,152 @@ async function persistReceipt(input: {
     receipt: savedReceipt,
     items: itemsData.insertReceiptItems.returning,
   }
+}
+
+async function updateReceipt(input: {
+  imageReference?: string
+  receiptDate?: string
+  receiptId: string
+  status?: string
+  totalAmount?: number
+  userId?: string
+  vendorName?: string
+  vendorTaxId?: string
+}) {
+  const updateColumns: Record<string, { set: string | boolean | null }> = {}
+
+  if (input.imageReference !== undefined) {
+    updateColumns.imageUrl = {
+      set: input.imageReference,
+    }
+  }
+
+  if (input.receiptDate !== undefined) {
+    updateColumns.receiptDate = {
+      set: input.receiptDate,
+    }
+  }
+
+  if (input.status !== undefined) {
+    updateColumns.status = {
+      set: input.status,
+    }
+  }
+
+  if (input.totalAmount !== undefined) {
+    updateColumns.totalAmount = {
+      set: formatReceiptNumber(input.totalAmount),
+    }
+  }
+
+  if (input.userId !== undefined) {
+    updateColumns.userId = {
+      set: input.userId,
+    }
+  }
+
+  if (input.vendorName !== undefined) {
+    updateColumns.vendorName = {
+      set: input.vendorName,
+    }
+  }
+
+  if (input.vendorTaxId !== undefined) {
+    Object.assign(updateColumns, getVendorTaxUpdateColumns(input.vendorTaxId))
+  }
+
+  const data = await execute(UpdateReceiptMutation, {
+    keyId: input.receiptId,
+    updateColumns,
+  })
+
+  const updatedReceipt = data.updateReceiptsById.returning[0]
+
+  if (!updatedReceipt) {
+    throw new Error("Não foi possível atualizar o recibo.")
+  }
+
+  return updatedReceipt
+}
+
+async function clearReceiptItems(receiptId: string) {
+  const data = await execute(ReceiptItemIdsQuery, { id: receiptId })
+  const itemIds = (data.receiptsById?.receiptItems ?? []).map((item) => item.id)
+
+  await Promise.all(
+    itemIds.map((itemId) => execute(DeleteReceiptItemMutation, { id: itemId }))
+  )
+}
+
+async function replaceReceiptItems(
+  receiptId: string,
+  items: Array<{
+    category?: string
+    name: string
+    rawName?: string
+    quantity: number
+    unitPrice: number
+  }>
+) {
+  await clearReceiptItems(receiptId)
+
+  if (!items.length) {
+    return []
+  }
+
+  const itemsData = await execute(InsertReceiptItemsMutation, {
+    objects: items.map((item) => ({
+      category: item.category || undefined,
+      description: item.name,
+      normalizedDescription: item.name,
+      quantity: formatReceiptNumber(item.quantity),
+      rawDescription: item.rawName?.trim() || item.name,
+      receiptId,
+      totalPrice: formatReceiptNumber(
+        calculateItemTotal(item.quantity, item.unitPrice)
+      ),
+      unitPrice: formatReceiptNumber(item.unitPrice),
+    })),
+  })
+
+  return itemsData.insertReceiptItems.returning
+}
+
+async function ensureProcessingReceipt(input: {
+  companyId: string
+  imageReference: string
+  receiptId?: string
+  userId: string
+}) {
+  if (input.receiptId) {
+    const updatedReceipt = await updateReceipt({
+      imageReference: input.imageReference,
+      receiptDate: getTodayDate(),
+      receiptId: input.receiptId,
+      status: processingReceiptStatus,
+      totalAmount: 0,
+      userId: input.userId,
+      vendorName: draftReceiptPlaceholderName,
+      vendorTaxId: "",
+    })
+
+    await clearReceiptItems(input.receiptId)
+    return updatedReceipt
+  }
+
+  const saved = await persistReceipt({
+    companyId: input.companyId,
+    imageReference: input.imageReference,
+    items: [],
+    receiptDate: getTodayDate(),
+    status: processingReceiptStatus,
+    totalAmount: 0,
+    userId: input.userId,
+    vendorName: draftReceiptPlaceholderName,
+    vendorTaxId: "",
+  })
+
+  return saved.receipt
 }
 
 async function parseReceiptText(ocrText: string) {
@@ -336,6 +584,75 @@ async function runOcrFromR2(input: { objectKey: string }) {
   })
 }
 
+async function runReceiptParsingJob(input: {
+  objectKey: string
+  receiptId: string
+}) {
+  try {
+    const ocrText = await runOcrFromR2({ objectKey: input.objectKey })
+    const parsedDraft = await parseReceiptText(ocrText)
+
+    await replaceReceiptItems(input.receiptId, parsedDraft.items)
+    await updateReceipt({
+      receiptDate: parsedDraft.receiptDate,
+      receiptId: input.receiptId,
+      status: parsedReceiptStatus,
+      totalAmount: parsedDraft.totalAmount,
+      vendorName: parsedDraft.vendorName,
+      vendorTaxId: parsedDraft.vendorTaxId,
+    })
+  } catch {
+    await clearReceiptItems(input.receiptId)
+    await updateReceipt({
+      receiptId: input.receiptId,
+      status: failedReceiptStatus,
+    })
+  }
+}
+
+type ReceiptParsingSubscriptionResult = {
+  receiptsById?: {
+    id: string
+    receiptDate: string
+    receiptItems?: Array<{
+      category?: string | null
+      description: string
+      id: string
+      quantity?: string | null
+      totalPrice: string
+      unitPrice: string
+    }> | null
+    status?: string | null
+    totalAmount: string
+    vendorName: string
+    vendorTaxId?: string | null
+  } | null
+}
+
+function toStreamPayload(
+  receipt: NonNullable<ReceiptParsingSubscriptionResult["receiptsById"]>
+) {
+  return {
+    draft:
+      receipt.status === parsedReceiptStatus
+        ? {
+            items: (receipt.receiptItems ?? []).map((item) => ({
+              category: item.category ?? "",
+              name: item.description,
+              quantity: Number.parseFloat(item.quantity ?? "0") || 0,
+              unitPrice: Number.parseFloat(item.unitPrice) || 0,
+            })),
+            receiptDate: receipt.receiptDate,
+            totalAmount: Number.parseFloat(receipt.totalAmount) || 0,
+            vendorName: receipt.vendorName,
+            vendorTaxId: receipt.vendorTaxId ?? "",
+          }
+        : null,
+    receiptId: receipt.id,
+    status: receipt.status ?? processingReceiptStatus,
+  }
+}
+
 export const getScanBootstrap = createServerFn({ method: "GET" }).handler(
   async () => {
     const data = await execute(ScanBootstrapQuery)
@@ -356,39 +673,138 @@ export const createReceiptUploadUrl = createServerFn({ method: "POST" })
     return createPresignedReceiptUploadUrl(data)
   })
 
-export const analyzeReceiptFromR2 = createServerFn({ method: "POST" })
+export const startReceiptParsing = createServerFn({ method: "POST" })
   .inputValidator((input) => analyzeReceiptInputSchema.parse(input))
   .handler(async ({ data }) => {
-    await fetchUserContext(data.userId)
+    const user = await fetchUserContext(data.userId)
+    const imageReference = getStoredImageReference(data.objectKey)
+    const receipt = await ensureProcessingReceipt({
+      companyId: user.companyId,
+      imageReference,
+      receiptId: data.receiptId,
+      userId: data.userId,
+    })
 
-    const ocrText = await runOcrFromR2({ objectKey: data.objectKey })
+    void runReceiptParsingJob({
+      objectKey: data.objectKey,
+      receiptId: receipt.id,
+    })
 
-    try {
-      return await parseReceiptText(ocrText)
-    } catch {
-      throw new Error(
-        "O texto do recibo foi lido, mas a extração estruturada falhou. Você pode tentar novamente ou preencher os itens manualmente."
-      )
+    return {
+      receiptId: receipt.id,
     }
+  })
+
+export const streamReceiptParsingStatus = createServerFn({ method: "GET" })
+  .inputValidator((input) => graphQlUuidSchema.parse(input))
+  .handler(async ({ data }) => {
+    const encoder = new TextEncoder()
+
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        let closed = false
+
+        const close = () => {
+          if (closed) {
+            return
+          }
+
+          closed = true
+          controller.close()
+        }
+
+        const unsubscribe = subscribe(
+          ReceiptParsingSubscription,
+          { id: data },
+          {
+            next: (payload) => {
+              if (payload.errors?.length) {
+                controller.error(
+                  new Error(
+                    payload.errors
+                      .map((error) => error.message)
+                      .filter(Boolean)
+                      .join("\n") ||
+                      "A subscription do GraphQL retornou um erro desconhecido."
+                  )
+                )
+                return
+              }
+
+              const receipt = payload.data?.receiptsById
+
+              if (!receipt) {
+                controller.error(
+                  new Error("Não foi possível acompanhar o recibo solicitado.")
+                )
+                return
+              }
+
+              controller.enqueue(
+                encoder.encode(`${JSON.stringify(toStreamPayload(receipt))}\n`)
+              )
+
+              if (
+                receipt.status === parsedReceiptStatus ||
+                receipt.status === failedReceiptStatus
+              ) {
+                unsubscribe()
+                close()
+              }
+            },
+            error: (error) => {
+              controller.error(
+                error instanceof Error
+                  ? error
+                  : new Error("Falha ao acompanhar o processamento do recibo.")
+              )
+            },
+            complete: close,
+          }
+        )
+      },
+    })
+
+    return new Response(stream, {
+      headers: {
+        "Cache-Control": "no-store",
+        "Content-Type": "application/x-ndjson",
+      },
+    })
   })
 
 export const saveReceiptDraft = createServerFn({ method: "POST" })
   .inputValidator((input) => saveReceiptInputSchema.parse(input))
   .handler(async ({ data }) => {
     const user = await fetchUserContext(data.userId)
-    const saved = await persistReceipt({
-      companyId: user.companyId,
-      imageReference: data.objectKey
-        ? getStoredImageReference(data.objectKey)
-        : undefined,
-      items: data.items,
-      receiptDate: data.receiptDate,
-      status: persistedReceiptStatus,
-      totalAmount: data.totalAmount,
-      userId: data.userId,
-      vendorName: data.vendorName,
-      vendorTaxId: data.vendorTaxId,
-    })
+    const imageReference = data.objectKey
+      ? getStoredImageReference(data.objectKey)
+      : undefined
+    const saved = data.receiptId
+      ? {
+          items: await replaceReceiptItems(data.receiptId, data.items),
+          receipt: await updateReceipt({
+            imageReference,
+            receiptDate: data.receiptDate,
+            receiptId: data.receiptId,
+            status: finalizedReceiptStatus,
+            totalAmount: data.totalAmount,
+            userId: data.userId,
+            vendorName: data.vendorName,
+            vendorTaxId: data.vendorTaxId,
+          }),
+        }
+      : await persistReceipt({
+          companyId: user.companyId,
+          imageReference,
+          items: data.items,
+          receiptDate: data.receiptDate,
+          status: finalizedReceiptStatus,
+          totalAmount: data.totalAmount,
+          userId: data.userId,
+          vendorName: data.vendorName,
+          vendorTaxId: data.vendorTaxId,
+        })
 
     return {
       receiptId: saved.receipt.id,

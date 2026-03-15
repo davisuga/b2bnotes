@@ -1,0 +1,147 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateCategorySpendLimitsByCategoryAndCompanyIdUpdateColumns
+  description: Update the columns of the 'category_spend_limits' collection
+  fields:
+    - name: category
+      type: UpdateColumnCategorySpendLimitsCategory
+      description: Update the 'category' column in the 'category_spend_limits' collection.
+    - name: companyId
+      type: UpdateColumnCategorySpendLimitsCompanyId
+      description: Update the 'company_id' column in the 'category_spend_limits' collection.
+    - name: createdAt
+      type: UpdateColumnCategorySpendLimitsCreatedAt
+      description: Update the 'created_at' column in the 'category_spend_limits' collection.
+    - name: id
+      type: UpdateColumnCategorySpendLimitsId
+      description: Update the 'id' column in the 'category_spend_limits' collection.
+    - name: maxReceiptAmount
+      type: UpdateColumnCategorySpendLimitsMaxReceiptAmount
+      description: Update the 'max_receipt_amount' column in the
+        'category_spend_limits' collection.
+  graphql:
+    typeName: UpdateCategorySpendLimitsByCategoryAndCompanyIdUpdateColumns
+    inputTypeName: UpdateCategorySpendLimitsByCategoryAndCompanyIdUpdateColumnsInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_category_spend_limits_by_category_and_company_id_update_columns
+      fieldMapping:
+        category:
+          column:
+            name: category
+        companyId:
+          column:
+            name: company_id
+        createdAt:
+          column:
+            name: created_at
+        id:
+          column:
+            name: id
+        maxReceiptAmount:
+          column:
+            name: max_receipt_amount
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateCategorySpendLimitsByCategoryAndCompanyIdUpdateColumns
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - category
+          - companyId
+          - createdAt
+          - id
+          - maxReceiptAmount
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateCategorySpendLimitsByCategoryAndCompanyIdResponse
+  description: Responses from the
+    'update_category_spend_limits_by_category_and_company_id' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[CategorySpendLimits!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: UpdateCategorySpendLimitsByCategoryAndCompanyIdResponse
+    inputTypeName: UpdateCategorySpendLimitsByCategoryAndCompanyIdResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_category_spend_limits_by_category_and_company_id_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateCategorySpendLimitsByCategoryAndCompanyIdResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: UpdateCategorySpendLimitsByCategoryAndCompanyId
+  outputType: UpdateCategorySpendLimitsByCategoryAndCompanyIdResponse!
+  arguments:
+    - name: keyCategory
+      type: String_1!
+    - name: keyCompanyId
+      type: Uuid!
+    - name: postCheck
+      type: CategorySpendLimitsBoolExp
+      description: Update permission post-condition predicate over the
+        'category_spend_limits' collection
+    - name: preCheck
+      type: CategorySpendLimitsBoolExp
+      description: Update permission pre-condition predicate over the
+        'category_spend_limits' collection
+    - name: updateColumns
+      type: UpdateCategorySpendLimitsByCategoryAndCompanyIdUpdateColumns!
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: update_category_spend_limits_by_category_and_company_id
+    argumentMapping:
+      keyCategory: key_category
+      keyCompanyId: key_company_id
+      postCheck: post_check
+      preCheck: pre_check
+      updateColumns: update_columns
+  graphql:
+    rootFieldName: updateCategorySpendLimitsByCategoryAndCompanyId
+    rootFieldKind: Mutation
+  description: Update any row on the 'category_spend_limits' collection using the
+    'category' and 'company_id' keys
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: UpdateCategorySpendLimitsByCategoryAndCompanyId
+  permissions:
+    - role: admin
+      allowExecution: true
+

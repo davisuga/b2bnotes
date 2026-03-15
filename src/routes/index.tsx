@@ -1,4 +1,17 @@
 import * as React from "react"
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type Column,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table"
 import { Link, createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { useServerFn } from "@tanstack/react-start"
@@ -6,11 +19,10 @@ import { useTranslation } from "react-i18next"
 import {
   AlertTriangle,
   CalendarRange,
-  ChevronDown,
-  ChevronRight,
   Loader2,
   Package,
   ReceiptText,
+  Search,
   ScanLine,
   ShieldAlert,
   Users,
@@ -20,12 +32,12 @@ import { AnimatePresence, motion } from "motion/react"
 
 import { Card } from "@/components/ui/card"
 import {
+  DASHBOARD_CATEGORY_OPTIONS,
   DASHBOARD_PERIODS,
-  buildDashboardView,
   type DashboardPeriod,
 } from "@/features/dashboard/model"
 import {
-  getDashboardBootstrap,
+  getDashboardSnapshot,
   getReceiptDetail,
 } from "@/features/dashboard/server"
 import {
@@ -53,11 +65,11 @@ const categoryToneClasses = [
 
 function DashboardRoute() {
   const { t } = useTranslation()
-  const dashboardServerFn = useServerFn(getDashboardBootstrap)
+  const dashboardServerFn = useServerFn(getDashboardSnapshot)
   const receiptDetailServerFn = useServerFn(getReceiptDetail)
 
   const [period, setPeriod] = React.useState<DashboardPeriod>("30d")
-  const [expandedEmployeeId, setExpandedEmployeeId] = React.useState<
+  const [selectedEmployeeId, setSelectedEmployeeId] = React.useState<
     string | null
   >(null)
   const [selectedReceiptId, setSelectedReceiptId] = React.useState<
@@ -66,8 +78,8 @@ function DashboardRoute() {
   const [dismissedAlertIds, setDismissedAlertIds] = React.useState<string[]>([])
 
   const dashboardQuery = useQuery({
-    queryKey: dashboardQueryKey,
-    queryFn: () => dashboardServerFn(),
+    queryKey: [...dashboardQueryKey, period],
+    queryFn: () => dashboardServerFn({ data: period }),
     refetchInterval: 5_000,
     refetchOnWindowFocus: true,
   })
@@ -86,17 +98,24 @@ function DashboardRoute() {
     },
   })
 
-  const dashboardData = dashboardQuery.data ?? {
-    companyId: null,
-    policyLimits: [],
+  const view = dashboardQuery.data ?? {
+    alerts: [],
+    categories: DASHBOARD_CATEGORY_OPTIONS.map((option) => ({
+      key: option.key,
+      label: option.label,
+      ratio: 0,
+      total: 0,
+    })),
+    employees: [],
     receipts: [],
-    users: [],
+    products: [],
+    summary: {
+      receiptsProcessed: 0,
+      totalSpent: 0,
+      uniqueEmployees: 0,
+      uniqueProducts: 0,
+    },
   }
-
-  const view = React.useMemo(
-    () => buildDashboardView(dashboardData, period),
-    [dashboardData, period]
-  )
 
   const visibleAlerts = React.useMemo(
     () =>
@@ -107,25 +126,24 @@ function DashboardRoute() {
   )
 
   const selectedReceipt =
-    view.filteredReceipts.find((receipt) => receipt.id === selectedReceiptId) ??
-    dashboardData.receipts.find(
-      (receipt) => receipt.id === selectedReceiptId
-    ) ??
+    view.receipts.find((receipt) => receipt.id === selectedReceiptId) ?? null
+  const selectedEmployee =
+    view.employees.find((employee) => employee.userId === selectedEmployeeId) ??
     null
 
   React.useEffect(() => {
-    if (!expandedEmployeeId) {
+    if (!selectedEmployeeId) {
       return
     }
 
     const employeeStillVisible = view.employees.some(
-      (employee) => employee.userId === expandedEmployeeId
+      (employee) => employee.userId === selectedEmployeeId
     )
 
     if (!employeeStillVisible) {
-      setExpandedEmployeeId(null)
+      setSelectedEmployeeId(null)
     }
-  }, [expandedEmployeeId, view.employees])
+  }, [selectedEmployeeId, view.employees])
 
   if (dashboardQuery.isPending) {
     return (
@@ -240,102 +258,10 @@ function DashboardRoute() {
           title={t("dashboard.sections.employee.title")}
         >
           {view.employees.length ? (
-            <div className="space-y-3">
-              {view.employees.map((employee, index) => {
-                const isExpanded = expandedEmployeeId === employee.userId
-
-                return (
-                  <div
-                    key={employee.userId}
-                    className="rounded-[24px] border border-border/60 bg-bg-base/70 p-2 shadow-soft"
-                  >
-                    <button
-                      className="flex w-full items-center gap-3 rounded-[20px] px-3 py-3 text-left transition hover:bg-white"
-                      onClick={() =>
-                        setExpandedEmployeeId((currentValue) =>
-                          currentValue === employee.userId
-                            ? null
-                            : employee.userId
-                        )
-                      }
-                      type="button"
-                    >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-bg-surface font-display text-sm font-bold shadow-soft">
-                        #{index + 1}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate font-display text-lg font-bold">
-                            {employee.userName}
-                          </p>
-                          <span className="rounded-full bg-bg-surface px-2 py-1 text-xs font-semibold text-text-secondary">
-                            {employee.topCategory}
-                          </span>
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
-                          <span>
-                            {employee.receiptCount}{" "}
-                            {t("dashboard.labels.receiptCount")}
-                          </span>
-                          <span>
-                            {currencyFormatter.format(employee.totalSpent)}
-                          </span>
-                          <span>
-                            {t("dashboard.labels.topCategory")}:{" "}
-                            {employee.topCategory}
-                          </span>
-                        </div>
-                      </div>
-
-                      {isExpanded ? (
-                        <ChevronDown size={18} />
-                      ) : (
-                        <ChevronRight size={18} />
-                      )}
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {isExpanded ? (
-                        <motion.div
-                          animate={{ height: "auto", opacity: 1 }}
-                          className="overflow-hidden"
-                          exit={{ height: 0, opacity: 0 }}
-                          initial={{ height: 0, opacity: 0 }}
-                        >
-                          <div className="space-y-2 px-3 pt-1 pb-3">
-                            {employee.receipts.map((receipt) => (
-                              <button
-                                key={receipt.id}
-                                className="flex w-full items-center justify-between rounded-[20px] border border-border/60 bg-bg-surface px-4 py-3 text-left transition hover:translate-y-[-1px] hover:shadow-soft"
-                                onClick={() => setSelectedReceiptId(receipt.id)}
-                                type="button"
-                              >
-                                <div className="min-w-0">
-                                  <p className="truncate font-semibold">
-                                    {receipt.vendorName}
-                                  </p>
-                                  <p className="mt-1 text-sm text-text-secondary">
-                                    {formatDate(receipt.receiptDate)} ·{" "}
-                                    {receipt.items.length}{" "}
-                                    {t("dashboard.labels.items")}
-                                  </p>
-                                </div>
-                                <p className="shrink-0 font-display font-bold">
-                                  {currencyFormatter.format(
-                                    receipt.totalAmount
-                                  )}
-                                </p>
-                              </button>
-                            ))}
-                          </div>
-                        </motion.div>
-                      ) : null}
-                    </AnimatePresence>
-                  </div>
-                )
-              })}
-            </div>
+            <EmployeeSpendTable
+              employees={view.employees}
+              onSelectEmployee={setSelectedEmployeeId}
+            />
           ) : (
             <EmptyState
               cta={
@@ -481,40 +407,11 @@ function DashboardRoute() {
           description={t("dashboard.sections.history.description")}
           title={t("dashboard.sections.history.title")}
         >
-          {view.filteredReceipts.length ? (
-            <div className="space-y-2">
-              {view.filteredReceipts.map((receipt) => (
-                <button
-                  key={receipt.id}
-                  className="flex w-full items-center justify-between gap-4 rounded-[24px] border border-border/60 bg-bg-base/70 px-4 py-4 text-left transition hover:translate-y-[-1px] hover:bg-white hover:shadow-soft"
-                  onClick={() => setSelectedReceiptId(receipt.id)}
-                  type="button"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <p className="font-display text-lg font-bold">
-                        {receipt.vendorName}
-                      </p>
-                      <span className="text-sm text-text-secondary">
-                        {receipt.userName}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-text-secondary">
-                      {formatDate(receipt.receiptDate)} · {receipt.items.length}{" "}
-                      {t("dashboard.labels.items")}
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="font-display text-lg font-bold">
-                      {currencyFormatter.format(receipt.totalAmount)}
-                    </p>
-                    <p className="text-sm text-text-secondary">
-                      {t("dashboard.labels.tapForDetail")}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </div>
+          {view.receipts.length ? (
+            <ReceiptHistoryTable
+              onSelectReceipt={setSelectedReceiptId}
+              receipts={view.receipts}
+            />
           ) : (
             <EmptyState
               cta={
@@ -527,7 +424,7 @@ function DashboardRoute() {
           )}
         </SectionCard>
 
-        {!view.filteredReceipts.length && dashboardData.users.length > 0 ? (
+        {!view.receipts.length ? (
           <Card className="rounded-[28px] border border-dashed border-border/80 bg-bg-surface p-6 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-bg-base shadow-soft">
               <ScanLine size={22} />
@@ -552,10 +449,111 @@ function DashboardRoute() {
       </div>
 
       <AnimatePresence>
+        {selectedEmployee ? (
+          <motion.div
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-[60] bg-black/30"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            onClick={() => setSelectedEmployeeId(null)}
+          >
+            <motion.aside
+              animate={{ x: 0 }}
+              className="absolute top-0 right-0 flex h-full w-full max-w-xl flex-col border-l border-border/60 bg-bg-surface shadow-floating"
+              exit={{ x: "100%" }}
+              initial={{ x: "100%" }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4 border-b border-border/60 px-5 py-4 md:px-6">
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-text-secondary uppercase">
+                    {t("dashboard.labels.employeeDetail")}
+                  </p>
+                  <h2 className="mt-1 font-display text-2xl font-bold">
+                    {selectedEmployee.userName}
+                  </h2>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    {selectedEmployee.receiptCount}{" "}
+                    {t("dashboard.labels.receiptCount")} ·{" "}
+                    {currencyFormatter.format(selectedEmployee.totalSpent)} ·{" "}
+                    {selectedEmployee.topCategory}
+                  </p>
+                </div>
+                <button
+                  className="rounded-full bg-bg-base p-3 text-text-secondary transition hover:text-text-primary"
+                  onClick={() => setSelectedEmployeeId(null)}
+                  type="button"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-5 md:p-6">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <MiniStat
+                    label={t("dashboard.table.receipts")}
+                    value={numberFormatter.format(
+                      selectedEmployee.receiptCount
+                    )}
+                  />
+                  <MiniStat
+                    label={t("dashboard.table.total")}
+                    value={currencyFormatter.format(
+                      selectedEmployee.totalSpent
+                    )}
+                  />
+                  <MiniStat
+                    label={t("dashboard.table.alerts")}
+                    value={
+                      selectedEmployee.alertCount
+                        ? numberFormatter.format(selectedEmployee.alertCount)
+                        : t("dashboard.labels.noAlerts")
+                    }
+                  />
+                </div>
+
+                <div className="mt-5">
+                  <h3 className="font-display text-lg font-bold">
+                    {t("dashboard.labels.employeeReceipts")}
+                  </h3>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    {t("dashboard.labels.employeeDrawerHint")}
+                  </p>
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  {selectedEmployee.receipts.map((receipt) => (
+                    <button
+                      key={receipt.id}
+                      className="flex w-full items-center justify-between rounded-[20px] border border-border/60 bg-bg-base/70 px-4 py-3 text-left transition hover:translate-y-[-1px] hover:bg-white hover:shadow-soft"
+                      onClick={() => setSelectedReceiptId(receipt.id)}
+                      type="button"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold">
+                          {receipt.vendorName}
+                        </p>
+                        <p className="mt-1 text-sm text-text-secondary">
+                          {formatDate(receipt.receiptDate)} ·{" "}
+                          {receipt.itemCount} {t("dashboard.labels.items")} ·{" "}
+                          {receipt.primaryCategory}
+                        </p>
+                      </div>
+                      <p className="shrink-0 font-display font-bold">
+                        {currencyFormatter.format(receipt.totalAmount)}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.aside>
+          </motion.div>
+        ) : null}
+
         {selectedReceiptId ? (
           <motion.div
             animate={{ opacity: 1 }}
-            className="fixed inset-0 z-50 flex items-end bg-black/40 p-3 md:items-center md:justify-center md:p-6"
+            className="fixed inset-0 z-[70] flex items-end bg-black/40 p-3 md:items-center md:justify-center md:p-6"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             onClick={() => setSelectedReceiptId(null)}
@@ -625,7 +623,10 @@ function DashboardRoute() {
                   <div className="border-b border-border/60 bg-bg-base md:border-r md:border-b-0">
                     {receiptDetailQuery.data.signedImageUrl ? (
                       <img
-                        alt={`Receipt from ${receiptDetailQuery.data.receipt.vendorName}`}
+                        alt={t("dashboard.labels.receiptImageAlt", {
+                          vendorName:
+                            receiptDetailQuery.data.receipt.vendorName,
+                        })}
                         className="h-full max-h-[70vh] w-full object-contain"
                         src={receiptDetailQuery.data.signedImageUrl}
                       />
@@ -704,11 +705,6 @@ function DashboardRoute() {
                                   item.totalPrice
                                 )}
                               </p>
-                              {item.isPriceAnomaly ? (
-                                <p className="mt-1 text-xs font-semibold tracking-[0.1em] text-danger uppercase">
-                                  {t("dashboard.labels.priceAnomaly")}
-                                </p>
-                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -774,6 +770,693 @@ function SectionCard({
   )
 }
 
+type EmployeeSpendRow = {
+  alertCount: number
+  receiptCount: number
+  topCategory: string
+  totalSpent: number
+  userId: string
+  userName: string
+}
+
+function EmployeeSpendTable({
+  employees,
+  onSelectEmployee,
+}: {
+  employees: Array<{
+    alertCount: number
+    receiptCount: number
+    topCategory: string
+    totalSpent: number
+    userId: string
+    userName: string
+  }>
+  onSelectEmployee: (employeeId: string) => void
+}) {
+  const { t } = useTranslation()
+  const [searchValue, setSearchValue] = React.useState("")
+  const deferredSearchValue = React.useDeferredValue(searchValue)
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "totalSpent", desc: true },
+  ])
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 8,
+  })
+
+  const rows = React.useMemo<EmployeeSpendRow[]>(
+    () =>
+      employees.map((employee) => ({
+        alertCount: employee.alertCount,
+        receiptCount: employee.receiptCount,
+        topCategory: employee.topCategory,
+        totalSpent: employee.totalSpent,
+        userId: employee.userId,
+        userName: employee.userName,
+      })),
+    [employees]
+  )
+
+  const columns = React.useMemo<ColumnDef<EmployeeSpendRow>[]>(
+    () => [
+      {
+        accessorKey: "userName",
+        header: ({ column }) => (
+          <SortableHeader
+            column={column}
+            label={t("dashboard.table.employee")}
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="min-w-[12rem]">
+            <p className="font-display text-base font-bold text-text-primary">
+              {row.original.userName}
+            </p>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "receiptCount",
+        header: ({ column }) => (
+          <SortableHeader
+            column={column}
+            label={t("dashboard.table.receipts")}
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="text-sm text-text-primary">
+            {numberFormatter.format(row.original.receiptCount)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "totalSpent",
+        header: ({ column }) => (
+          <SortableHeader column={column} label={t("dashboard.table.total")} />
+        ),
+        cell: ({ row }) => (
+          <span className="font-display text-sm font-bold text-text-primary">
+            {currencyFormatter.format(row.original.totalSpent)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "topCategory",
+        header: ({ column }) => (
+          <SortableHeader
+            column={column}
+            label={t("dashboard.labels.topCategory")}
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="inline-flex rounded-full bg-bg-surface px-2.5 py-1 text-xs font-semibold text-text-secondary">
+            {row.original.topCategory}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "alertCount",
+        header: ({ column }) => (
+          <div className="flex justify-end">
+            <SortableHeader
+              column={column}
+              label={t("dashboard.table.alerts")}
+            />
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="text-right">
+            <span
+              className={[
+                "inline-flex min-w-10 items-center justify-center rounded-full px-2.5 py-1 text-xs font-semibold",
+                row.original.alertCount
+                  ? "bg-danger/10 text-danger"
+                  : "bg-bg-surface text-text-secondary",
+              ].join(" ")}
+            >
+              {row.original.alertCount
+                ? numberFormatter.format(row.original.alertCount)
+                : t("dashboard.labels.noAlerts")}
+            </span>
+          </div>
+        ),
+      },
+    ],
+    [t]
+  )
+
+  const table = useReactTable({
+    columns,
+    data: rows,
+    state: {
+      globalFilter: deferredSearchValue,
+      pagination,
+      sorting,
+    },
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    globalFilterFn: (row, _columnId, filterValue) => {
+      const query = String(filterValue).trim().toLowerCase()
+
+      if (!query) {
+        return true
+      }
+
+      return [row.original.userName, row.original.topCategory]
+        .join(" ")
+        .toLowerCase()
+        .includes(query)
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  })
+
+  React.useEffect(() => {
+    table.setPageIndex(0)
+  }, [deferredSearchValue, table])
+
+  return (
+    <div className="space-y-4">
+      <label className="block max-w-md space-y-2">
+        <span className="text-xs font-semibold tracking-[0.12em] text-text-secondary uppercase">
+          {t("dashboard.table.searchLabel")}
+        </span>
+        <span className="relative block">
+          <Search
+            className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-text-secondary"
+            size={16}
+          />
+          <input
+            className="w-full rounded-full border border-border/70 bg-bg-base py-3 pr-4 pl-11 text-sm text-text-primary transition outline-none placeholder:text-text-secondary/70 focus:border-accent"
+            onChange={(event) => setSearchValue(event.target.value)}
+            placeholder={t("dashboard.table.employeeSearchPlaceholder")}
+            type="search"
+            value={searchValue}
+          />
+        </span>
+      </label>
+
+      <div className="overflow-hidden rounded-[28px] border border-border/60 bg-bg-base/70">
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-separate border-spacing-0">
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id} className="bg-bg-surface/80">
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="border-b border-border/60 px-4 py-3 text-left first:pl-5 last:pr-5"
+                      scope="col"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="cursor-pointer transition focus-within:bg-white/70 hover:bg-white/70"
+                    onClick={() => onSelectEmployee(row.original.userId)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault()
+                        onSelectEmployee(row.original.userId)
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className="border-b border-border/50 px-4 py-4 align-middle first:pl-5 last:pr-5"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    className="px-5 py-10 text-center text-sm text-text-secondary"
+                    colSpan={columns.length}
+                  >
+                    {t("dashboard.table.noEmployeeResults")}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <TablePagination
+        currentCount={table.getFilteredRowModel().rows.length}
+        pageIndex={table.getState().pagination.pageIndex}
+        pageCount={table.getPageCount()}
+        onNext={() => table.nextPage()}
+        onPrevious={() => table.previousPage()}
+        canNextPage={table.getCanNextPage()}
+        canPreviousPage={table.getCanPreviousPage()}
+      />
+    </div>
+  )
+}
+
+type ReceiptHistoryRow = {
+  amount: number
+  categoryKey: string
+  categoryLabel: string
+  id: string
+  itemCount: number
+  receiptDate: string
+  receiptCode: string
+  userName: string
+  vendorName: string
+}
+
+function ReceiptHistoryTable({
+  onSelectReceipt,
+  receipts,
+}: {
+  onSelectReceipt: (receiptId: string) => void
+  receipts: Array<{
+    id: string
+    itemCount: number
+    primaryCategory: string
+    primaryCategoryKey: string
+    receiptDate: string
+    totalAmount: number
+    userName: string
+    vendorName: string
+  }>
+}) {
+  const { t } = useTranslation()
+  const [searchValue, setSearchValue] = React.useState("")
+  const deferredSearchValue = React.useDeferredValue(searchValue)
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "receiptDate", desc: true },
+  ])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+
+  const rows = React.useMemo<ReceiptHistoryRow[]>(
+    () =>
+      receipts.map((receipt) => {
+        return {
+          amount: receipt.totalAmount,
+          categoryKey: receipt.primaryCategoryKey,
+          categoryLabel: receipt.primaryCategory,
+          id: receipt.id,
+          itemCount: receipt.itemCount,
+          receiptCode: formatReceiptCode(receipt.id),
+          receiptDate: receipt.receiptDate,
+          userName: receipt.userName,
+          vendorName: receipt.vendorName,
+        }
+      }),
+    [receipts]
+  )
+
+  const columns = React.useMemo<ColumnDef<ReceiptHistoryRow>[]>(
+    () => [
+      {
+        accessorKey: "receiptCode",
+        header: ({ column }) => (
+          <SortableHeader
+            column={column}
+            label={t("dashboard.table.receipt")}
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="min-w-[8rem]">
+            <p className="font-display text-sm font-bold tracking-[0.04em] text-text-primary uppercase">
+              #{row.original.receiptCode}
+            </p>
+            <p className="mt-1 text-xs text-text-secondary">
+              {numberFormatter.format(row.original.itemCount)}{" "}
+              {t("dashboard.labels.items")}
+            </p>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "receiptDate",
+        header: ({ column }) => (
+          <SortableHeader column={column} label={t("dashboard.table.date")} />
+        ),
+        cell: ({ row }) => (
+          <span className="text-sm text-text-primary">
+            {formatDate(row.original.receiptDate)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "userName",
+        header: ({ column }) => (
+          <SortableHeader
+            column={column}
+            label={t("dashboard.table.employee")}
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="font-medium text-text-primary">
+            {row.original.userName}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "vendorName",
+        header: ({ column }) => (
+          <SortableHeader
+            column={column}
+            label={t("dashboard.table.merchant")}
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="font-medium text-text-primary">
+            {row.original.vendorName}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "categoryLabel",
+        id: "category",
+        header: ({ column }) => (
+          <SortableHeader
+            column={column}
+            label={t("dashboard.table.category")}
+          />
+        ),
+        filterFn: (row, _columnId, value) =>
+          !value || row.original.categoryKey === value,
+        cell: ({ row }) => (
+          <span className="inline-flex rounded-full bg-bg-surface px-2.5 py-1 text-xs font-semibold text-text-secondary">
+            {row.original.categoryLabel}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "amount",
+        header: ({ column }) => (
+          <div className="flex justify-end">
+            <SortableHeader
+              column={column}
+              label={t("dashboard.table.amount")}
+            />
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="text-right">
+            <p className="font-display text-base font-bold text-text-primary">
+              {currencyFormatter.format(row.original.amount)}
+            </p>
+            <p className="text-xs text-text-secondary">
+              {t("dashboard.labels.tapForDetail")}
+            </p>
+          </div>
+        ),
+      },
+    ],
+    [t]
+  )
+
+  const table = useReactTable({
+    columns,
+    data: rows,
+    state: {
+      columnFilters,
+      globalFilter: deferredSearchValue,
+      pagination,
+      sorting,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    globalFilterFn: (row, _columnId, filterValue) => {
+      const query = String(filterValue).trim().toLowerCase()
+
+      if (!query) {
+        return true
+      }
+
+      return [
+        row.original.id,
+        row.original.receiptCode,
+        row.original.receiptDate,
+        formatDate(row.original.receiptDate),
+        row.original.userName,
+        row.original.vendorName,
+        row.original.categoryLabel,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(query)
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  })
+
+  const categoryFilterValue =
+    (table.getColumn("category")?.getFilterValue() as string | undefined) ?? ""
+
+  React.useEffect(() => {
+    table.setPageIndex(0)
+  }, [categoryFilterValue, deferredSearchValue, table])
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px] lg:w-full lg:max-w-3xl">
+          <label className="space-y-2">
+            <span className="text-xs font-semibold tracking-[0.12em] text-text-secondary uppercase">
+              {t("dashboard.table.searchLabel")}
+            </span>
+            <span className="relative block">
+              <Search
+                className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-text-secondary"
+                size={16}
+              />
+              <input
+                className="w-full rounded-full border border-border/70 bg-bg-base py-3 pr-4 pl-11 text-sm text-text-primary transition outline-none placeholder:text-text-secondary/70 focus:border-accent"
+                onChange={(event) => setSearchValue(event.target.value)}
+                placeholder={t("dashboard.table.searchPlaceholder")}
+                type="search"
+                value={searchValue}
+              />
+            </span>
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-xs font-semibold tracking-[0.12em] text-text-secondary uppercase">
+              {t("dashboard.table.categoryFilter")}
+            </span>
+            <select
+              className="w-full rounded-full border border-border/70 bg-bg-base px-4 py-3 text-sm text-text-primary transition outline-none focus:border-accent"
+              onChange={(event) =>
+                table
+                  .getColumn("category")
+                  ?.setFilterValue(event.target.value || undefined)
+              }
+              value={categoryFilterValue}
+            >
+              <option value="">{t("dashboard.table.allCategories")}</option>
+              {DASHBOARD_CATEGORY_OPTIONS.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <p className="text-sm text-text-secondary">
+          {numberFormatter.format(table.getFilteredRowModel().rows.length)}{" "}
+          {t("dashboard.labels.receiptCount")}
+        </p>
+      </div>
+
+      <div className="overflow-hidden rounded-[28px] border border-border/60 bg-bg-base/70">
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-separate border-spacing-0">
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id} className="bg-bg-surface/80">
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="border-b border-border/60 px-4 py-3 text-left first:pl-5 last:pr-5"
+                      scope="col"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+
+            <tbody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="cursor-pointer transition focus-within:bg-white/70 hover:bg-white/70"
+                    onClick={() => onSelectReceipt(row.original.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault()
+                        onSelectReceipt(row.original.id)
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className="border-b border-border/50 px-4 py-4 align-middle first:pl-5 last:pr-5"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    className="px-5 py-10 text-center text-sm text-text-secondary"
+                    colSpan={columns.length}
+                  >
+                    {t("dashboard.table.noResults")}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <TablePagination
+        currentCount={table.getFilteredRowModel().rows.length}
+        pageIndex={table.getState().pagination.pageIndex}
+        pageCount={table.getPageCount()}
+        onNext={() => table.nextPage()}
+        onPrevious={() => table.previousPage()}
+        canNextPage={table.getCanNextPage()}
+        canPreviousPage={table.getCanPreviousPage()}
+      />
+    </div>
+  )
+}
+
+function TablePagination({
+  canNextPage,
+  canPreviousPage,
+  currentCount,
+  onNext,
+  onPrevious,
+  pageCount,
+  pageIndex,
+}: {
+  canNextPage: boolean
+  canPreviousPage: boolean
+  currentCount: number
+  onNext: () => void
+  onPrevious: () => void
+  pageCount: number
+  pageIndex: number
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <div className="flex flex-col gap-3 rounded-[24px] border border-border/60 bg-bg-base/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-text-secondary">
+        {t("dashboard.table.resultSummary", {
+          count: currentCount,
+        })}
+      </p>
+
+      <div className="flex items-center gap-2 self-end sm:self-auto">
+        <button
+          className="rounded-full border border-border bg-bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!canPreviousPage}
+          onClick={onPrevious}
+          type="button"
+        >
+          {t("dashboard.table.previousPage")}
+        </button>
+        <span className="min-w-28 text-center text-sm text-text-secondary">
+          {t("dashboard.table.pageSummary", {
+            page: pageIndex + 1,
+            total: Math.max(pageCount, 1),
+          })}
+        </span>
+        <button
+          className="rounded-full border border-border bg-bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!canNextPage}
+          onClick={onNext}
+          type="button"
+        >
+          {t("dashboard.table.nextPage")}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function SortableHeader({
+  column,
+  label,
+}: {
+  column: Column<any, unknown>
+  label: string
+}) {
+  const sortDirection = column.getIsSorted()
+
+  return (
+    <button
+      className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-text-secondary uppercase transition hover:text-text-primary"
+      onClick={column.getToggleSortingHandler()}
+      type="button"
+    >
+      {label}
+      <span className="text-[11px] text-text-secondary">
+        {sortDirection === "asc" ? "↑" : sortDirection === "desc" ? "↓" : "↕"}
+      </span>
+    </button>
+  )
+}
+
 function EmptyState({
   cta,
   message,
@@ -802,6 +1485,10 @@ function MiniStat({ label, value }: { label: string; value: string }) {
 
 function formatDate(value: string) {
   return dateFormatter.format(new Date(`${value}T00:00:00`))
+}
+
+function formatReceiptCode(value: string) {
+  return value.slice(0, 8).toUpperCase()
 }
 
 function trimNumber(value: number) {

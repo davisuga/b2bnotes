@@ -326,6 +326,12 @@ definition:
     - name: vendorTaxIdValid
       type: UpdateColumnReceiptsVendorTaxIdValid
       description: Update the 'vendor_tax_id_valid' column in the 'receipts' collection.
+    - name: flaggedReason
+      type: UpdateColumnReceiptsFlaggedReason
+      description: Update the 'flagged_reason' column in the 'receipts' collection.
+    - name: rawText
+      type: UpdateColumnReceiptsRawText
+      description: Update the 'raw_text' column in the 'receipts' collection.
   graphql:
     typeName: UpdateReceiptsByIdUpdateColumns
     inputTypeName: UpdateReceiptsByIdUpdateColumnsInput
@@ -366,6 +372,12 @@ definition:
         vendorTaxIdValid:
           column:
             name: vendor_tax_id_valid
+        flaggedReason:
+          column:
+            name: flagged_reason
+        rawText:
+          column:
+            name: raw_text
 
 ---
 kind: TypePermissions
@@ -387,6 +399,8 @@ definition:
           - vendorName
           - vendorTaxId
           - vendorTaxIdValid
+          - flaggedReason
+          - rawText
 
 ---
 kind: ObjectType
@@ -525,6 +539,70 @@ kind: TypePermissions
 version: v1
 definition:
   typeName: UpdateColumnReceiptsVendorTaxIdValid
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - set
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateColumnReceiptsFlaggedReason
+  description: Update the 'flagged_reason' column in the 'receipts' collection
+  fields:
+    - name: set
+      type: String_1
+      description: Set the column to this value
+  graphql:
+    typeName: UpdateColumnReceiptsFlaggedReason
+    inputTypeName: UpdateColumnReceiptsFlaggedReasonInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_column_receipts_flagged_reason
+      fieldMapping:
+        set:
+          column:
+            name: _set
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateColumnReceiptsFlaggedReason
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - set
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateColumnReceiptsRawText
+  description: Update the 'raw_text' column in the 'receipts' collection
+  fields:
+    - name: set
+      type: String_1
+      description: Set the column to this value
+  graphql:
+    typeName: UpdateColumnReceiptsRawText
+    inputTypeName: UpdateColumnReceiptsRawTextInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_column_receipts_raw_text
+      fieldMapping:
+        set:
+          column:
+            name: _set
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateColumnReceiptsRawText
   permissions:
     - role: admin
       output:

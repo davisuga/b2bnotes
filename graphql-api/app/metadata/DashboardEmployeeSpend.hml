@@ -1,0 +1,188 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: DashboardEmployeeSpend
+  fields:
+    - name: companyId
+      type: Uuid
+    - name: periodKey
+      type: String_1
+    - name: receiptCount
+      type: Int64
+    - name: topCategory
+      type: String_1
+    - name: totalSpent
+      type: Bigdecimal
+    - name: userId
+      type: Uuid
+    - name: userName
+      type: String_1
+  graphql:
+    typeName: DashboardEmployeeSpend
+    inputTypeName: DashboardEmployeeSpendInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: dashboard_employee_spend
+      fieldMapping:
+        companyId:
+          column:
+            name: company_id
+        periodKey:
+          column:
+            name: period_key
+        receiptCount:
+          column:
+            name: receipt_count
+        topCategory:
+          column:
+            name: top_category
+        totalSpent:
+          column:
+            name: total_spent
+        userId:
+          column:
+            name: user_id
+        userName:
+          column:
+            name: user_name
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: DashboardEmployeeSpend
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - companyId
+          - periodKey
+          - receiptCount
+          - topCategory
+          - totalSpent
+          - userId
+          - userName
+
+---
+kind: BooleanExpressionType
+version: v1
+definition:
+  name: DashboardEmployeeSpendBoolExp
+  operand:
+    object:
+      type: DashboardEmployeeSpend
+      comparableFields:
+        - fieldName: companyId
+          booleanExpressionType: UuidBoolExp
+        - fieldName: periodKey
+          booleanExpressionType: TextBoolExp
+        - fieldName: receiptCount
+          booleanExpressionType: Int8BoolExp
+        - fieldName: topCategory
+          booleanExpressionType: TextBoolExp
+        - fieldName: totalSpent
+          booleanExpressionType: NumericBoolExp
+        - fieldName: userId
+          booleanExpressionType: UuidBoolExp
+        - fieldName: userName
+          booleanExpressionType: TextBoolExp
+      comparableRelationships: []
+  logicalOperators:
+    enable: true
+  isNull:
+    enable: true
+  graphql:
+    typeName: DashboardEmployeeSpendBoolExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: DashboardEmployeeSpendAggExp
+  operand:
+    object:
+      aggregatedType: DashboardEmployeeSpend
+      aggregatableFields:
+        - fieldName: companyId
+          aggregateExpression: UuidAggExp
+        - fieldName: periodKey
+          aggregateExpression: TextAggExp
+        - fieldName: receiptCount
+          aggregateExpression: Int8AggExp
+        - fieldName: topCategory
+          aggregateExpression: TextAggExp
+        - fieldName: totalSpent
+          aggregateExpression: NumericAggExp
+        - fieldName: userId
+          aggregateExpression: UuidAggExp
+        - fieldName: userName
+          aggregateExpression: TextAggExp
+  count:
+    enable: true
+    returnType: Int64
+  graphql:
+    selectTypeName: DashboardEmployeeSpendAggExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: DashboardEmployeeSpendOrderByExp
+  operand:
+    object:
+      orderedType: DashboardEmployeeSpend
+      orderableFields:
+        - fieldName: companyId
+          orderByExpression: UuidOrderByExp
+        - fieldName: periodKey
+          orderByExpression: String1OrderByExp
+        - fieldName: receiptCount
+          orderByExpression: Int64OrderByExp
+        - fieldName: topCategory
+          orderByExpression: String1OrderByExp
+        - fieldName: totalSpent
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: userId
+          orderByExpression: UuidOrderByExp
+        - fieldName: userName
+          orderByExpression: String1OrderByExp
+      orderableRelationships: []
+  graphql:
+    expressionTypeName: DashboardEmployeeSpendOrderByExp
+
+---
+kind: Model
+version: v2
+definition:
+  name: DashboardEmployeeSpend
+  objectType: DashboardEmployeeSpend
+  source:
+    dataConnectorName: my_pg
+    collection: dashboard_employee_spend
+  filterExpressionType: DashboardEmployeeSpendBoolExp
+  aggregateExpression: DashboardEmployeeSpendAggExp
+  orderByExpression: DashboardEmployeeSpendOrderByExp
+  graphql:
+    selectMany:
+      queryRootField: dashboardEmployeeSpend
+      subscription:
+        rootField: dashboardEmployeeSpend
+    selectUniques: []
+    filterInputTypeName: DashboardEmployeeSpendFilterInput
+    aggregate:
+      queryRootField: dashboardEmployeeSpendAggregate
+      subscription:
+        rootField: dashboardEmployeeSpendAggregate
+
+---
+kind: ModelPermissions
+version: v1
+definition:
+  modelName: DashboardEmployeeSpend
+  permissions:
+    - role: admin
+      select:
+        filter: null
+        allowSubscriptions: true
+

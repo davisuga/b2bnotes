@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest"
 
+import { getGraphqlAuthHeaders } from "@/graphql/auth"
 import {
   createPresignedReceiptUploadUrl,
   downloadReceiptObject,
@@ -33,15 +34,16 @@ async function postGraphQl<TData>(
     throw new Error("GRAPHQL_URL is missing for integration tests.")
   }
 
+  const headers: Record<string, string> = {
+    Accept: "application/graphql-response+json",
+    "Content-Type": "application/json",
+  }
+
+  Object.assign(headers, getGraphqlAuthHeaders())
+
   const response = await fetch(graphqlUrl, {
     method: "POST",
-    headers: {
-      ...(process.env.GRAPHQL_AUTH_TOKEN
-        ? { Authorization: `Bearer ${process.env.GRAPHQL_AUTH_TOKEN}` }
-        : {}),
-      Accept: "application/graphql-response+json",
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({
       query,
       variables,
@@ -200,8 +202,9 @@ describe("scan upload integration", () => {
           objects: [
             {
               category: "Test",
-              description: "Uploaded test item",
+              normalizedDescription: "Uploaded test item",
               quantity: "1.00",
+              rawDescription: "Uploaded test item",
               receiptId: receipt?.id,
               totalPrice: "1.00",
               unitPrice: "1.00",
@@ -222,7 +225,7 @@ describe("scan upload integration", () => {
           imageUrl: string | null
           receiptItems: Array<{
             id: string
-            description: string
+            normalizedDescription: string
           }> | null
         } | null
       }>(
@@ -233,7 +236,7 @@ describe("scan upload integration", () => {
               imageUrl
               receiptItems {
                 id
-                description
+                normalizedDescription
               }
             }
           }

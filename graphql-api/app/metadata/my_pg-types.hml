@@ -190,7 +190,21 @@ definition:
   operand:
     scalar:
       type: Int64
-      comparisonOperators: []
+      comparisonOperators:
+        - name: _eq
+          argumentType: Int64!
+        - name: _gt
+          argumentType: Int64!
+        - name: _gte
+          argumentType: Int64!
+        - name: _in
+          argumentType: "[Int64!]!"
+        - name: _lt
+          argumentType: Int64!
+        - name: _lte
+          argumentType: Int64!
+        - name: _neq
+          argumentType: Int64!
       dataConnectorOperatorMapping:
         - dataConnectorName: my_pg
           dataConnectorScalarType: int8
@@ -786,4 +800,218 @@ definition:
   representation: Int32
   graphql:
     comparisonExpressionTypeName: Int32ComparisonExp
+
+---
+kind: ScalarType
+version: v1
+definition:
+  name: Float64
+  graphql:
+    typeName: Float64
+
+---
+kind: BooleanExpressionType
+version: v1
+definition:
+  name: Float8BoolExp
+  operand:
+    scalar:
+      type: Float64
+      comparisonOperators:
+        - name: _eq
+          argumentType: Float64!
+        - name: _gt
+          argumentType: Float64!
+        - name: _gte
+          argumentType: Float64!
+        - name: _in
+          argumentType: "[Float64!]!"
+        - name: _lt
+          argumentType: Float64!
+        - name: _lte
+          argumentType: Float64!
+        - name: _neq
+          argumentType: Float64!
+      dataConnectorOperatorMapping:
+        - dataConnectorName: my_pg
+          dataConnectorScalarType: float8
+          operatorMapping: {}
+  logicalOperators:
+    enable: true
+  isNull:
+    enable: true
+  graphql:
+    typeName: Float8BoolExp
+
+---
+kind: DataConnectorScalarRepresentation
+version: v1
+definition:
+  dataConnectorName: my_pg
+  dataConnectorScalarType: float8
+  representation: Float64
+  graphql:
+    comparisonExpressionTypeName: Float64ComparisonExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: Int8AggExp
+  operand:
+    scalar:
+      aggregatedType: Int64
+      aggregationFunctions:
+        - name: avg
+          returnType: Bigdecimal
+        - name: bit_and
+          returnType: Int64
+        - name: bit_or
+          returnType: Int64
+        - name: bit_xor
+          returnType: Int64
+        - name: max
+          returnType: Int64
+        - name: min
+          returnType: Int64
+        - name: stddev
+          returnType: Bigdecimal
+        - name: stddev_pop
+          returnType: Bigdecimal
+        - name: stddev_samp
+          returnType: Bigdecimal
+        - name: sum
+          returnType: Bigdecimal
+        - name: var_pop
+          returnType: Bigdecimal
+        - name: var_samp
+          returnType: Bigdecimal
+        - name: variance
+          returnType: Bigdecimal
+      dataConnectorAggregationFunctionMapping:
+        - dataConnectorName: my_pg
+          dataConnectorScalarType: int8
+          functionMapping:
+            avg:
+              name: avg
+            bit_and:
+              name: bit_and
+            bit_or:
+              name: bit_or
+            bit_xor:
+              name: bit_xor
+            max:
+              name: max
+            min:
+              name: min
+            stddev:
+              name: stddev
+            stddev_pop:
+              name: stddev_pop
+            stddev_samp:
+              name: stddev_samp
+            sum:
+              name: sum
+            var_pop:
+              name: var_pop
+            var_samp:
+              name: var_samp
+            variance:
+              name: variance
+  count:
+    enable: true
+    returnType: Int64
+  countDistinct:
+    enable: true
+    returnType: Int64
+  graphql:
+    selectTypeName: Int8AggExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: Float8AggExp
+  operand:
+    scalar:
+      aggregatedType: Float64
+      aggregationFunctions:
+        - name: avg
+          returnType: Float64
+        - name: max
+          returnType: Float64
+        - name: min
+          returnType: Float64
+        - name: stddev
+          returnType: Float64
+        - name: stddev_pop
+          returnType: Float64
+        - name: stddev_samp
+          returnType: Float64
+        - name: sum
+          returnType: Float64
+        - name: var_pop
+          returnType: Float64
+        - name: var_samp
+          returnType: Float64
+        - name: variance
+          returnType: Float64
+      dataConnectorAggregationFunctionMapping:
+        - dataConnectorName: my_pg
+          dataConnectorScalarType: float8
+          functionMapping:
+            avg:
+              name: avg
+            max:
+              name: max
+            min:
+              name: min
+            stddev:
+              name: stddev
+            stddev_pop:
+              name: stddev_pop
+            stddev_samp:
+              name: stddev_samp
+            sum:
+              name: sum
+            var_pop:
+              name: var_pop
+            var_samp:
+              name: var_samp
+            variance:
+              name: variance
+  count:
+    enable: true
+    returnType: Int64
+  countDistinct:
+    enable: true
+    returnType: Int64
+  graphql:
+    selectTypeName: Float8AggExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: Int64OrderByExp
+  operand:
+    scalar:
+      orderedType: Int64
+      enableOrderByDirections:
+        enableAll: true
+  graphql:
+    expressionTypeName: Int64OrderByExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: Float64OrderByExp
+  operand:
+    scalar:
+      orderedType: Float64
+      enableOrderByDirections:
+        enableAll: true
+  graphql:
+    expressionTypeName: Float64OrderByExp
 

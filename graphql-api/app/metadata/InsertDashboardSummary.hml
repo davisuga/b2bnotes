@@ -1,0 +1,132 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardSummaryObject
+  fields:
+    - name: companyId
+      type: Uuid
+    - name: periodKey
+      type: String_1
+    - name: receiptsProcessed
+      type: Int64
+    - name: totalSpent
+      type: Bigdecimal
+    - name: uniqueEmployees
+      type: Int64
+    - name: uniqueProducts
+      type: Int64
+  graphql:
+    typeName: InsertDashboardSummaryObject
+    inputTypeName: InsertDashboardSummaryObjectInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_summary_object
+      fieldMapping:
+        companyId:
+          column:
+            name: company_id
+        periodKey:
+          column:
+            name: period_key
+        receiptsProcessed:
+          column:
+            name: receipts_processed
+        totalSpent:
+          column:
+            name: total_spent
+        uniqueEmployees:
+          column:
+            name: unique_employees
+        uniqueProducts:
+          column:
+            name: unique_products
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardSummaryObject
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - companyId
+          - periodKey
+          - receiptsProcessed
+          - totalSpent
+          - uniqueEmployees
+          - uniqueProducts
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardSummaryResponse
+  description: Responses from the 'insert_dashboard_summary' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[DashboardSummary!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: InsertDashboardSummaryResponse
+    inputTypeName: InsertDashboardSummaryResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_summary_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardSummaryResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: InsertDashboardSummary
+  outputType: InsertDashboardSummaryResponse!
+  arguments:
+    - name: objects
+      type: "[InsertDashboardSummaryObject!]!"
+    - name: postCheck
+      type: DashboardSummaryBoolExp
+      description: Insert permission predicate over the 'dashboard_summary' collection
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: insert_dashboard_summary
+    argumentMapping:
+      objects: objects
+      postCheck: post_check
+  graphql:
+    rootFieldName: insertDashboardSummary
+    rootFieldKind: Mutation
+  description: Insert into the dashboard_summary table
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: InsertDashboardSummary
+  permissions:
+    - role: admin
+      allowExecution: true
+

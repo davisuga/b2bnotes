@@ -1,0 +1,77 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: DeleteSpendPoliciesByCategoryAndCompanyIdResponse
+  description: Responses from the
+    'delete_spend_policies_by_category_and_company_id' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[SpendPolicies!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: DeleteSpendPoliciesByCategoryAndCompanyIdResponse
+    inputTypeName: DeleteSpendPoliciesByCategoryAndCompanyIdResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: delete_spend_policies_by_category_and_company_id_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: DeleteSpendPoliciesByCategoryAndCompanyIdResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: DeleteSpendPoliciesByCategoryAndCompanyId
+  outputType: DeleteSpendPoliciesByCategoryAndCompanyIdResponse!
+  arguments:
+    - name: keyCategory
+      type: String_1!
+    - name: keyCompanyId
+      type: Uuid!
+    - name: preCheck
+      type: SpendPoliciesBoolExp
+      description: Delete permission predicate over the 'spend_policies' collection
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: delete_spend_policies_by_category_and_company_id
+    argumentMapping:
+      keyCategory: key_category
+      keyCompanyId: key_company_id
+      preCheck: pre_check
+  graphql:
+    rootFieldName: deleteSpendPoliciesByCategoryAndCompanyId
+    rootFieldKind: Mutation
+  description: Delete any row on the 'spend_policies' collection using the
+    'category' and 'company_id' keys
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: DeleteSpendPoliciesByCategoryAndCompanyId
+  permissions:
+    - role: admin
+      allowExecution: true
+

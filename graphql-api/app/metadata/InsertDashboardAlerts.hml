@@ -1,0 +1,222 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardAlertsObject
+  fields:
+    - name: alertId
+      type: String_1
+    - name: alertType
+      type: String_1
+    - name: amount
+      type: Bigdecimal
+    - name: category
+      type: String_1
+    - name: companyId
+      type: Uuid
+    - name: countValue
+      type: Int64
+    - name: employeeCount
+      type: Int64
+    - name: limitAmount
+      type: Bigdecimal
+    - name: maxPrice
+      type: Bigdecimal
+    - name: minPrice
+      type: Bigdecimal
+    - name: percentDelta
+      type: Bigdecimal
+    - name: periodKey
+      type: String_1
+    - name: priority
+      type: Bigdecimal
+    - name: productName
+      type: String_1
+    - name: receiptId
+      type: Uuid
+    - name: teamMedian
+      type: Float64
+    - name: teamTotalSpent
+      type: Bigdecimal
+    - name: userId
+      type: Uuid
+    - name: userName
+      type: String_1
+    - name: vendorName
+      type: String_1
+    - name: vendorTaxId
+      type: String_1
+  graphql:
+    typeName: InsertDashboardAlertsObject
+    inputTypeName: InsertDashboardAlertsObjectInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_alerts_object
+      fieldMapping:
+        alertId:
+          column:
+            name: alert_id
+        alertType:
+          column:
+            name: alert_type
+        amount:
+          column:
+            name: amount
+        category:
+          column:
+            name: category
+        companyId:
+          column:
+            name: company_id
+        countValue:
+          column:
+            name: count_value
+        employeeCount:
+          column:
+            name: employee_count
+        limitAmount:
+          column:
+            name: limit_amount
+        maxPrice:
+          column:
+            name: max_price
+        minPrice:
+          column:
+            name: min_price
+        percentDelta:
+          column:
+            name: percent_delta
+        periodKey:
+          column:
+            name: period_key
+        priority:
+          column:
+            name: priority
+        productName:
+          column:
+            name: product_name
+        receiptId:
+          column:
+            name: receipt_id
+        teamMedian:
+          column:
+            name: team_median
+        teamTotalSpent:
+          column:
+            name: team_total_spent
+        userId:
+          column:
+            name: user_id
+        userName:
+          column:
+            name: user_name
+        vendorName:
+          column:
+            name: vendor_name
+        vendorTaxId:
+          column:
+            name: vendor_tax_id
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardAlertsObject
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - alertId
+          - alertType
+          - amount
+          - category
+          - companyId
+          - countValue
+          - employeeCount
+          - limitAmount
+          - maxPrice
+          - minPrice
+          - percentDelta
+          - periodKey
+          - priority
+          - productName
+          - receiptId
+          - teamMedian
+          - teamTotalSpent
+          - userId
+          - userName
+          - vendorName
+          - vendorTaxId
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardAlertsResponse
+  description: Responses from the 'insert_dashboard_alerts' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[DashboardAlerts!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: InsertDashboardAlertsResponse
+    inputTypeName: InsertDashboardAlertsResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_alerts_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardAlertsResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: InsertDashboardAlerts
+  outputType: InsertDashboardAlertsResponse!
+  arguments:
+    - name: objects
+      type: "[InsertDashboardAlertsObject!]!"
+    - name: postCheck
+      type: DashboardAlertsBoolExp
+      description: Insert permission predicate over the 'dashboard_alerts' collection
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: insert_dashboard_alerts
+    argumentMapping:
+      objects: objects
+      postCheck: post_check
+  graphql:
+    rootFieldName: insertDashboardAlerts
+    rootFieldKind: Mutation
+  description: Insert into the dashboard_alerts table
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: InsertDashboardAlerts
+  permissions:
+    - role: admin
+      allowExecution: true
+

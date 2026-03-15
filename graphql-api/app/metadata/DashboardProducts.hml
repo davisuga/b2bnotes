@@ -1,0 +1,212 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: DashboardProducts
+  fields:
+    - name: companyId
+      type: Uuid
+    - name: employeeCount
+      type: Int64
+    - name: maxUnitPrice
+      type: Bigdecimal
+    - name: minUnitPrice
+      type: Bigdecimal
+    - name: periodKey
+      type: String_1
+    - name: productName
+      type: String_1
+    - name: purchaseCount
+      type: Int64
+    - name: totalQuantity
+      type: Bigdecimal
+    - name: totalSpent
+      type: Bigdecimal
+  graphql:
+    typeName: DashboardProducts
+    inputTypeName: DashboardProductsInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: dashboard_products
+      fieldMapping:
+        companyId:
+          column:
+            name: company_id
+        employeeCount:
+          column:
+            name: employee_count
+        maxUnitPrice:
+          column:
+            name: max_unit_price
+        minUnitPrice:
+          column:
+            name: min_unit_price
+        periodKey:
+          column:
+            name: period_key
+        productName:
+          column:
+            name: product_name
+        purchaseCount:
+          column:
+            name: purchase_count
+        totalQuantity:
+          column:
+            name: total_quantity
+        totalSpent:
+          column:
+            name: total_spent
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: DashboardProducts
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - companyId
+          - employeeCount
+          - maxUnitPrice
+          - minUnitPrice
+          - periodKey
+          - productName
+          - purchaseCount
+          - totalQuantity
+          - totalSpent
+
+---
+kind: BooleanExpressionType
+version: v1
+definition:
+  name: DashboardProductsBoolExp
+  operand:
+    object:
+      type: DashboardProducts
+      comparableFields:
+        - fieldName: companyId
+          booleanExpressionType: UuidBoolExp
+        - fieldName: employeeCount
+          booleanExpressionType: Int8BoolExp
+        - fieldName: maxUnitPrice
+          booleanExpressionType: NumericBoolExp
+        - fieldName: minUnitPrice
+          booleanExpressionType: NumericBoolExp
+        - fieldName: periodKey
+          booleanExpressionType: TextBoolExp
+        - fieldName: productName
+          booleanExpressionType: TextBoolExp
+        - fieldName: purchaseCount
+          booleanExpressionType: Int8BoolExp
+        - fieldName: totalQuantity
+          booleanExpressionType: NumericBoolExp
+        - fieldName: totalSpent
+          booleanExpressionType: NumericBoolExp
+      comparableRelationships: []
+  logicalOperators:
+    enable: true
+  isNull:
+    enable: true
+  graphql:
+    typeName: DashboardProductsBoolExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: DashboardProductsAggExp
+  operand:
+    object:
+      aggregatedType: DashboardProducts
+      aggregatableFields:
+        - fieldName: companyId
+          aggregateExpression: UuidAggExp
+        - fieldName: employeeCount
+          aggregateExpression: Int8AggExp
+        - fieldName: maxUnitPrice
+          aggregateExpression: NumericAggExp
+        - fieldName: minUnitPrice
+          aggregateExpression: NumericAggExp
+        - fieldName: periodKey
+          aggregateExpression: TextAggExp
+        - fieldName: productName
+          aggregateExpression: TextAggExp
+        - fieldName: purchaseCount
+          aggregateExpression: Int8AggExp
+        - fieldName: totalQuantity
+          aggregateExpression: NumericAggExp
+        - fieldName: totalSpent
+          aggregateExpression: NumericAggExp
+  count:
+    enable: true
+    returnType: Int64
+  graphql:
+    selectTypeName: DashboardProductsAggExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: DashboardProductsOrderByExp
+  operand:
+    object:
+      orderedType: DashboardProducts
+      orderableFields:
+        - fieldName: companyId
+          orderByExpression: UuidOrderByExp
+        - fieldName: employeeCount
+          orderByExpression: Int64OrderByExp
+        - fieldName: maxUnitPrice
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: minUnitPrice
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: periodKey
+          orderByExpression: String1OrderByExp
+        - fieldName: productName
+          orderByExpression: String1OrderByExp
+        - fieldName: purchaseCount
+          orderByExpression: Int64OrderByExp
+        - fieldName: totalQuantity
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: totalSpent
+          orderByExpression: BigdecimalOrderByExp
+      orderableRelationships: []
+  graphql:
+    expressionTypeName: DashboardProductsOrderByExp
+
+---
+kind: Model
+version: v2
+definition:
+  name: DashboardProducts
+  objectType: DashboardProducts
+  source:
+    dataConnectorName: my_pg
+    collection: dashboard_products
+  filterExpressionType: DashboardProductsBoolExp
+  aggregateExpression: DashboardProductsAggExp
+  orderByExpression: DashboardProductsOrderByExp
+  graphql:
+    selectMany:
+      queryRootField: dashboardProducts
+      subscription:
+        rootField: dashboardProducts
+    selectUniques: []
+    filterInputTypeName: DashboardProductsFilterInput
+    aggregate:
+      queryRootField: dashboardProductsAggregate
+      subscription:
+        rootField: dashboardProductsAggregate
+
+---
+kind: ModelPermissions
+version: v1
+definition:
+  modelName: DashboardProducts
+  permissions:
+    - role: admin
+      select:
+        filter: null
+        allowSubscriptions: true
+

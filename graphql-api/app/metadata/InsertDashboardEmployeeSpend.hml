@@ -1,0 +1,139 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardEmployeeSpendObject
+  fields:
+    - name: companyId
+      type: Uuid
+    - name: periodKey
+      type: String_1
+    - name: receiptCount
+      type: Int64
+    - name: topCategory
+      type: String_1
+    - name: totalSpent
+      type: Bigdecimal
+    - name: userId
+      type: Uuid
+    - name: userName
+      type: String_1
+  graphql:
+    typeName: InsertDashboardEmployeeSpendObject
+    inputTypeName: InsertDashboardEmployeeSpendObjectInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_employee_spend_object
+      fieldMapping:
+        companyId:
+          column:
+            name: company_id
+        periodKey:
+          column:
+            name: period_key
+        receiptCount:
+          column:
+            name: receipt_count
+        topCategory:
+          column:
+            name: top_category
+        totalSpent:
+          column:
+            name: total_spent
+        userId:
+          column:
+            name: user_id
+        userName:
+          column:
+            name: user_name
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardEmployeeSpendObject
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - companyId
+          - periodKey
+          - receiptCount
+          - topCategory
+          - totalSpent
+          - userId
+          - userName
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardEmployeeSpendResponse
+  description: Responses from the 'insert_dashboard_employee_spend' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[DashboardEmployeeSpend!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: InsertDashboardEmployeeSpendResponse
+    inputTypeName: InsertDashboardEmployeeSpendResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_employee_spend_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardEmployeeSpendResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: InsertDashboardEmployeeSpend
+  outputType: InsertDashboardEmployeeSpendResponse!
+  arguments:
+    - name: objects
+      type: "[InsertDashboardEmployeeSpendObject!]!"
+    - name: postCheck
+      type: DashboardEmployeeSpendBoolExp
+      description: Insert permission predicate over the 'dashboard_employee_spend'
+        collection
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: insert_dashboard_employee_spend
+    argumentMapping:
+      objects: objects
+      postCheck: post_check
+  graphql:
+    rootFieldName: insertDashboardEmployeeSpend
+    rootFieldKind: Mutation
+  description: Insert into the dashboard_employee_spend table
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: InsertDashboardEmployeeSpend
+  permissions:
+    - role: admin
+      allowExecution: true
+

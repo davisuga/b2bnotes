@@ -122,6 +122,910 @@
         "foreignRelations": {},
         "description": null
       },
+      "dashboard_alerts": {
+        "schemaName": "public",
+        "tableName": "dashboard_alerts",
+        "columns": {
+          "alert_id": {
+            "name": "alert_id",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "alert_type": {
+            "name": "alert_type",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "amount": {
+            "name": "amount",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "category": {
+            "name": "category",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "company_id": {
+            "name": "company_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "count_value": {
+            "name": "count_value",
+            "type": {
+              "scalarType": "int8"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "employee_count": {
+            "name": "employee_count",
+            "type": {
+              "scalarType": "int8"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "limit_amount": {
+            "name": "limit_amount",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "max_price": {
+            "name": "max_price",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "min_price": {
+            "name": "min_price",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "percent_delta": {
+            "name": "percent_delta",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "period_key": {
+            "name": "period_key",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "priority": {
+            "name": "priority",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "product_name": {
+            "name": "product_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "receipt_id": {
+            "name": "receipt_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "team_median": {
+            "name": "team_median",
+            "type": {
+              "scalarType": "float8"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "team_total_spent": {
+            "name": "team_total_spent",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_id": {
+            "name": "user_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_name": {
+            "name": "user_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_name": {
+            "name": "vendor_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_tax_id": {
+            "name": "vendor_tax_id",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          }
+        },
+        "uniquenessConstraints": {},
+        "foreignRelations": {},
+        "description": null
+      },
+      "dashboard_category_spend": {
+        "schemaName": "public",
+        "tableName": "dashboard_category_spend",
+        "columns": {
+          "category": {
+            "name": "category",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "company_id": {
+            "name": "company_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "period_key": {
+            "name": "period_key",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "ratio": {
+            "name": "ratio",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "total_spent": {
+            "name": "total_spent",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          }
+        },
+        "uniquenessConstraints": {},
+        "foreignRelations": {},
+        "description": null
+      },
+      "dashboard_employee_spend": {
+        "schemaName": "public",
+        "tableName": "dashboard_employee_spend",
+        "columns": {
+          "company_id": {
+            "name": "company_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "period_key": {
+            "name": "period_key",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "receipt_count": {
+            "name": "receipt_count",
+            "type": {
+              "scalarType": "int8"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "top_category": {
+            "name": "top_category",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "total_spent": {
+            "name": "total_spent",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_id": {
+            "name": "user_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_name": {
+            "name": "user_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          }
+        },
+        "uniquenessConstraints": {},
+        "foreignRelations": {},
+        "description": null
+      },
+      "dashboard_products": {
+        "schemaName": "public",
+        "tableName": "dashboard_products",
+        "columns": {
+          "company_id": {
+            "name": "company_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "employee_count": {
+            "name": "employee_count",
+            "type": {
+              "scalarType": "int8"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "max_unit_price": {
+            "name": "max_unit_price",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "min_unit_price": {
+            "name": "min_unit_price",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "period_key": {
+            "name": "period_key",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "product_name": {
+            "name": "product_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "purchase_count": {
+            "name": "purchase_count",
+            "type": {
+              "scalarType": "int8"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "total_quantity": {
+            "name": "total_quantity",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "total_spent": {
+            "name": "total_spent",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          }
+        },
+        "uniquenessConstraints": {},
+        "foreignRelations": {},
+        "description": null
+      },
+      "dashboard_receipt_history": {
+        "schemaName": "public",
+        "tableName": "dashboard_receipt_history",
+        "columns": {
+          "company_id": {
+            "name": "company_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "created_at": {
+            "name": "created_at",
+            "type": {
+              "scalarType": "timestamptz"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "flagged_reason": {
+            "name": "flagged_reason",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "image_url": {
+            "name": "image_url",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "item_count": {
+            "name": "item_count",
+            "type": {
+              "scalarType": "int8"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "period_key": {
+            "name": "period_key",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "primary_category": {
+            "name": "primary_category",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "raw_text": {
+            "name": "raw_text",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "receipt_date": {
+            "name": "receipt_date",
+            "type": {
+              "scalarType": "date"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "receipt_id": {
+            "name": "receipt_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "status": {
+            "name": "status",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "total_amount": {
+            "name": "total_amount",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_id": {
+            "name": "user_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_name": {
+            "name": "user_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_name": {
+            "name": "vendor_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_tax_id": {
+            "name": "vendor_tax_id",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_tax_id_valid": {
+            "name": "vendor_tax_id_valid",
+            "type": {
+              "scalarType": "bool"
+            },
+            "nullable": "nullable",
+            "description": null
+          }
+        },
+        "uniquenessConstraints": {},
+        "foreignRelations": {},
+        "description": null
+      },
+      "dashboard_receipt_items_periodized": {
+        "schemaName": "public",
+        "tableName": "dashboard_receipt_items_periodized",
+        "columns": {
+          "category": {
+            "name": "category",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "company_id": {
+            "name": "company_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "created_at": {
+            "name": "created_at",
+            "type": {
+              "scalarType": "timestamptz"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "dashboard_category": {
+            "name": "dashboard_category",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "flagged_reason": {
+            "name": "flagged_reason",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "image_url": {
+            "name": "image_url",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "item_id": {
+            "name": "item_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "normalized_description": {
+            "name": "normalized_description",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "period_key": {
+            "name": "period_key",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "quantity": {
+            "name": "quantity",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "raw_description": {
+            "name": "raw_description",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "raw_text": {
+            "name": "raw_text",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "receipt_date": {
+            "name": "receipt_date",
+            "type": {
+              "scalarType": "date"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "receipt_id": {
+            "name": "receipt_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "source_text": {
+            "name": "source_text",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "status": {
+            "name": "status",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "total_amount": {
+            "name": "total_amount",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "total_price": {
+            "name": "total_price",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "unit_price": {
+            "name": "unit_price",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_id": {
+            "name": "user_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_name": {
+            "name": "user_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_name": {
+            "name": "vendor_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_tax_id": {
+            "name": "vendor_tax_id",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_tax_id_valid": {
+            "name": "vendor_tax_id_valid",
+            "type": {
+              "scalarType": "bool"
+            },
+            "nullable": "nullable",
+            "description": null
+          }
+        },
+        "uniquenessConstraints": {},
+        "foreignRelations": {},
+        "description": null
+      },
+      "dashboard_receipts_periodized": {
+        "schemaName": "public",
+        "tableName": "dashboard_receipts_periodized",
+        "columns": {
+          "company_id": {
+            "name": "company_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "created_at": {
+            "name": "created_at",
+            "type": {
+              "scalarType": "timestamptz"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "flagged_reason": {
+            "name": "flagged_reason",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "image_url": {
+            "name": "image_url",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "period_key": {
+            "name": "period_key",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "raw_text": {
+            "name": "raw_text",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "receipt_date": {
+            "name": "receipt_date",
+            "type": {
+              "scalarType": "date"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "receipt_id": {
+            "name": "receipt_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "status": {
+            "name": "status",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "total_amount": {
+            "name": "total_amount",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_id": {
+            "name": "user_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "user_name": {
+            "name": "user_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_name": {
+            "name": "vendor_name",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_tax_id": {
+            "name": "vendor_tax_id",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "vendor_tax_id_valid": {
+            "name": "vendor_tax_id_valid",
+            "type": {
+              "scalarType": "bool"
+            },
+            "nullable": "nullable",
+            "description": null
+          }
+        },
+        "uniquenessConstraints": {},
+        "foreignRelations": {},
+        "description": null
+      },
+      "dashboard_summary": {
+        "schemaName": "public",
+        "tableName": "dashboard_summary",
+        "columns": {
+          "company_id": {
+            "name": "company_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "period_key": {
+            "name": "period_key",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "receipts_processed": {
+            "name": "receipts_processed",
+            "type": {
+              "scalarType": "int8"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "total_spent": {
+            "name": "total_spent",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "unique_employees": {
+            "name": "unique_employees",
+            "type": {
+              "scalarType": "int8"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "unique_products": {
+            "name": "unique_products",
+            "type": {
+              "scalarType": "int8"
+            },
+            "nullable": "nullable",
+            "description": null
+          }
+        },
+        "uniquenessConstraints": {},
+        "foreignRelations": {},
+        "description": null
+      },
       "receipt_items": {
         "schemaName": "public",
         "tableName": "receipt_items",
@@ -144,14 +1048,6 @@
             "hasDefault": "hasDefault",
             "description": null
           },
-          "description": {
-            "name": "description",
-            "type": {
-              "scalarType": "text"
-            },
-            "nullable": "nonNullable",
-            "description": null
-          },
           "id": {
             "name": "id",
             "type": {
@@ -170,6 +1066,14 @@
             "hasDefault": "hasDefault",
             "description": null
           },
+          "normalized_description": {
+            "name": "normalized_description",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nonNullable",
+            "description": null
+          },
           "quantity": {
             "name": "quantity",
             "type": {
@@ -177,6 +1081,14 @@
             },
             "nullable": "nullable",
             "hasDefault": "hasDefault",
+            "description": null
+          },
+          "raw_description": {
+            "name": "raw_description",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nonNullable",
             "description": null
           },
           "receipt_id": {
@@ -241,6 +1153,14 @@
             "hasDefault": "hasDefault",
             "description": null
           },
+          "flagged_reason": {
+            "name": "flagged_reason",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
           "id": {
             "name": "id",
             "type": {
@@ -252,6 +1172,14 @@
           },
           "image_url": {
             "name": "image_url",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "raw_text": {
+            "name": "raw_text",
             "type": {
               "scalarType": "text"
             },
@@ -335,6 +1263,81 @@
             "foreignTable": "users",
             "columnMapping": {
               "user_id": "id"
+            }
+          }
+        },
+        "description": null
+      },
+      "spend_policies": {
+        "schemaName": "public",
+        "tableName": "spend_policies",
+        "columns": {
+          "category": {
+            "name": "category",
+            "type": {
+              "scalarType": "text"
+            },
+            "nullable": "nonNullable",
+            "description": null
+          },
+          "company_id": {
+            "name": "company_id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nonNullable",
+            "description": null
+          },
+          "created_at": {
+            "name": "created_at",
+            "type": {
+              "scalarType": "timestamptz"
+            },
+            "nullable": "nullable",
+            "hasDefault": "hasDefault",
+            "description": null
+          },
+          "id": {
+            "name": "id",
+            "type": {
+              "scalarType": "uuid"
+            },
+            "nullable": "nonNullable",
+            "hasDefault": "hasDefault",
+            "description": null
+          },
+          "max_per_month": {
+            "name": "max_per_month",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          },
+          "max_per_transaction": {
+            "name": "max_per_transaction",
+            "type": {
+              "scalarType": "numeric"
+            },
+            "nullable": "nullable",
+            "description": null
+          }
+        },
+        "uniquenessConstraints": {
+          "spend_policies_company_id_category_key": [
+            "category",
+            "company_id"
+          ],
+          "spend_policies_pkey": [
+            "id"
+          ]
+        },
+        "foreignRelations": {
+          "spend_policies_company_id_fkey": {
+            "foreignSchema": "public",
+            "foreignTable": "companies",
+            "columnMapping": {
+              "company_id": "id"
             }
           }
         },
@@ -535,6 +1538,179 @@
             }
           },
           "typeRepresentation": "date"
+        },
+        "float8": {
+          "typeName": "float8",
+          "schemaName": "pg_catalog",
+          "description": null,
+          "aggregateFunctions": {
+            "avg": {
+              "returnType": "float8"
+            },
+            "max": {
+              "returnType": "float8"
+            },
+            "min": {
+              "returnType": "float8"
+            },
+            "stddev": {
+              "returnType": "float8"
+            },
+            "stddev_pop": {
+              "returnType": "float8"
+            },
+            "stddev_samp": {
+              "returnType": "float8"
+            },
+            "sum": {
+              "returnType": "float8"
+            },
+            "var_pop": {
+              "returnType": "float8"
+            },
+            "var_samp": {
+              "returnType": "float8"
+            },
+            "variance": {
+              "returnType": "float8"
+            }
+          },
+          "comparisonOperators": {
+            "_eq": {
+              "operatorName": "=",
+              "operatorKind": "equal",
+              "argumentType": "float8",
+              "isInfix": true
+            },
+            "_gt": {
+              "operatorName": ">",
+              "operatorKind": "greaterThan",
+              "argumentType": "float8",
+              "isInfix": true
+            },
+            "_gte": {
+              "operatorName": ">=",
+              "operatorKind": "greaterThanOrEqual",
+              "argumentType": "float8",
+              "isInfix": true
+            },
+            "_in": {
+              "operatorName": "IN",
+              "operatorKind": "in",
+              "argumentType": "float8",
+              "isInfix": true
+            },
+            "_lt": {
+              "operatorName": "<",
+              "operatorKind": "lessThan",
+              "argumentType": "float8",
+              "isInfix": true
+            },
+            "_lte": {
+              "operatorName": "<=",
+              "operatorKind": "lessThanOrEqual",
+              "argumentType": "float8",
+              "isInfix": true
+            },
+            "_neq": {
+              "operatorName": "<>",
+              "operatorKind": "custom",
+              "argumentType": "float8",
+              "isInfix": true
+            }
+          },
+          "typeRepresentation": "float64"
+        },
+        "int8": {
+          "typeName": "int8",
+          "schemaName": "pg_catalog",
+          "description": null,
+          "aggregateFunctions": {
+            "avg": {
+              "returnType": "numeric"
+            },
+            "bit_and": {
+              "returnType": "int8"
+            },
+            "bit_or": {
+              "returnType": "int8"
+            },
+            "bit_xor": {
+              "returnType": "int8"
+            },
+            "max": {
+              "returnType": "int8"
+            },
+            "min": {
+              "returnType": "int8"
+            },
+            "stddev": {
+              "returnType": "numeric"
+            },
+            "stddev_pop": {
+              "returnType": "numeric"
+            },
+            "stddev_samp": {
+              "returnType": "numeric"
+            },
+            "sum": {
+              "returnType": "numeric"
+            },
+            "var_pop": {
+              "returnType": "numeric"
+            },
+            "var_samp": {
+              "returnType": "numeric"
+            },
+            "variance": {
+              "returnType": "numeric"
+            }
+          },
+          "comparisonOperators": {
+            "_eq": {
+              "operatorName": "=",
+              "operatorKind": "equal",
+              "argumentType": "int8",
+              "isInfix": true
+            },
+            "_gt": {
+              "operatorName": ">",
+              "operatorKind": "greaterThan",
+              "argumentType": "int8",
+              "isInfix": true
+            },
+            "_gte": {
+              "operatorName": ">=",
+              "operatorKind": "greaterThanOrEqual",
+              "argumentType": "int8",
+              "isInfix": true
+            },
+            "_in": {
+              "operatorName": "IN",
+              "operatorKind": "in",
+              "argumentType": "int8",
+              "isInfix": true
+            },
+            "_lt": {
+              "operatorName": "<",
+              "operatorKind": "lessThan",
+              "argumentType": "int8",
+              "isInfix": true
+            },
+            "_lte": {
+              "operatorName": "<=",
+              "operatorKind": "lessThanOrEqual",
+              "argumentType": "int8",
+              "isInfix": true
+            },
+            "_neq": {
+              "operatorName": "<>",
+              "operatorKind": "custom",
+              "argumentType": "int8",
+              "isInfix": true
+            }
+          },
+          "typeRepresentation": "int64AsString"
         },
         "numeric": {
           "typeName": "numeric",

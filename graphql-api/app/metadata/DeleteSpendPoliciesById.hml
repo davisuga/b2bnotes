@@ -1,0 +1,72 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: DeleteSpendPoliciesByIdResponse
+  description: Responses from the 'delete_spend_policies_by_id' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[SpendPolicies!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: DeleteSpendPoliciesByIdResponse
+    inputTypeName: DeleteSpendPoliciesByIdResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: delete_spend_policies_by_id_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: DeleteSpendPoliciesByIdResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: DeleteSpendPoliciesById
+  outputType: DeleteSpendPoliciesByIdResponse!
+  arguments:
+    - name: keyId
+      type: Uuid!
+    - name: preCheck
+      type: SpendPoliciesBoolExp
+      description: Delete permission predicate over the 'spend_policies' collection
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: delete_spend_policies_by_id
+    argumentMapping:
+      keyId: key_id
+      preCheck: pre_check
+  graphql:
+    rootFieldName: deleteSpendPoliciesById
+    rootFieldKind: Mutation
+  description: Delete any row on the 'spend_policies' collection using the 'id' key
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: DeleteSpendPoliciesById
+  permissions:
+    - role: admin
+      allowExecution: true
+

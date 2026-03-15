@@ -1,0 +1,150 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardProductsObject
+  fields:
+    - name: companyId
+      type: Uuid
+    - name: employeeCount
+      type: Int64
+    - name: maxUnitPrice
+      type: Bigdecimal
+    - name: minUnitPrice
+      type: Bigdecimal
+    - name: periodKey
+      type: String_1
+    - name: productName
+      type: String_1
+    - name: purchaseCount
+      type: Int64
+    - name: totalQuantity
+      type: Bigdecimal
+    - name: totalSpent
+      type: Bigdecimal
+  graphql:
+    typeName: InsertDashboardProductsObject
+    inputTypeName: InsertDashboardProductsObjectInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_products_object
+      fieldMapping:
+        companyId:
+          column:
+            name: company_id
+        employeeCount:
+          column:
+            name: employee_count
+        maxUnitPrice:
+          column:
+            name: max_unit_price
+        minUnitPrice:
+          column:
+            name: min_unit_price
+        periodKey:
+          column:
+            name: period_key
+        productName:
+          column:
+            name: product_name
+        purchaseCount:
+          column:
+            name: purchase_count
+        totalQuantity:
+          column:
+            name: total_quantity
+        totalSpent:
+          column:
+            name: total_spent
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardProductsObject
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - companyId
+          - employeeCount
+          - maxUnitPrice
+          - minUnitPrice
+          - periodKey
+          - productName
+          - purchaseCount
+          - totalQuantity
+          - totalSpent
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardProductsResponse
+  description: Responses from the 'insert_dashboard_products' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[DashboardProducts!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: InsertDashboardProductsResponse
+    inputTypeName: InsertDashboardProductsResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_products_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardProductsResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: InsertDashboardProducts
+  outputType: InsertDashboardProductsResponse!
+  arguments:
+    - name: objects
+      type: "[InsertDashboardProductsObject!]!"
+    - name: postCheck
+      type: DashboardProductsBoolExp
+      description: Insert permission predicate over the 'dashboard_products' collection
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: insert_dashboard_products
+    argumentMapping:
+      objects: objects
+      postCheck: post_check
+  graphql:
+    rootFieldName: insertDashboardProducts
+    rootFieldKind: Mutation
+  description: Insert into the dashboard_products table
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: InsertDashboardProducts
+  permissions:
+    - role: admin
+      allowExecution: true
+

@@ -1,0 +1,187 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: SpendPolicies
+  fields:
+    - name: category
+      type: String_1!
+    - name: companyId
+      type: Uuid!
+    - name: createdAt
+      type: Timestamptz
+    - name: id
+      type: Uuid!
+    - name: maxPerMonth
+      type: Bigdecimal
+    - name: maxPerTransaction
+      type: Bigdecimal
+  graphql:
+    typeName: SpendPolicies
+    inputTypeName: SpendPoliciesInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: spend_policies
+      fieldMapping:
+        category:
+          column:
+            name: category
+        companyId:
+          column:
+            name: company_id
+        createdAt:
+          column:
+            name: created_at
+        id:
+          column:
+            name: id
+        maxPerMonth:
+          column:
+            name: max_per_month
+        maxPerTransaction:
+          column:
+            name: max_per_transaction
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: SpendPolicies
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - category
+          - companyId
+          - createdAt
+          - id
+          - maxPerMonth
+          - maxPerTransaction
+
+---
+kind: BooleanExpressionType
+version: v1
+definition:
+  name: SpendPoliciesBoolExp
+  operand:
+    object:
+      type: SpendPolicies
+      comparableFields:
+        - fieldName: category
+          booleanExpressionType: TextBoolExp
+        - fieldName: companyId
+          booleanExpressionType: UuidBoolExp
+        - fieldName: createdAt
+          booleanExpressionType: TimestamptzBoolExp
+        - fieldName: id
+          booleanExpressionType: UuidBoolExp
+        - fieldName: maxPerMonth
+          booleanExpressionType: NumericBoolExp
+        - fieldName: maxPerTransaction
+          booleanExpressionType: NumericBoolExp
+      comparableRelationships: []
+  logicalOperators:
+    enable: true
+  isNull:
+    enable: true
+  graphql:
+    typeName: SpendPoliciesBoolExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: SpendPoliciesAggExp
+  operand:
+    object:
+      aggregatedType: SpendPolicies
+      aggregatableFields:
+        - fieldName: category
+          aggregateExpression: TextAggExp
+        - fieldName: companyId
+          aggregateExpression: UuidAggExp
+        - fieldName: createdAt
+          aggregateExpression: TimestamptzAggExp
+        - fieldName: id
+          aggregateExpression: UuidAggExp
+        - fieldName: maxPerMonth
+          aggregateExpression: NumericAggExp
+        - fieldName: maxPerTransaction
+          aggregateExpression: NumericAggExp
+  count:
+    enable: true
+    returnType: Int64
+  graphql:
+    selectTypeName: SpendPoliciesAggExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: SpendPoliciesOrderByExp
+  operand:
+    object:
+      orderedType: SpendPolicies
+      orderableFields:
+        - fieldName: category
+          orderByExpression: String1OrderByExp
+        - fieldName: companyId
+          orderByExpression: UuidOrderByExp
+        - fieldName: createdAt
+          orderByExpression: TimestamptzOrderByExp
+        - fieldName: id
+          orderByExpression: UuidOrderByExp
+        - fieldName: maxPerMonth
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: maxPerTransaction
+          orderByExpression: BigdecimalOrderByExp
+      orderableRelationships: []
+  graphql:
+    expressionTypeName: SpendPoliciesOrderByExp
+
+---
+kind: Model
+version: v2
+definition:
+  name: SpendPolicies
+  objectType: SpendPolicies
+  source:
+    dataConnectorName: my_pg
+    collection: spend_policies
+  filterExpressionType: SpendPoliciesBoolExp
+  aggregateExpression: SpendPoliciesAggExp
+  orderByExpression: SpendPoliciesOrderByExp
+  graphql:
+    selectMany:
+      queryRootField: spendPolicies
+      subscription:
+        rootField: spendPolicies
+    selectUniques:
+      - queryRootField: spendPoliciesBySpendPoliciesCompanyIdCategoryKey
+        uniqueIdentifier:
+          - category
+          - companyId
+        subscription:
+          rootField: spendPoliciesBySpendPoliciesCompanyIdCategoryKey
+      - queryRootField: spendPoliciesById
+        uniqueIdentifier:
+          - id
+        subscription:
+          rootField: spendPoliciesById
+    filterInputTypeName: SpendPoliciesFilterInput
+    aggregate:
+      queryRootField: spendPoliciesAggregate
+      subscription:
+        rootField: spendPoliciesAggregate
+
+---
+kind: ModelPermissions
+version: v1
+definition:
+  modelName: SpendPolicies
+  permissions:
+    - role: admin
+      select:
+        filter: null
+        allowSubscriptions: true
+

@@ -103,11 +103,11 @@ afterAll(async () => {
 })
 
 describe("dashboard GraphQL integration", () => {
-  it("exposes policy models and vendor tax receipt fields through the dashboard queries", async () => {
-    const companyName = `Dashboard Policy Test ${Date.now()}`
-    const vendorName = `Dashboard Receipt Test ${Date.now()}`
+  it("exposes spend policies, receipt extraction fields, and dashboard views", async () => {
+    const companyName = `Dashboard Views Test ${Date.now()}`
+    const vendorName = `Dashboard Vendor ${Date.now()}`
     const imageReference = getStoredImageReference(
-      `receipts/${seededUserId}/dashboard-graphql-test.jpg`
+      `receipts/${seededUserId}/dashboard-views-test.jpg`
     )
 
     const insertedCompany = await postGraphQl<{
@@ -119,15 +119,15 @@ describe("dashboard GraphQL integration", () => {
       }
     }>(
       `
-          mutation InsertDashboardCompany($objects: [InsertCompaniesObjectInput!]!) {
-            insertCompanies(objects: $objects) {
-              returning {
-                id
-                name
-              }
+        mutation InsertDashboardCompany($objects: [InsertCompaniesObjectInput!]!) {
+          insertCompanies(objects: $objects) {
+            returning {
+              id
+              name
             }
           }
-        `,
+        }
+      `,
       {
         objects: [{ name: companyName }],
       }
@@ -138,89 +138,89 @@ describe("dashboard GraphQL integration", () => {
     createdCompanyIds.push(company!.id)
 
     const insertedPolicy = await postGraphQl<{
-      insertCategorySpendLimits: {
+      insertSpendPolicies: {
         returning: Array<{
           category: string
           companyId: string
           id: string
-          maxReceiptAmount: string
+          maxPerMonth: string | null
+          maxPerTransaction: string | null
         }>
       }
     }>(
       `
-          mutation InsertDashboardPolicy($objects: [InsertCategorySpendLimitsObjectInput!]!) {
-            insertCategorySpendLimits(objects: $objects) {
-              returning {
-                id
-                category
-                companyId
-                maxReceiptAmount
-              }
+        mutation InsertDashboardPolicy($objects: [InsertSpendPoliciesObjectInput!]!) {
+          insertSpendPolicies(objects: $objects) {
+            returning {
+              id
+              category
+              companyId
+              maxPerMonth
+              maxPerTransaction
             }
           }
-        `,
+        }
+      `,
       {
         objects: [
           {
             category: "food",
             companyId: company!.id,
-            maxReceiptAmount: "88.00",
+            maxPerMonth: "250.00",
+            maxPerTransaction: "88.00",
           },
         ],
       }
     )
 
-    const policy = insertedPolicy.insertCategorySpendLimits.returning[0]
+    const policy = insertedPolicy.insertSpendPolicies.returning[0]
     expect(policy).toMatchObject({
       category: "food",
       companyId: company?.id,
-      maxReceiptAmount: "88.00",
+      maxPerMonth: "250.00",
+      maxPerTransaction: "88.00",
     })
 
     const updatedPolicy = await postGraphQl<{
-      updateCategorySpendLimitsById: {
+      updateSpendPoliciesById: {
         returning: Array<{
-          category: string
-          companyId: string
           id: string
-          maxReceiptAmount: string
+          maxPerTransaction: string | null
         }>
       }
     }>(
       `
-          mutation UpdateDashboardPolicy($keyId: Uuid!, $updateColumns: UpdateCategorySpendLimitsByIdUpdateColumnsInput!) {
-            updateCategorySpendLimitsById(keyId: $keyId, updateColumns: $updateColumns) {
-              returning {
-                id
-                category
-                companyId
-                maxReceiptAmount
-              }
+        mutation UpdateDashboardPolicy($keyId: Uuid!, $updateColumns: UpdateSpendPoliciesByIdUpdateColumnsInput!) {
+          updateSpendPoliciesById(keyId: $keyId, updateColumns: $updateColumns) {
+            returning {
+              id
+              maxPerTransaction
             }
           }
-        `,
+        }
+      `,
       {
         keyId: policy?.id,
         updateColumns: {
-          maxReceiptAmount: {
+          maxPerTransaction: {
             set: "95.00",
           },
         },
       }
     )
 
-    expect(
-      updatedPolicy.updateCategorySpendLimitsById.returning[0]
-    ).toMatchObject({
+    expect(updatedPolicy.updateSpendPoliciesById.returning[0]).toMatchObject({
       id: policy?.id,
-      maxReceiptAmount: "95.00",
+      maxPerTransaction: "95.00",
     })
 
     const insertedReceipt = await postGraphQl<{
       insertReceipts: {
         returning: Array<{
+          flaggedReason: string | null
           id: string
           imageUrl: string | null
+          rawText: string | null
           receiptDate: string
           totalAmount: string
           vendorName: string
@@ -230,32 +230,36 @@ describe("dashboard GraphQL integration", () => {
       }
     }>(
       `
-          mutation InsertDashboardReceipt($objects: [InsertReceiptsObjectInput!]!) {
-            insertReceipts(objects: $objects) {
-              returning {
-                id
-                imageUrl
-                receiptDate
-                totalAmount
-                vendorName
-                vendorTaxId
-                vendorTaxIdValid
-              }
+        mutation InsertDashboardReceipt($objects: [InsertReceiptsObjectInput!]!) {
+          insertReceipts(objects: $objects) {
+            returning {
+              id
+              flaggedReason
+              imageUrl
+              rawText
+              receiptDate
+              totalAmount
+              vendorName
+              vendorTaxId
+              vendorTaxIdValid
             }
           }
-        `,
+        }
+      `,
       {
         objects: [
           {
             companyId: seededCompanyId,
+            flaggedReason: "no_cnpj",
             imageUrl: imageReference,
+            rawText: "ARROZ TIPO 1 5KG",
             receiptDate: "2026-03-14",
             status: "extracted",
             totalAmount: "42.50",
             userId: seededUserId,
             vendorName,
-            vendorTaxId: "11444777000161",
-            vendorTaxIdValid: true,
+            vendorTaxId: null,
+            vendorTaxIdValid: false,
           },
         ],
       }
@@ -263,171 +267,192 @@ describe("dashboard GraphQL integration", () => {
 
     const receipt = insertedReceipt.insertReceipts.returning[0]
     expect(receipt).toMatchObject({
+      flaggedReason: "no_cnpj",
       imageUrl: imageReference,
+      rawText: "ARROZ TIPO 1 5KG",
       receiptDate: "2026-03-14",
       totalAmount: "42.50",
       vendorName,
-      vendorTaxId: "11444777000161",
-      vendorTaxIdValid: true,
+      vendorTaxId: null,
+      vendorTaxIdValid: false,
     })
     createdReceiptIds.push(receipt!.id)
 
     const insertedItem = await postGraphQl<{
       insertReceiptItems: {
         returning: Array<{
-          description: string
           id: string
+          normalizedDescription: string
+          rawDescription: string
           totalPrice: string
         }>
       }
     }>(
       `
-          mutation InsertDashboardReceiptItems($objects: [InsertReceiptItemsObjectInput!]!) {
-            insertReceiptItems(objects: $objects) {
-              returning {
-                id
-                description
-                totalPrice
-              }
+        mutation InsertDashboardReceiptItems($objects: [InsertReceiptItemsObjectInput!]!) {
+          insertReceiptItems(objects: $objects) {
+            returning {
+              id
+              normalizedDescription
+              rawDescription
+              totalPrice
             }
           }
-        `,
+        }
+      `,
       {
         objects: [
           {
-            category: "Office Supplies",
-            description: "Printer Paper",
-            quantity: "2.00",
+            category: "Alimentação",
+            normalizedDescription: "Arroz 5kg",
+            quantity: "1.00",
+            rawDescription: "ARROZ TIPO 1 5KG",
             receiptId: receipt!.id,
             totalPrice: "42.50",
-            unitPrice: "21.25",
+            unitPrice: "42.50",
           },
         ],
       }
     )
 
     createdReceiptItemIds.push(insertedItem.insertReceiptItems.returning[0]!.id)
+    expect(insertedItem.insertReceiptItems.returning[0]).toMatchObject({
+      normalizedDescription: "Arroz 5kg",
+      rawDescription: "ARROZ TIPO 1 5KG",
+      totalPrice: "42.50",
+    })
 
-    const dashboardBootstrap = await postGraphQl<{
-      categorySpendLimits: Array<{
+    const dashboardViews = await postGraphQl<{
+      dashboardAlerts: Array<{
+        alertType: string
+      }> | null
+      dashboardCategorySpend: Array<{
         category: string
-        companyId: string
-        id: string
-        maxReceiptAmount: string
+        totalSpent: string
       }> | null
-      receipts: Array<{
-        id: string
-        receiptDate: string
+      dashboardEmployeeSpend: Array<{
+        receiptCount: string
+        totalSpent: string
+        topCategory: string
+        userId: string
+      }> | null
+      dashboardProducts: Array<{
+        employeeCount: string
+        productName: string
+        purchaseCount: string
+        totalSpent: string
+      }> | null
+      dashboardReceiptHistory: Array<{
+        itemCount: string
+        primaryCategory: string
+        receiptId: string
         totalAmount: string
-        vendorName: string
-        vendorTaxId: string | null
-        vendorTaxIdValid: boolean
-        receiptItems: Array<{
-          description: string
-          totalPrice: string
-        }> | null
       }> | null
-      users: Array<{
-        companyId: string
-        fullName: string
-        id: string
+      dashboardSummary: Array<{
+        receiptsProcessed: string
+        totalSpent: string
+        uniqueEmployees: string
+        uniqueProducts: string
       }> | null
     }>(
       `
-          query DashboardBootstrap {
-            users(order_by: [{ fullName: Asc }]) {
-              id
-              companyId
-              fullName
-            }
-            categorySpendLimits(order_by: [{ category: Asc }]) {
-              id
-              category
-              companyId
-              maxReceiptAmount
-            }
-            receipts(order_by: [{ receiptDate: Desc }, { createdAt: Desc }]) {
-              id
-              receiptDate
-              totalAmount
-              vendorName
-              vendorTaxId
-              vendorTaxIdValid
-              receiptItems(order_by: [{ totalPrice: Desc }, { description: Asc }]) {
-                description
-                totalPrice
-              }
-            }
+        query DashboardViews($companyId: Uuid!, $periodKey: String1!) {
+          dashboardSummary(
+            where: { companyId: { _eq: $companyId }, periodKey: { _eq: $periodKey } }
+          ) {
+            receiptsProcessed
+            totalSpent
+            uniqueEmployees
+            uniqueProducts
           }
-        `
+          dashboardEmployeeSpend(
+            where: { companyId: { _eq: $companyId }, periodKey: { _eq: $periodKey } }
+          ) {
+            userId
+            receiptCount
+            totalSpent
+            topCategory
+          }
+          dashboardProducts(
+            where: { companyId: { _eq: $companyId }, periodKey: { _eq: $periodKey } }
+          ) {
+            productName
+            purchaseCount
+            employeeCount
+            totalSpent
+          }
+          dashboardCategorySpend(
+            where: { companyId: { _eq: $companyId }, periodKey: { _eq: $periodKey } }
+          ) {
+            category
+            totalSpent
+          }
+          dashboardReceiptHistory(
+            where: { companyId: { _eq: $companyId }, periodKey: { _eq: $periodKey } }
+          ) {
+            receiptId
+            itemCount
+            primaryCategory
+            totalAmount
+          }
+          dashboardAlerts(
+            where: { companyId: { _eq: $companyId }, periodKey: { _eq: $periodKey } }
+          ) {
+            alertType
+          }
+        }
+      `,
+      {
+        companyId: seededCompanyId,
+        periodKey: "30d",
+      }
     )
 
+    expect(dashboardViews.dashboardSummary?.[0]).toMatchObject({
+      receiptsProcessed: expect.any(String),
+      totalSpent: expect.any(String),
+      uniqueEmployees: expect.any(String),
+      uniqueProducts: expect.any(String),
+    })
+
     expect(
-      dashboardBootstrap.users?.some((user) => user.id === seededUserId)
-    ).toBe(true)
-    expect(
-      dashboardBootstrap.categorySpendLimits?.find(
-        (entry) => entry.id === policy?.id
+      dashboardViews.dashboardEmployeeSpend?.some(
+        (entry) => entry.userId === seededUserId && entry.topCategory === "food"
       )
-    ).toMatchObject({
-      category: "food",
-      companyId: company?.id,
-      maxReceiptAmount: "95.00",
-    })
+    ).toBe(true)
+
     expect(
-      dashboardBootstrap.receipts?.find((entry) => entry.id === receipt?.id)
-    ).toMatchObject({
-      receiptDate: "2026-03-14",
-      totalAmount: "42.50",
-      vendorName,
-      vendorTaxId: "11444777000161",
-      vendorTaxIdValid: true,
-      receiptItems: [{ description: "Printer Paper", totalPrice: "42.50" }],
-    })
+      dashboardViews.dashboardProducts?.some(
+        (entry) =>
+          entry.productName === "Arroz 5kg" &&
+          Number.parseInt(entry.purchaseCount, 10) >= 1 &&
+          Number.parseInt(entry.employeeCount, 10) >= 1 &&
+          Number.parseFloat(entry.totalSpent) >= 42.5
+      )
+    ).toBe(true)
 
-    const receiptDetail = await postGraphQl<{
-      receiptsById: {
-        id: string
-        receiptDate: string
-        totalAmount: string
-        vendorName: string
-        vendorTaxId: string | null
-        vendorTaxIdValid: boolean
-        receiptItems: Array<{
-          description: string
-          totalPrice: string
-        }> | null
-      } | null
-    }>(
-      `
-          query DashboardReceiptDetail($id: Uuid!) {
-            receiptsById(id: $id) {
-              id
-              receiptDate
-              totalAmount
-              vendorName
-              vendorTaxId
-              vendorTaxIdValid
-              receiptItems(order_by: [{ totalPrice: Desc }, { description: Asc }]) {
-                description
-                totalPrice
-              }
-            }
-          }
-        `,
-      { id: receipt!.id }
-    )
+    expect(
+      dashboardViews.dashboardCategorySpend?.some(
+        (entry) =>
+          entry.category === "food" &&
+          Number.parseFloat(entry.totalSpent) >= 42.5
+      )
+    ).toBe(true)
 
-    expect(receiptDetail.receiptsById).toMatchObject({
-      id: receipt?.id,
-      receiptDate: "2026-03-14",
-      totalAmount: "42.50",
-      vendorName,
-      vendorTaxId: "11444777000161",
-      vendorTaxIdValid: true,
-    })
-    expect(receiptDetail.receiptsById?.receiptItems).toEqual([
-      { description: "Printer Paper", totalPrice: "42.50" },
-    ])
+    expect(
+      dashboardViews.dashboardReceiptHistory?.some(
+        (entry) =>
+          entry.receiptId === receipt?.id &&
+          entry.itemCount === "1" &&
+          entry.primaryCategory === "food" &&
+          entry.totalAmount === "42.50"
+      )
+    ).toBe(true)
+
+    expect(
+      dashboardViews.dashboardAlerts?.some(
+        (entry) => entry.alertType === "tax_invalid"
+      )
+    ).toBe(true)
   }, 20_000)
 })

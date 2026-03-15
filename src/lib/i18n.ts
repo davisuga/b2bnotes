@@ -92,10 +92,35 @@ const resources = {
           history: {
             title: "Histórico de recibos",
             description:
-              "Abra qualquer recibo para conferir a imagem original e os itens extraídos a qualquer momento.",
+              "Pesquise, filtre e ordene os recibos para conferir a imagem original e os itens extraídos a qualquer momento.",
             empty: "Nenhum recibo foi enviado no período selecionado.",
             cta: "Escanear recibos neste período",
           },
+        },
+        table: {
+          searchLabel: "Buscar",
+          searchPlaceholder:
+            "Buscar por recibo, data, funcionário, fornecedor ou categoria",
+          employeeSearchPlaceholder:
+            "Buscar por funcionário ou categoria principal",
+          categoryFilter: "Categoria",
+          allCategories: "Todas as categorias",
+          receipt: "Recibo",
+          date: "Data",
+          employee: "Funcionário",
+          receipts: "Recibos",
+          merchant: "Fornecedor",
+          category: "Categoria",
+          amount: "Valor",
+          total: "Total",
+          alerts: "Alertas",
+          previousPage: "Anterior",
+          nextPage: "Próxima",
+          pageSummary: "Página {{page}} de {{total}}",
+          resultSummary: "{{count}} resultados",
+          noEmployeeResults:
+            "Nenhum funcionário corresponde à busca neste período.",
+          noResults: "Nenhum recibo corresponde à busca ou aos filtros.",
         },
         labels: {
           receiptCount: "recibos",
@@ -114,6 +139,12 @@ const resources = {
           receiptDetailUnavailable: "Detalhes indisponíveis",
           receiptDetailUnavailableFallback:
             "Não foi possível abrir o recibo selecionado.",
+          employeeDetail: "Detalhes do funcionário",
+          employeeReceipts: "Recibos do funcionário",
+          employeeDrawerHint:
+            "Abra qualquer recibo para verificar a foto original e os itens extraídos.",
+          close: "Fechar",
+          noAlerts: "Sem alertas",
           noSourceImage:
             "A imagem original não está disponível, mas os itens extraídos continuam visíveis para auditoria.",
           supplier: "Fornecedor",
@@ -122,6 +153,7 @@ const resources = {
           total: "Total",
           vendorTaxId: "CNPJ do fornecedor",
           status: "Status",
+          receiptImageAlt: "Imagem do recibo de {{vendorName}}",
           other: "Outros",
           priceAnomaly: "Anomalia de preço",
           missing: "Ausente",
@@ -141,6 +173,8 @@ const resources = {
             "{{vendorName}} está sem um CNPJ válido no recibo de {{userName}}.",
           policyExceeded:
             "{{userName}} gastou {{categoryTotal}} em {{category}} em {{vendorName}}, acima do limite de {{limitAmount}}.",
+          policyMonthlyExceeded:
+            "{{category}} acumulou {{totalSpent}} no período, acima do limite mensal de {{limitAmount}}.",
           personalPurchase:
             "{{userName}} enviou {{itemDescription}} em {{vendorName}}, e isso parece uma compra pessoal.",
           duplicateReceipts:

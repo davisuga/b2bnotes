@@ -2,40 +2,48 @@
 kind: ObjectType
 version: v1
 definition:
-  name: Receipts
+  name: DashboardReceiptHistory
   fields:
     - name: companyId
-      type: Uuid!
+      type: Uuid
     - name: createdAt
       type: Timestamptz
-    - name: id
-      type: Uuid!
+    - name: flaggedReason
+      type: String_1
     - name: imageUrl
       type: String_1
-    - name: receiptDate
-      type: Date!
-    - name: status
+    - name: itemCount
+      type: Int64
+    - name: periodKey
       type: String_1
-    - name: totalAmount
-      type: Bigdecimal!
-    - name: userId
-      type: Uuid!
-    - name: vendorName
-      type: String_1!
-    - name: vendorTaxId
-      type: String_1
-    - name: vendorTaxIdValid
-      type: Boolean_1!
-    - name: flaggedReason
+    - name: primaryCategory
       type: String_1
     - name: rawText
       type: String_1
+    - name: receiptDate
+      type: Date
+    - name: receiptId
+      type: Uuid
+    - name: status
+      type: String_1
+    - name: totalAmount
+      type: Bigdecimal
+    - name: userId
+      type: Uuid
+    - name: userName
+      type: String_1
+    - name: vendorName
+      type: String_1
+    - name: vendorTaxId
+      type: String_1
+    - name: vendorTaxIdValid
+      type: Boolean_1
   graphql:
-    typeName: Receipts
-    inputTypeName: ReceiptsInput
+    typeName: DashboardReceiptHistory
+    inputTypeName: DashboardReceiptHistoryInput
   dataConnectorTypeMapping:
     - dataConnectorName: my_pg
-      dataConnectorObjectType: receipts
+      dataConnectorObjectType: dashboard_receipt_history
       fieldMapping:
         companyId:
           column:
@@ -43,15 +51,30 @@ definition:
         createdAt:
           column:
             name: created_at
-        id:
+        flaggedReason:
           column:
-            name: id
+            name: flagged_reason
         imageUrl:
           column:
             name: image_url
+        itemCount:
+          column:
+            name: item_count
+        periodKey:
+          column:
+            name: period_key
+        primaryCategory:
+          column:
+            name: primary_category
+        rawText:
+          column:
+            name: raw_text
         receiptDate:
           column:
             name: receipt_date
+        receiptId:
+          column:
+            name: receipt_id
         status:
           column:
             name: status
@@ -61,6 +84,9 @@ definition:
         userId:
           column:
             name: user_id
+        userName:
+          column:
+            name: user_name
         vendorName:
           column:
             name: vendor_name
@@ -70,259 +96,213 @@ definition:
         vendorTaxIdValid:
           column:
             name: vendor_tax_id_valid
-        flaggedReason:
-          column:
-            name: flagged_reason
-        rawText:
-          column:
-            name: raw_text
 
 ---
 kind: TypePermissions
 version: v1
 definition:
-  typeName: Receipts
+  typeName: DashboardReceiptHistory
   permissions:
     - role: admin
       output:
         allowedFields:
           - companyId
           - createdAt
-          - id
+          - flaggedReason
           - imageUrl
+          - itemCount
+          - periodKey
+          - primaryCategory
+          - rawText
           - receiptDate
+          - receiptId
           - status
           - totalAmount
           - userId
+          - userName
           - vendorName
           - vendorTaxId
           - vendorTaxIdValid
-          - flaggedReason
-          - rawText
 
 ---
 kind: BooleanExpressionType
 version: v1
 definition:
-  name: ReceiptsBoolExp
+  name: DashboardReceiptHistoryBoolExp
   operand:
     object:
-      type: Receipts
+      type: DashboardReceiptHistory
       comparableFields:
         - fieldName: companyId
           booleanExpressionType: UuidBoolExp
         - fieldName: createdAt
           booleanExpressionType: TimestamptzBoolExp
-        - fieldName: id
-          booleanExpressionType: UuidBoolExp
+        - fieldName: flaggedReason
+          booleanExpressionType: TextBoolExp
         - fieldName: imageUrl
+          booleanExpressionType: TextBoolExp
+        - fieldName: itemCount
+          booleanExpressionType: Int8BoolExp
+        - fieldName: periodKey
+          booleanExpressionType: TextBoolExp
+        - fieldName: primaryCategory
+          booleanExpressionType: TextBoolExp
+        - fieldName: rawText
           booleanExpressionType: TextBoolExp
         - fieldName: receiptDate
           booleanExpressionType: DateBoolExp
+        - fieldName: receiptId
+          booleanExpressionType: UuidBoolExp
         - fieldName: status
           booleanExpressionType: TextBoolExp
         - fieldName: totalAmount
           booleanExpressionType: NumericBoolExp
         - fieldName: userId
           booleanExpressionType: UuidBoolExp
+        - fieldName: userName
+          booleanExpressionType: TextBoolExp
         - fieldName: vendorName
           booleanExpressionType: TextBoolExp
         - fieldName: vendorTaxId
           booleanExpressionType: TextBoolExp
         - fieldName: vendorTaxIdValid
           booleanExpressionType: BoolBoolExp
-        - fieldName: flaggedReason
-          booleanExpressionType: TextBoolExp
-        - fieldName: rawText
-          booleanExpressionType: TextBoolExp
-      comparableRelationships:
-        - relationshipName: receiptItems
-        - relationshipName: company
-        - relationshipName: user
+      comparableRelationships: []
   logicalOperators:
     enable: true
   isNull:
     enable: true
   graphql:
-    typeName: ReceiptsBoolExp
+    typeName: DashboardReceiptHistoryBoolExp
 
 ---
 kind: AggregateExpression
 version: v1
 definition:
-  name: ReceiptsAggExp
+  name: DashboardReceiptHistoryAggExp
   operand:
     object:
-      aggregatedType: Receipts
+      aggregatedType: DashboardReceiptHistory
       aggregatableFields:
         - fieldName: companyId
           aggregateExpression: UuidAggExp
         - fieldName: createdAt
           aggregateExpression: TimestamptzAggExp
-        - fieldName: id
-          aggregateExpression: UuidAggExp
+        - fieldName: flaggedReason
+          aggregateExpression: TextAggExp
         - fieldName: imageUrl
+          aggregateExpression: TextAggExp
+        - fieldName: itemCount
+          aggregateExpression: Int8AggExp
+        - fieldName: periodKey
+          aggregateExpression: TextAggExp
+        - fieldName: primaryCategory
+          aggregateExpression: TextAggExp
+        - fieldName: rawText
           aggregateExpression: TextAggExp
         - fieldName: receiptDate
           aggregateExpression: DateAggExp
+        - fieldName: receiptId
+          aggregateExpression: UuidAggExp
         - fieldName: status
           aggregateExpression: TextAggExp
         - fieldName: totalAmount
           aggregateExpression: NumericAggExp
         - fieldName: userId
           aggregateExpression: UuidAggExp
+        - fieldName: userName
+          aggregateExpression: TextAggExp
         - fieldName: vendorName
           aggregateExpression: TextAggExp
         - fieldName: vendorTaxId
           aggregateExpression: TextAggExp
         - fieldName: vendorTaxIdValid
           aggregateExpression: BoolAggExp
-        - fieldName: flaggedReason
-          aggregateExpression: TextAggExp
-        - fieldName: rawText
-          aggregateExpression: TextAggExp
   count:
     enable: true
     returnType: Int64
   graphql:
-    selectTypeName: ReceiptsAggExp
+    selectTypeName: DashboardReceiptHistoryAggExp
 
 ---
 kind: OrderByExpression
 version: v1
 definition:
-  name: ReceiptsOrderByExp
+  name: DashboardReceiptHistoryOrderByExp
   operand:
     object:
-      orderedType: Receipts
+      orderedType: DashboardReceiptHistory
       orderableFields:
         - fieldName: companyId
           orderByExpression: UuidOrderByExp
         - fieldName: createdAt
           orderByExpression: TimestamptzOrderByExp
-        - fieldName: id
-          orderByExpression: UuidOrderByExp
+        - fieldName: flaggedReason
+          orderByExpression: String1OrderByExp
         - fieldName: imageUrl
+          orderByExpression: String1OrderByExp
+        - fieldName: itemCount
+          orderByExpression: Int64OrderByExp
+        - fieldName: periodKey
+          orderByExpression: String1OrderByExp
+        - fieldName: primaryCategory
+          orderByExpression: String1OrderByExp
+        - fieldName: rawText
           orderByExpression: String1OrderByExp
         - fieldName: receiptDate
           orderByExpression: DateOrderByExp
+        - fieldName: receiptId
+          orderByExpression: UuidOrderByExp
         - fieldName: status
           orderByExpression: String1OrderByExp
         - fieldName: totalAmount
           orderByExpression: BigdecimalOrderByExp
         - fieldName: userId
           orderByExpression: UuidOrderByExp
+        - fieldName: userName
+          orderByExpression: String1OrderByExp
         - fieldName: vendorName
           orderByExpression: String1OrderByExp
         - fieldName: vendorTaxId
           orderByExpression: String1OrderByExp
         - fieldName: vendorTaxIdValid
           orderByExpression: Boolean1OrderByExp
-        - fieldName: flaggedReason
-          orderByExpression: String1OrderByExp
-        - fieldName: rawText
-          orderByExpression: String1OrderByExp
-      orderableRelationships:
-        - relationshipName: company
-        - relationshipName: user
+      orderableRelationships: []
   graphql:
-    expressionTypeName: ReceiptsOrderByExp
+    expressionTypeName: DashboardReceiptHistoryOrderByExp
 
 ---
 kind: Model
 version: v2
 definition:
-  name: Receipts
-  objectType: Receipts
+  name: DashboardReceiptHistory
+  objectType: DashboardReceiptHistory
   source:
     dataConnectorName: my_pg
-    collection: receipts
-  filterExpressionType: ReceiptsBoolExp
-  aggregateExpression: ReceiptsAggExp
-  orderByExpression: ReceiptsOrderByExp
+    collection: dashboard_receipt_history
+  filterExpressionType: DashboardReceiptHistoryBoolExp
+  aggregateExpression: DashboardReceiptHistoryAggExp
+  orderByExpression: DashboardReceiptHistoryOrderByExp
   graphql:
     selectMany:
-      queryRootField: receipts
+      queryRootField: dashboardReceiptHistory
       subscription:
-        rootField: receipts
-    selectUniques:
-      - queryRootField: receiptsById
-        uniqueIdentifier:
-          - id
-        subscription:
-          rootField: receiptsById
-    filterInputTypeName: ReceiptsFilterInput
+        rootField: dashboardReceiptHistory
+    selectUniques: []
+    filterInputTypeName: DashboardReceiptHistoryFilterInput
     aggregate:
-      queryRootField: receiptsAggregate
+      queryRootField: dashboardReceiptHistoryAggregate
       subscription:
-        rootField: receiptsAggregate
+        rootField: dashboardReceiptHistoryAggregate
 
 ---
 kind: ModelPermissions
 version: v1
 definition:
-  modelName: Receipts
+  modelName: DashboardReceiptHistory
   permissions:
     - role: admin
       select:
         filter: null
         allowSubscriptions: true
-
----
-kind: Relationship
-version: v1
-definition:
-  name: receiptItems
-  sourceType: Receipts
-  target:
-    model:
-      name: ReceiptItems
-      relationshipType: Array
-      aggregate:
-        aggregateExpression: ReceiptItemsAggExp
-  mapping:
-    - source:
-        fieldPath:
-          - fieldName: id
-      target:
-        modelField:
-          - fieldName: receiptId
-  graphql:
-    aggregateFieldName: receiptItemsAggregate
-
----
-kind: Relationship
-version: v1
-definition:
-  name: company
-  sourceType: Receipts
-  target:
-    model:
-      name: Companies
-      relationshipType: Object
-  mapping:
-    - source:
-        fieldPath:
-          - fieldName: companyId
-      target:
-        modelField:
-          - fieldName: id
-
----
-kind: Relationship
-version: v1
-definition:
-  name: user
-  sourceType: Receipts
-  target:
-    model:
-      name: Users
-      relationshipType: Object
-  mapping:
-    - source:
-        fieldPath:
-          - fieldName: userId
-      target:
-        modelField:
-          - fieldName: id
 

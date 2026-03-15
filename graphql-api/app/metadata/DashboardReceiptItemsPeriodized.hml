@@ -1,0 +1,392 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: DashboardReceiptItemsPeriodized
+  fields:
+    - name: category
+      type: String_1
+    - name: companyId
+      type: Uuid
+    - name: createdAt
+      type: Timestamptz
+    - name: dashboardCategory
+      type: String_1
+    - name: flaggedReason
+      type: String_1
+    - name: imageUrl
+      type: String_1
+    - name: itemId
+      type: Uuid
+    - name: normalizedDescription
+      type: String_1
+    - name: periodKey
+      type: String_1
+    - name: quantity
+      type: Bigdecimal
+    - name: rawDescription
+      type: String_1
+    - name: rawText
+      type: String_1
+    - name: receiptDate
+      type: Date
+    - name: receiptId
+      type: Uuid
+    - name: sourceText
+      type: String_1
+    - name: status
+      type: String_1
+    - name: totalAmount
+      type: Bigdecimal
+    - name: totalPrice
+      type: Bigdecimal
+    - name: unitPrice
+      type: Bigdecimal
+    - name: userId
+      type: Uuid
+    - name: userName
+      type: String_1
+    - name: vendorName
+      type: String_1
+    - name: vendorTaxId
+      type: String_1
+    - name: vendorTaxIdValid
+      type: Boolean_1
+  graphql:
+    typeName: DashboardReceiptItemsPeriodized
+    inputTypeName: DashboardReceiptItemsPeriodizedInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: dashboard_receipt_items_periodized
+      fieldMapping:
+        category:
+          column:
+            name: category
+        companyId:
+          column:
+            name: company_id
+        createdAt:
+          column:
+            name: created_at
+        dashboardCategory:
+          column:
+            name: dashboard_category
+        flaggedReason:
+          column:
+            name: flagged_reason
+        imageUrl:
+          column:
+            name: image_url
+        itemId:
+          column:
+            name: item_id
+        normalizedDescription:
+          column:
+            name: normalized_description
+        periodKey:
+          column:
+            name: period_key
+        quantity:
+          column:
+            name: quantity
+        rawDescription:
+          column:
+            name: raw_description
+        rawText:
+          column:
+            name: raw_text
+        receiptDate:
+          column:
+            name: receipt_date
+        receiptId:
+          column:
+            name: receipt_id
+        sourceText:
+          column:
+            name: source_text
+        status:
+          column:
+            name: status
+        totalAmount:
+          column:
+            name: total_amount
+        totalPrice:
+          column:
+            name: total_price
+        unitPrice:
+          column:
+            name: unit_price
+        userId:
+          column:
+            name: user_id
+        userName:
+          column:
+            name: user_name
+        vendorName:
+          column:
+            name: vendor_name
+        vendorTaxId:
+          column:
+            name: vendor_tax_id
+        vendorTaxIdValid:
+          column:
+            name: vendor_tax_id_valid
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: DashboardReceiptItemsPeriodized
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - category
+          - companyId
+          - createdAt
+          - dashboardCategory
+          - flaggedReason
+          - imageUrl
+          - itemId
+          - normalizedDescription
+          - periodKey
+          - quantity
+          - rawDescription
+          - rawText
+          - receiptDate
+          - receiptId
+          - sourceText
+          - status
+          - totalAmount
+          - totalPrice
+          - unitPrice
+          - userId
+          - userName
+          - vendorName
+          - vendorTaxId
+          - vendorTaxIdValid
+
+---
+kind: BooleanExpressionType
+version: v1
+definition:
+  name: DashboardReceiptItemsPeriodizedBoolExp
+  operand:
+    object:
+      type: DashboardReceiptItemsPeriodized
+      comparableFields:
+        - fieldName: category
+          booleanExpressionType: TextBoolExp
+        - fieldName: companyId
+          booleanExpressionType: UuidBoolExp
+        - fieldName: createdAt
+          booleanExpressionType: TimestamptzBoolExp
+        - fieldName: dashboardCategory
+          booleanExpressionType: TextBoolExp
+        - fieldName: flaggedReason
+          booleanExpressionType: TextBoolExp
+        - fieldName: imageUrl
+          booleanExpressionType: TextBoolExp
+        - fieldName: itemId
+          booleanExpressionType: UuidBoolExp
+        - fieldName: normalizedDescription
+          booleanExpressionType: TextBoolExp
+        - fieldName: periodKey
+          booleanExpressionType: TextBoolExp
+        - fieldName: quantity
+          booleanExpressionType: NumericBoolExp
+        - fieldName: rawDescription
+          booleanExpressionType: TextBoolExp
+        - fieldName: rawText
+          booleanExpressionType: TextBoolExp
+        - fieldName: receiptDate
+          booleanExpressionType: DateBoolExp
+        - fieldName: receiptId
+          booleanExpressionType: UuidBoolExp
+        - fieldName: sourceText
+          booleanExpressionType: TextBoolExp
+        - fieldName: status
+          booleanExpressionType: TextBoolExp
+        - fieldName: totalAmount
+          booleanExpressionType: NumericBoolExp
+        - fieldName: totalPrice
+          booleanExpressionType: NumericBoolExp
+        - fieldName: unitPrice
+          booleanExpressionType: NumericBoolExp
+        - fieldName: userId
+          booleanExpressionType: UuidBoolExp
+        - fieldName: userName
+          booleanExpressionType: TextBoolExp
+        - fieldName: vendorName
+          booleanExpressionType: TextBoolExp
+        - fieldName: vendorTaxId
+          booleanExpressionType: TextBoolExp
+        - fieldName: vendorTaxIdValid
+          booleanExpressionType: BoolBoolExp
+      comparableRelationships: []
+  logicalOperators:
+    enable: true
+  isNull:
+    enable: true
+  graphql:
+    typeName: DashboardReceiptItemsPeriodizedBoolExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: DashboardReceiptItemsPeriodizedAggExp
+  operand:
+    object:
+      aggregatedType: DashboardReceiptItemsPeriodized
+      aggregatableFields:
+        - fieldName: category
+          aggregateExpression: TextAggExp
+        - fieldName: companyId
+          aggregateExpression: UuidAggExp
+        - fieldName: createdAt
+          aggregateExpression: TimestamptzAggExp
+        - fieldName: dashboardCategory
+          aggregateExpression: TextAggExp
+        - fieldName: flaggedReason
+          aggregateExpression: TextAggExp
+        - fieldName: imageUrl
+          aggregateExpression: TextAggExp
+        - fieldName: itemId
+          aggregateExpression: UuidAggExp
+        - fieldName: normalizedDescription
+          aggregateExpression: TextAggExp
+        - fieldName: periodKey
+          aggregateExpression: TextAggExp
+        - fieldName: quantity
+          aggregateExpression: NumericAggExp
+        - fieldName: rawDescription
+          aggregateExpression: TextAggExp
+        - fieldName: rawText
+          aggregateExpression: TextAggExp
+        - fieldName: receiptDate
+          aggregateExpression: DateAggExp
+        - fieldName: receiptId
+          aggregateExpression: UuidAggExp
+        - fieldName: sourceText
+          aggregateExpression: TextAggExp
+        - fieldName: status
+          aggregateExpression: TextAggExp
+        - fieldName: totalAmount
+          aggregateExpression: NumericAggExp
+        - fieldName: totalPrice
+          aggregateExpression: NumericAggExp
+        - fieldName: unitPrice
+          aggregateExpression: NumericAggExp
+        - fieldName: userId
+          aggregateExpression: UuidAggExp
+        - fieldName: userName
+          aggregateExpression: TextAggExp
+        - fieldName: vendorName
+          aggregateExpression: TextAggExp
+        - fieldName: vendorTaxId
+          aggregateExpression: TextAggExp
+        - fieldName: vendorTaxIdValid
+          aggregateExpression: BoolAggExp
+  count:
+    enable: true
+    returnType: Int64
+  graphql:
+    selectTypeName: DashboardReceiptItemsPeriodizedAggExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: DashboardReceiptItemsPeriodizedOrderByExp
+  operand:
+    object:
+      orderedType: DashboardReceiptItemsPeriodized
+      orderableFields:
+        - fieldName: category
+          orderByExpression: String1OrderByExp
+        - fieldName: companyId
+          orderByExpression: UuidOrderByExp
+        - fieldName: createdAt
+          orderByExpression: TimestamptzOrderByExp
+        - fieldName: dashboardCategory
+          orderByExpression: String1OrderByExp
+        - fieldName: flaggedReason
+          orderByExpression: String1OrderByExp
+        - fieldName: imageUrl
+          orderByExpression: String1OrderByExp
+        - fieldName: itemId
+          orderByExpression: UuidOrderByExp
+        - fieldName: normalizedDescription
+          orderByExpression: String1OrderByExp
+        - fieldName: periodKey
+          orderByExpression: String1OrderByExp
+        - fieldName: quantity
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: rawDescription
+          orderByExpression: String1OrderByExp
+        - fieldName: rawText
+          orderByExpression: String1OrderByExp
+        - fieldName: receiptDate
+          orderByExpression: DateOrderByExp
+        - fieldName: receiptId
+          orderByExpression: UuidOrderByExp
+        - fieldName: sourceText
+          orderByExpression: String1OrderByExp
+        - fieldName: status
+          orderByExpression: String1OrderByExp
+        - fieldName: totalAmount
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: totalPrice
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: unitPrice
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: userId
+          orderByExpression: UuidOrderByExp
+        - fieldName: userName
+          orderByExpression: String1OrderByExp
+        - fieldName: vendorName
+          orderByExpression: String1OrderByExp
+        - fieldName: vendorTaxId
+          orderByExpression: String1OrderByExp
+        - fieldName: vendorTaxIdValid
+          orderByExpression: Boolean1OrderByExp
+      orderableRelationships: []
+  graphql:
+    expressionTypeName: DashboardReceiptItemsPeriodizedOrderByExp
+
+---
+kind: Model
+version: v2
+definition:
+  name: DashboardReceiptItemsPeriodized
+  objectType: DashboardReceiptItemsPeriodized
+  source:
+    dataConnectorName: my_pg
+    collection: dashboard_receipt_items_periodized
+  filterExpressionType: DashboardReceiptItemsPeriodizedBoolExp
+  aggregateExpression: DashboardReceiptItemsPeriodizedAggExp
+  orderByExpression: DashboardReceiptItemsPeriodizedOrderByExp
+  graphql:
+    selectMany:
+      queryRootField: dashboardReceiptItemsPeriodized
+      subscription:
+        rootField: dashboardReceiptItemsPeriodized
+    selectUniques: []
+    filterInputTypeName: DashboardReceiptItemsPeriodizedFilterInput
+    aggregate:
+      queryRootField: dashboardReceiptItemsPeriodizedAggregate
+      subscription:
+        rootField: dashboardReceiptItemsPeriodizedAggregate
+
+---
+kind: ModelPermissions
+version: v1
+definition:
+  modelName: DashboardReceiptItemsPeriodized
+  permissions:
+    - role: admin
+      select:
+        filter: null
+        allowSubscriptions: true
+

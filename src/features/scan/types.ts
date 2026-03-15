@@ -15,6 +15,7 @@ export const graphQlUuidSchema = z
 
 export const receiptItemInputSchema = z.object({
   name: z.string().trim().min(1, "O nome do item é obrigatório."),
+  rawName: z.string().trim().max(240).optional().default(""),
   category: z.string().trim().max(80).optional().default(""),
   quantity: z.number().positive("A quantidade deve ser maior que zero."),
   unitPrice: z.number().nonnegative("O preço unitário deve ser zero ou maior."),
@@ -53,11 +54,13 @@ export const createUploadUrlResultSchema = z.object({
 })
 
 export const analyzeReceiptInputSchema = z.object({
+  receiptId: graphQlUuidSchema.optional(),
   objectKey: z.string().min(1),
   userId: graphQlUuidSchema,
 })
 
 export const saveReceiptInputSchema = z.object({
+  receiptId: graphQlUuidSchema.optional(),
   objectKey: z.string().min(1).optional(),
   userId: graphQlUuidSchema,
   vendorName: analyzedReceiptDraftSchema.shape.vendorName,
@@ -92,6 +95,7 @@ export function toEditableReceiptDraft(
       id: createReceiptItemId(),
       ...item,
       category: item.category ?? "",
+      rawName: item.rawName ?? "",
     })),
   }
 }
@@ -110,6 +114,7 @@ export function createEmptyReceiptItem(): EditableReceiptItem {
   return {
     id: createReceiptItemId(),
     name: "",
+    rawName: "",
     category: "",
     quantity: 1,
     unitPrice: 0,

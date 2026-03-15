@@ -19,14 +19,15 @@ export type DashboardPolicyLimit = {
   category: DashboardCategoryKey
   companyId: string
   id: string
-  maxReceiptAmount: number
+  maxPerMonth: number | null
+  maxPerTransaction: number | null
 }
 
 export type DashboardReceiptItem = {
   category: string
   description: string
   id: string
-  isPriceAnomaly: boolean
+  rawDescription?: string
   quantity: number
   totalPrice: number
   unitPrice: number
@@ -40,6 +41,8 @@ export type DashboardReceipt = {
   receiptDate: string
   status: string | null
   totalAmount: number
+  flaggedReason?: string | null
+  rawText?: string | null
   userId: string
   userName: string
   vendorName: string
@@ -59,6 +62,7 @@ export type DashboardAlert = {
   metric: string
   priority: number
   text: string
+  userIds: string[]
 }
 
 export type DashboardCategoryBreakdown = {
@@ -69,6 +73,7 @@ export type DashboardCategoryBreakdown = {
 }
 
 export type DashboardEmployeeSpend = {
+  alertCount: number
   receiptCount: number
   receipts: DashboardReceipt[]
   topCategory: string
@@ -355,6 +360,24 @@ function getCategoryLabel(category: DashboardCategoryKey) {
   )
 }
 
+export function getPrimaryReceiptCategory(receipt: DashboardReceipt) {
+  return getCategoryLabel(getPrimaryReceiptCategoryKey(receipt))
+}
+
+export function getPrimaryReceiptCategoryKey(
+  receipt: DashboardReceipt
+): DashboardCategoryKey {
+  const rankedCategories = [
+    ...getReceiptCategoryTotals(receipt).entries(),
+  ].sort((left, right) => right[1] - left[1])
+
+  if (!rankedCategories.length) {
+    return "other"
+  }
+
+  return rankedCategories[0]![0]
+}
+
 function getTopCategory(receipts: DashboardReceipt[]) {
   const categoryTotals = new Map<DashboardCategoryKey, number>()
 
@@ -396,9 +419,7 @@ function getReceiptCategoryTotals(receipt: DashboardReceipt) {
 }
 
 function getPolicyMap(policyLimits: DashboardPolicyLimit[]) {
-  return new Map(
-    policyLimits.map((policy) => [policy.category, policy.maxReceiptAmount])
-  )
+  return new Map(policyLimits.map((policy) => [policy.category, policy]))
 }
 
 function getMedian(values: number[]) {
@@ -476,6 +497,7 @@ function buildEmployees(filteredReceipts: DashboardReceipt[]) {
       )
 
       return {
+        alertCount: 0,
         userId,
         userName,
         receiptCount: receipts.length,
@@ -496,12 +518,13 @@ function buildPolicyRows(
   const policyMap = getPolicyMap(policyLimits)
 
   return DASHBOARD_CATEGORY_OPTIONS.map((option) => {
+    const policy = policyMap.get(option.key)
     const totalSpent = roundCurrency(
       filteredReceipts.reduce((sum, receipt) => {
         return sum + (getReceiptCategoryTotals(receipt).get(option.key) ?? 0)
       }, 0)
     )
-    const limitAmount = policyMap.get(option.key) ?? null
+    const limitAmount = policy?.maxPerTransaction ?? null
     const breachCount = limitAmount
       ? filteredReceipts.reduce((count, receipt) => {
           return (
@@ -551,13 +574,14 @@ function buildAlerts(input: {
           userName: receipt.userName,
           vendorName: receipt.vendorName,
         }),
+        userIds: [receipt.userId],
       })
     }
 
     const categoryTotals = getReceiptCategoryTotals(receipt)
 
     for (const [category, categoryTotal] of categoryTotals.entries()) {
-      const limitAmount = policyMap.get(category)
+      const limitAmount = policyMap.get(category)?.maxPerTransaction ?? null
 
       if (!limitAmount || categoryTotal <= limitAmount) {
         continue
@@ -578,6 +602,7 @@ function buildAlerts(input: {
           userName: receipt.userName,
           vendorName: receipt.vendorName,
         }),
+        userIds: [receipt.userId],
       })
     }
 
@@ -595,8 +620,44 @@ function buildAlerts(input: {
           userName: receipt.userName,
           vendorName: receipt.vendorName,
         }),
+        userIds: [receipt.userId],
       })
     }
+  }
+
+  for (const option of DASHBOARD_CATEGORY_OPTIONS) {
+    const limitAmount = policyMap.get(option.key)?.maxPerMonth ?? null
+
+    if (!limitAmount) {
+      continue
+    }
+
+    const receiptsInCategory = input.filteredReceipts.filter((receipt) =>
+      getReceiptCategoryTotals(receipt).has(option.key)
+    )
+    const totalSpent = roundCurrency(
+      receiptsInCategory.reduce((sum, receipt) => {
+        return sum + (getReceiptCategoryTotals(receipt).get(option.key) ?? 0)
+      }, 0)
+    )
+
+    if (totalSpent <= limitAmount) {
+      continue
+    }
+
+    alerts.push({
+      id: `policy-month:${option.key}`,
+      metric: i18n.t("dashboard.alerts.metrics.overLimit", {
+        percent: Math.round(((totalSpent - limitAmount) / limitAmount) * 100),
+      }),
+      priority: 95 + (totalSpent - limitAmount),
+      text: i18n.t("dashboard.alerts.policyMonthlyExceeded", {
+        category: option.label.toLowerCase(),
+        limitAmount: preciseCurrencyFormatter.format(limitAmount),
+        totalSpent: preciseCurrencyFormatter.format(totalSpent),
+      }),
+      userIds: [...new Set(receiptsInCategory.map((receipt) => receipt.userId))],
+    })
   }
 
   for (const group of duplicateGroups.values()) {
@@ -619,6 +680,7 @@ function buildAlerts(input: {
         totalAmount: preciseCurrencyFormatter.format(newestReceipt.totalAmount),
         vendorName: newestReceipt.vendorName,
       }),
+      userIds: [...new Set(group.map((receipt) => receipt.userId))],
     })
   }
 
@@ -639,6 +701,7 @@ function buildAlerts(input: {
           employeeCount: product.employeeCount,
           productName: product.name,
         }),
+        userIds: [...product.employeeIds],
       })
     }
 
@@ -664,6 +727,7 @@ function buildAlerts(input: {
           minPrice: preciseCurrencyFormatter.format(product.minUnitPrice),
           productName: product.name,
         }),
+        userIds: [...product.employeeIds],
       })
     }
   }
@@ -694,6 +758,7 @@ function buildAlerts(input: {
           totalSpent: preciseCurrencyFormatter.format(employee.totalSpent),
           userName: employee.userName,
         }),
+        userIds: [employee.userId],
       })
     }
   }
@@ -734,6 +799,27 @@ export function buildDashboardView(
 
   const employees = buildEmployees(filteredReceipts)
   const productMap = buildProductAggregates(filteredReceipts)
+  const alerts = buildAlerts({
+    employees,
+    filteredReceipts,
+    policyLimits: input.policyLimits,
+    productMap,
+  })
+  const employeeAlertCounts = new Map<string, number>()
+
+  for (const alert of alerts) {
+    for (const userId of alert.userIds) {
+      employeeAlertCounts.set(
+        userId,
+        (employeeAlertCounts.get(userId) ?? 0) + 1
+      )
+    }
+  }
+
+  const employeesWithAlerts = employees.map((employee) => ({
+    ...employee,
+    alertCount: employeeAlertCounts.get(employee.userId) ?? 0,
+  }))
   const products = [...productMap.values()]
     .map((product) => ({
       employeeCount: product.employeeCount,
@@ -768,14 +854,9 @@ export function buildDashboardView(
   })
 
   return {
-    alerts: buildAlerts({
-      employees,
-      filteredReceipts,
-      policyLimits: input.policyLimits,
-      productMap,
-    }),
+    alerts,
     categories,
-    employees,
+    employees: employeesWithAlerts,
     filteredReceipts,
     policyRows: buildPolicyRows(filteredReceipts, input.policyLimits),
     products,

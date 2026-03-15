@@ -38,6 +38,38 @@ definition:
               unique_columns:
                 - id
         - arguments: {}
+          name: dashboard_alerts
+          type: dashboard_alerts
+          uniqueness_constraints: {}
+        - arguments: {}
+          name: dashboard_category_spend
+          type: dashboard_category_spend
+          uniqueness_constraints: {}
+        - arguments: {}
+          name: dashboard_employee_spend
+          type: dashboard_employee_spend
+          uniqueness_constraints: {}
+        - arguments: {}
+          name: dashboard_products
+          type: dashboard_products
+          uniqueness_constraints: {}
+        - arguments: {}
+          name: dashboard_receipt_history
+          type: dashboard_receipt_history
+          uniqueness_constraints: {}
+        - arguments: {}
+          name: dashboard_receipt_items_periodized
+          type: dashboard_receipt_items_periodized
+          uniqueness_constraints: {}
+        - arguments: {}
+          name: dashboard_receipts_periodized
+          type: dashboard_receipts_periodized
+          uniqueness_constraints: {}
+        - arguments: {}
+          name: dashboard_summary
+          type: dashboard_summary
+          uniqueness_constraints: {}
+        - arguments: {}
           name: receipt_items
           type: receipt_items
           uniqueness_constraints:
@@ -49,6 +81,17 @@ definition:
           type: receipts
           uniqueness_constraints:
             receipts_pkey:
+              unique_columns:
+                - id
+        - arguments: {}
+          name: spend_policies
+          type: spend_policies
+          uniqueness_constraints:
+            spend_policies_company_id_category_key:
+              unique_columns:
+                - category
+                - company_id
+            spend_policies_pkey:
               unique_columns:
                 - id
         - arguments: {}
@@ -109,6 +152,654 @@ definition:
               type:
                 name: text
                 type: named
+          foreign_keys: {}
+        dashboard_alerts:
+          fields:
+            alert_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            alert_type:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            count_value:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            employee_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            limit_amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            max_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            min_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            percent_delta:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            priority:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            product_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            team_median:
+              type:
+                type: nullable
+                underlying_type:
+                  name: float8
+                  type: named
+            team_total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+          foreign_keys: {}
+        dashboard_category_spend:
+          fields:
+            category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            ratio:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+          foreign_keys: {}
+        dashboard_employee_spend:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            top_category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+          foreign_keys: {}
+        dashboard_products:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            employee_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            max_unit_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            min_unit_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            product_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            purchase_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            total_quantity:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+          foreign_keys: {}
+        dashboard_receipt_history:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            created_at:
+              type:
+                type: nullable
+                underlying_type:
+                  name: timestamptz
+                  type: named
+            flagged_reason:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            image_url:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            item_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            primary_category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            raw_text:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_date:
+              type:
+                type: nullable
+                underlying_type:
+                  name: date
+                  type: named
+            receipt_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            status:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            total_amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id_valid:
+              type:
+                type: nullable
+                underlying_type:
+                  name: bool
+                  type: named
+          foreign_keys: {}
+        dashboard_receipt_items_periodized:
+          fields:
+            category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            created_at:
+              type:
+                type: nullable
+                underlying_type:
+                  name: timestamptz
+                  type: named
+            dashboard_category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            flagged_reason:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            image_url:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            item_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            normalized_description:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            quantity:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            raw_description:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            raw_text:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_date:
+              type:
+                type: nullable
+                underlying_type:
+                  name: date
+                  type: named
+            receipt_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            source_text:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            status:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            total_amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            total_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            unit_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id_valid:
+              type:
+                type: nullable
+                underlying_type:
+                  name: bool
+                  type: named
+          foreign_keys: {}
+        dashboard_receipts_periodized:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            created_at:
+              type:
+                type: nullable
+                underlying_type:
+                  name: timestamptz
+                  type: named
+            flagged_reason:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            image_url:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            raw_text:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_date:
+              type:
+                type: nullable
+                underlying_type:
+                  name: date
+                  type: named
+            receipt_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            status:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            total_amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id_valid:
+              type:
+                type: nullable
+                underlying_type:
+                  name: bool
+                  type: named
+          foreign_keys: {}
+        dashboard_summary:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipts_processed:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            unique_employees:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            unique_products:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
           foreign_keys: {}
         delete_category_spend_limits_by_category_and_company_id_response:
           description: Responses from the 'delete_category_spend_limits_by_category_and_company_id' procedure
@@ -187,6 +878,38 @@ definition:
               type:
                 element_type:
                   name: receipts
+                  type: named
+                type: array
+          foreign_keys: {}
+        delete_spend_policies_by_category_and_company_id_response:
+          description: Responses from the 'delete_spend_policies_by_category_and_company_id' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: spend_policies
+                  type: named
+                type: array
+          foreign_keys: {}
+        delete_spend_policies_by_id_response:
+          description: Responses from the 'delete_spend_policies_by_id' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: spend_policies
                   type: named
                 type: array
           foreign_keys: {}
@@ -300,6 +1023,782 @@ definition:
                   type: named
                 type: array
           foreign_keys: {}
+        insert_dashboard_alerts_object:
+          fields:
+            alert_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            alert_type:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            count_value:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            employee_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            limit_amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            max_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            min_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            percent_delta:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            priority:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            product_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            team_median:
+              type:
+                type: nullable
+                underlying_type:
+                  name: float8
+                  type: named
+            team_total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+          foreign_keys: {}
+        insert_dashboard_alerts_response:
+          description: Responses from the 'insert_dashboard_alerts' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: dashboard_alerts
+                  type: named
+                type: array
+          foreign_keys: {}
+        insert_dashboard_category_spend_object:
+          fields:
+            category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            ratio:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+          foreign_keys: {}
+        insert_dashboard_category_spend_response:
+          description: Responses from the 'insert_dashboard_category_spend' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: dashboard_category_spend
+                  type: named
+                type: array
+          foreign_keys: {}
+        insert_dashboard_employee_spend_object:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            top_category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+          foreign_keys: {}
+        insert_dashboard_employee_spend_response:
+          description: Responses from the 'insert_dashboard_employee_spend' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: dashboard_employee_spend
+                  type: named
+                type: array
+          foreign_keys: {}
+        insert_dashboard_products_object:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            employee_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            max_unit_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            min_unit_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            product_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            purchase_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            total_quantity:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+          foreign_keys: {}
+        insert_dashboard_products_response:
+          description: Responses from the 'insert_dashboard_products' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: dashboard_products
+                  type: named
+                type: array
+          foreign_keys: {}
+        insert_dashboard_receipt_history_object:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            created_at:
+              type:
+                type: nullable
+                underlying_type:
+                  name: timestamptz
+                  type: named
+            flagged_reason:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            image_url:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            item_count:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            primary_category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            raw_text:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_date:
+              type:
+                type: nullable
+                underlying_type:
+                  name: date
+                  type: named
+            receipt_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            status:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            total_amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id_valid:
+              type:
+                type: nullable
+                underlying_type:
+                  name: bool
+                  type: named
+          foreign_keys: {}
+        insert_dashboard_receipt_history_response:
+          description: Responses from the 'insert_dashboard_receipt_history' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: dashboard_receipt_history
+                  type: named
+                type: array
+          foreign_keys: {}
+        insert_dashboard_receipt_items_periodized_object:
+          fields:
+            category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            created_at:
+              type:
+                type: nullable
+                underlying_type:
+                  name: timestamptz
+                  type: named
+            dashboard_category:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            flagged_reason:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            image_url:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            item_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            normalized_description:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            quantity:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            raw_description:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            raw_text:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_date:
+              type:
+                type: nullable
+                underlying_type:
+                  name: date
+                  type: named
+            receipt_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            source_text:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            status:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            total_amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            total_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            unit_price:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id_valid:
+              type:
+                type: nullable
+                underlying_type:
+                  name: bool
+                  type: named
+          foreign_keys: {}
+        insert_dashboard_receipt_items_periodized_response:
+          description: Responses from the 'insert_dashboard_receipt_items_periodized' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: dashboard_receipt_items_periodized
+                  type: named
+                type: array
+          foreign_keys: {}
+        insert_dashboard_receipts_periodized_object:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            created_at:
+              type:
+                type: nullable
+                underlying_type:
+                  name: timestamptz
+                  type: named
+            flagged_reason:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            image_url:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            raw_text:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipt_date:
+              type:
+                type: nullable
+                underlying_type:
+                  name: date
+                  type: named
+            receipt_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            status:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            total_amount:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            user_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            user_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_name:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            vendor_tax_id_valid:
+              type:
+                type: nullable
+                underlying_type:
+                  name: bool
+                  type: named
+          foreign_keys: {}
+        insert_dashboard_receipts_periodized_response:
+          description: Responses from the 'insert_dashboard_receipts_periodized' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: dashboard_receipts_periodized
+                  type: named
+                type: array
+          foreign_keys: {}
+        insert_dashboard_summary_object:
+          fields:
+            company_id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            period_key:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            receipts_processed:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            total_spent:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            unique_employees:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+            unique_products:
+              type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+          foreign_keys: {}
+        insert_dashboard_summary_response:
+          description: Responses from the 'insert_dashboard_summary' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: dashboard_summary
+                  type: named
+                type: array
+          foreign_keys: {}
         insert_receipt_items_object:
           fields:
             category:
@@ -314,10 +1813,6 @@ definition:
                 underlying_type:
                   name: timestamptz
                   type: named
-            description:
-              type:
-                name: text
-                type: named
             id:
               type:
                 type: nullable
@@ -330,12 +1825,20 @@ definition:
                 underlying_type:
                   name: bool
                   type: named
+            normalized_description:
+              type:
+                name: text
+                type: named
             quantity:
               type:
                 type: nullable
                 underlying_type:
                   name: numeric
                   type: named
+            raw_description:
+              type:
+                name: text
+                type: named
             receipt_id:
               type:
                 name: uuid
@@ -377,6 +1880,12 @@ definition:
                 underlying_type:
                   name: timestamptz
                   type: named
+            flagged_reason:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
             id:
               type:
                 type: nullable
@@ -384,6 +1893,12 @@ definition:
                   name: uuid
                   type: named
             image_url:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            raw_text:
               type:
                 type: nullable
                 underlying_type:
@@ -437,6 +1952,57 @@ definition:
               type:
                 element_type:
                   name: receipts
+                  type: named
+                type: array
+          foreign_keys: {}
+        insert_spend_policies_object:
+          fields:
+            category:
+              type:
+                name: text
+                type: named
+            company_id:
+              type:
+                name: uuid
+                type: named
+            created_at:
+              type:
+                type: nullable
+                underlying_type:
+                  name: timestamptz
+                  type: named
+            id:
+              type:
+                type: nullable
+                underlying_type:
+                  name: uuid
+                  type: named
+            max_per_month:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            max_per_transaction:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+          foreign_keys: {}
+        insert_spend_policies_response:
+          description: Responses from the 'insert_spend_policies' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: spend_policies
                   type: named
                 type: array
           foreign_keys: {}
@@ -501,10 +2067,6 @@ definition:
                 underlying_type:
                   name: timestamptz
                   type: named
-            description:
-              type:
-                name: text
-                type: named
             id:
               type:
                 name: uuid
@@ -515,12 +2077,20 @@ definition:
                 underlying_type:
                   name: bool
                   type: named
+            normalized_description:
+              type:
+                name: text
+                type: named
             quantity:
               type:
                 type: nullable
                 underlying_type:
                   name: numeric
                   type: named
+            raw_description:
+              type:
+                name: text
+                type: named
             receipt_id:
               type:
                 name: uuid
@@ -551,11 +2121,23 @@ definition:
                 underlying_type:
                   name: timestamptz
                   type: named
+            flagged_reason:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
             id:
               type:
                 name: uuid
                 type: named
             image_url:
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+            raw_text:
               type:
                 type: nullable
                 underlying_type:
@@ -604,6 +2186,44 @@ definition:
                 user_id:
                   - id
               foreign_collection: users
+        spend_policies:
+          fields:
+            category:
+              type:
+                name: text
+                type: named
+            company_id:
+              type:
+                name: uuid
+                type: named
+            created_at:
+              type:
+                type: nullable
+                underlying_type:
+                  name: timestamptz
+                  type: named
+            id:
+              type:
+                name: uuid
+                type: named
+            max_per_month:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+            max_per_transaction:
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+          foreign_keys:
+            spend_policies_company_id_fkey:
+              column_mapping:
+                company_id:
+                  - id
+              foreign_collection: companies
         update_category_spend_limits_by_category_and_company_id_response:
           description: Responses from the 'update_category_spend_limits_by_category_and_company_id' procedure
           fields:
@@ -812,15 +2432,6 @@ definition:
                   name: timestamptz
                   type: named
           foreign_keys: {}
-        update_column_receipt_items_description:
-          description: Update the 'description' column in the 'receipt_items' collection
-          fields:
-            _set:
-              description: Set the column to this value
-              type:
-                name: text
-                type: named
-          foreign_keys: {}
         update_column_receipt_items_id:
           description: Update the 'id' column in the 'receipt_items' collection
           fields:
@@ -841,6 +2452,15 @@ definition:
                   name: bool
                   type: named
           foreign_keys: {}
+        update_column_receipt_items_normalized_description:
+          description: Update the 'normalized_description' column in the 'receipt_items' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                name: text
+                type: named
+          foreign_keys: {}
         update_column_receipt_items_quantity:
           description: Update the 'quantity' column in the 'receipt_items' collection
           fields:
@@ -851,6 +2471,15 @@ definition:
                 underlying_type:
                   name: numeric
                   type: named
+          foreign_keys: {}
+        update_column_receipt_items_raw_description:
+          description: Update the 'raw_description' column in the 'receipt_items' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                name: text
+                type: named
           foreign_keys: {}
         update_column_receipt_items_receipt_id:
           description: Update the 'receipt_id' column in the 'receipt_items' collection
@@ -899,6 +2528,17 @@ definition:
                   name: timestamptz
                   type: named
           foreign_keys: {}
+        update_column_receipts_flagged_reason:
+          description: Update the 'flagged_reason' column in the 'receipts' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+          foreign_keys: {}
         update_column_receipts_id:
           description: Update the 'id' column in the 'receipts' collection
           fields:
@@ -910,6 +2550,17 @@ definition:
           foreign_keys: {}
         update_column_receipts_image_url:
           description: Update the 'image_url' column in the 'receipts' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                type: nullable
+                underlying_type:
+                  name: text
+                  type: named
+          foreign_keys: {}
+        update_column_receipts_raw_text:
+          description: Update the 'raw_text' column in the 'receipts' collection
           fields:
             _set:
               description: Set the column to this value
@@ -985,6 +2636,66 @@ definition:
               type:
                 name: bool
                 type: named
+          foreign_keys: {}
+        update_column_spend_policies_category:
+          description: Update the 'category' column in the 'spend_policies' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                name: text
+                type: named
+          foreign_keys: {}
+        update_column_spend_policies_company_id:
+          description: Update the 'company_id' column in the 'spend_policies' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                name: uuid
+                type: named
+          foreign_keys: {}
+        update_column_spend_policies_created_at:
+          description: Update the 'created_at' column in the 'spend_policies' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                type: nullable
+                underlying_type:
+                  name: timestamptz
+                  type: named
+          foreign_keys: {}
+        update_column_spend_policies_id:
+          description: Update the 'id' column in the 'spend_policies' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                name: uuid
+                type: named
+          foreign_keys: {}
+        update_column_spend_policies_max_per_month:
+          description: Update the 'max_per_month' column in the 'spend_policies' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+          foreign_keys: {}
+        update_column_spend_policies_max_per_transaction:
+          description: Update the 'max_per_transaction' column in the 'spend_policies' collection
+          fields:
+            _set:
+              description: Set the column to this value
+              type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
           foreign_keys: {}
         update_column_users_company_id:
           description: Update the 'company_id' column in the 'users' collection
@@ -1116,13 +2827,6 @@ definition:
                 underlying_type:
                   name: update_column_receipt_items_created_at
                   type: named
-            description:
-              description: Update the 'description' column in the 'receipt_items' collection.
-              type:
-                type: nullable
-                underlying_type:
-                  name: update_column_receipt_items_description
-                  type: named
             id:
               description: Update the 'id' column in the 'receipt_items' collection.
               type:
@@ -1137,12 +2841,26 @@ definition:
                 underlying_type:
                   name: update_column_receipt_items_is_price_anomaly
                   type: named
+            normalized_description:
+              description: Update the 'normalized_description' column in the 'receipt_items' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_receipt_items_normalized_description
+                  type: named
             quantity:
               description: Update the 'quantity' column in the 'receipt_items' collection.
               type:
                 type: nullable
                 underlying_type:
                   name: update_column_receipt_items_quantity
+                  type: named
+            raw_description:
+              description: Update the 'raw_description' column in the 'receipt_items' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_receipt_items_raw_description
                   type: named
             receipt_id:
               description: Update the 'receipt_id' column in the 'receipt_items' collection.
@@ -1199,6 +2917,13 @@ definition:
                 underlying_type:
                   name: update_column_receipts_created_at
                   type: named
+            flagged_reason:
+              description: Update the 'flagged_reason' column in the 'receipts' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_receipts_flagged_reason
+                  type: named
             id:
               description: Update the 'id' column in the 'receipts' collection.
               type:
@@ -1212,6 +2937,13 @@ definition:
                 type: nullable
                 underlying_type:
                   name: update_column_receipts_image_url
+                  type: named
+            raw_text:
+              description: Update the 'raw_text' column in the 'receipts' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_receipts_raw_text
                   type: named
             receipt_date:
               description: Update the 'receipt_date' column in the 'receipts' collection.
@@ -1261,6 +2993,130 @@ definition:
                 type: nullable
                 underlying_type:
                   name: update_column_receipts_vendor_tax_id_valid
+                  type: named
+          foreign_keys: {}
+        update_spend_policies_by_category_and_company_id_response:
+          description: Responses from the 'update_spend_policies_by_category_and_company_id' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: spend_policies
+                  type: named
+                type: array
+          foreign_keys: {}
+        update_spend_policies_by_category_and_company_id_update_columns:
+          description: Update the columns of the 'spend_policies' collection
+          fields:
+            category:
+              description: Update the 'category' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_category
+                  type: named
+            company_id:
+              description: Update the 'company_id' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_company_id
+                  type: named
+            created_at:
+              description: Update the 'created_at' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_created_at
+                  type: named
+            id:
+              description: Update the 'id' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_id
+                  type: named
+            max_per_month:
+              description: Update the 'max_per_month' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_max_per_month
+                  type: named
+            max_per_transaction:
+              description: Update the 'max_per_transaction' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_max_per_transaction
+                  type: named
+          foreign_keys: {}
+        update_spend_policies_by_id_response:
+          description: Responses from the 'update_spend_policies_by_id' procedure
+          fields:
+            affected_rows:
+              description: The number of rows affected by the mutation
+              type:
+                name: int4
+                type: named
+            returning:
+              description: Data from rows affected by the mutation
+              type:
+                element_type:
+                  name: spend_policies
+                  type: named
+                type: array
+          foreign_keys: {}
+        update_spend_policies_by_id_update_columns:
+          description: Update the columns of the 'spend_policies' collection
+          fields:
+            category:
+              description: Update the 'category' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_category
+                  type: named
+            company_id:
+              description: Update the 'company_id' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_company_id
+                  type: named
+            created_at:
+              description: Update the 'created_at' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_created_at
+                  type: named
+            id:
+              description: Update the 'id' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_id
+                  type: named
+            max_per_month:
+              description: Update the 'max_per_month' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_max_per_month
+                  type: named
+            max_per_transaction:
+              description: Update the 'max_per_transaction' column in the 'spend_policies' collection.
+              type:
+                type: nullable
+                underlying_type:
+                  name: update_column_spend_policies_max_per_transaction
                   type: named
           foreign_keys: {}
         update_users_by_email_response:
@@ -1512,6 +3368,44 @@ definition:
             name: delete_receipts_by_id_response
             type: named
         - arguments:
+            key_category:
+              type:
+                name: text
+                type: named
+            key_company_id:
+              type:
+                name: uuid
+                type: named
+            pre_check:
+              description: Delete permission predicate over the 'spend_policies' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: spend_policies
+                  type: predicate
+          description: Delete any row on the 'spend_policies' collection using the 'category' and 'company_id' keys
+          name: delete_spend_policies_by_category_and_company_id
+          result_type:
+            name: delete_spend_policies_by_category_and_company_id_response
+            type: named
+        - arguments:
+            key_id:
+              type:
+                name: uuid
+                type: named
+            pre_check:
+              description: Delete permission predicate over the 'spend_policies' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: spend_policies
+                  type: predicate
+          description: Delete any row on the 'spend_policies' collection using the 'id' key
+          name: delete_spend_policies_by_id
+          result_type:
+            name: delete_spend_policies_by_id_response
+            type: named
+        - arguments:
             key_email:
               type:
                 name: text
@@ -1587,6 +3481,158 @@ definition:
             objects:
               type:
                 element_type:
+                  name: insert_dashboard_alerts_object
+                  type: named
+                type: array
+            post_check:
+              description: Insert permission predicate over the 'dashboard_alerts' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: dashboard_alerts
+                  type: predicate
+          description: Insert into the dashboard_alerts table
+          name: insert_dashboard_alerts
+          result_type:
+            name: insert_dashboard_alerts_response
+            type: named
+        - arguments:
+            objects:
+              type:
+                element_type:
+                  name: insert_dashboard_category_spend_object
+                  type: named
+                type: array
+            post_check:
+              description: Insert permission predicate over the 'dashboard_category_spend' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: dashboard_category_spend
+                  type: predicate
+          description: Insert into the dashboard_category_spend table
+          name: insert_dashboard_category_spend
+          result_type:
+            name: insert_dashboard_category_spend_response
+            type: named
+        - arguments:
+            objects:
+              type:
+                element_type:
+                  name: insert_dashboard_employee_spend_object
+                  type: named
+                type: array
+            post_check:
+              description: Insert permission predicate over the 'dashboard_employee_spend' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: dashboard_employee_spend
+                  type: predicate
+          description: Insert into the dashboard_employee_spend table
+          name: insert_dashboard_employee_spend
+          result_type:
+            name: insert_dashboard_employee_spend_response
+            type: named
+        - arguments:
+            objects:
+              type:
+                element_type:
+                  name: insert_dashboard_products_object
+                  type: named
+                type: array
+            post_check:
+              description: Insert permission predicate over the 'dashboard_products' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: dashboard_products
+                  type: predicate
+          description: Insert into the dashboard_products table
+          name: insert_dashboard_products
+          result_type:
+            name: insert_dashboard_products_response
+            type: named
+        - arguments:
+            objects:
+              type:
+                element_type:
+                  name: insert_dashboard_receipt_history_object
+                  type: named
+                type: array
+            post_check:
+              description: Insert permission predicate over the 'dashboard_receipt_history' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: dashboard_receipt_history
+                  type: predicate
+          description: Insert into the dashboard_receipt_history table
+          name: insert_dashboard_receipt_history
+          result_type:
+            name: insert_dashboard_receipt_history_response
+            type: named
+        - arguments:
+            objects:
+              type:
+                element_type:
+                  name: insert_dashboard_receipt_items_periodized_object
+                  type: named
+                type: array
+            post_check:
+              description: Insert permission predicate over the 'dashboard_receipt_items_periodized' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: dashboard_receipt_items_periodized
+                  type: predicate
+          description: Insert into the dashboard_receipt_items_periodized table
+          name: insert_dashboard_receipt_items_periodized
+          result_type:
+            name: insert_dashboard_receipt_items_periodized_response
+            type: named
+        - arguments:
+            objects:
+              type:
+                element_type:
+                  name: insert_dashboard_receipts_periodized_object
+                  type: named
+                type: array
+            post_check:
+              description: Insert permission predicate over the 'dashboard_receipts_periodized' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: dashboard_receipts_periodized
+                  type: predicate
+          description: Insert into the dashboard_receipts_periodized table
+          name: insert_dashboard_receipts_periodized
+          result_type:
+            name: insert_dashboard_receipts_periodized_response
+            type: named
+        - arguments:
+            objects:
+              type:
+                element_type:
+                  name: insert_dashboard_summary_object
+                  type: named
+                type: array
+            post_check:
+              description: Insert permission predicate over the 'dashboard_summary' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: dashboard_summary
+                  type: predicate
+          description: Insert into the dashboard_summary table
+          name: insert_dashboard_summary
+          result_type:
+            name: insert_dashboard_summary_response
+            type: named
+        - arguments:
+            objects:
+              type:
+                element_type:
                   name: insert_receipt_items_object
                   type: named
                 type: array
@@ -1620,6 +3666,25 @@ definition:
           name: insert_receipts
           result_type:
             name: insert_receipts_response
+            type: named
+        - arguments:
+            objects:
+              type:
+                element_type:
+                  name: insert_spend_policies_object
+                  type: named
+                type: array
+            post_check:
+              description: Insert permission predicate over the 'spend_policies' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: spend_policies
+                  type: predicate
+          description: Insert into the spend_policies table
+          name: insert_spend_policies
+          result_type:
+            name: insert_spend_policies_response
             type: named
         - arguments:
             objects:
@@ -1785,6 +3850,66 @@ definition:
             name: update_receipts_by_id_response
             type: named
         - arguments:
+            key_category:
+              type:
+                name: text
+                type: named
+            key_company_id:
+              type:
+                name: uuid
+                type: named
+            post_check:
+              description: Update permission post-condition predicate over the 'spend_policies' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: spend_policies
+                  type: predicate
+            pre_check:
+              description: Update permission pre-condition predicate over the 'spend_policies' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: spend_policies
+                  type: predicate
+            update_columns:
+              type:
+                name: update_spend_policies_by_category_and_company_id_update_columns
+                type: named
+          description: Update any row on the 'spend_policies' collection using the 'category' and 'company_id' keys
+          name: update_spend_policies_by_category_and_company_id
+          result_type:
+            name: update_spend_policies_by_category_and_company_id_response
+            type: named
+        - arguments:
+            key_id:
+              type:
+                name: uuid
+                type: named
+            post_check:
+              description: Update permission post-condition predicate over the 'spend_policies' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: spend_policies
+                  type: predicate
+            pre_check:
+              description: Update permission pre-condition predicate over the 'spend_policies' collection
+              type:
+                type: nullable
+                underlying_type:
+                  object_type_name: spend_policies
+                  type: predicate
+            update_columns:
+              type:
+                name: update_spend_policies_by_id_update_columns
+                type: named
+          description: Update any row on the 'spend_policies' collection using the 'id' key
+          name: update_spend_policies_by_id
+          result_type:
+            name: update_spend_policies_by_id_response
+            type: named
+        - arguments:
             key_email:
               type:
                 name: text
@@ -1913,6 +4038,81 @@ definition:
           extraction_functions: {}
           representation:
             type: date
+        float8:
+          aggregate_functions:
+            avg:
+              result_type: float8
+              type: average
+            max:
+              type: max
+            min:
+              type: min
+            stddev:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: float8
+                  type: named
+              type: custom
+            stddev_pop:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: float8
+                  type: named
+              type: custom
+            stddev_samp:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: float8
+                  type: named
+              type: custom
+            sum:
+              result_type: float8
+              type: sum
+            var_pop:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: float8
+                  type: named
+              type: custom
+            var_samp:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: float8
+                  type: named
+              type: custom
+            variance:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: float8
+                  type: named
+              type: custom
+          comparison_operators:
+            _eq:
+              type: equal
+            _gt:
+              type: greater_than
+            _gte:
+              type: greater_than_or_equal
+            _in:
+              type: in
+            _lt:
+              type: less_than
+            _lte:
+              type: less_than_or_equal
+            _neq:
+              argument_type:
+                name: float8
+                type: named
+              type: custom
+          extraction_functions: {}
+          representation:
+            type: float64
         int4:
           aggregate_functions: {}
           comparison_operators: {}
@@ -1920,8 +4120,106 @@ definition:
           representation:
             type: int32
         int8:
-          aggregate_functions: {}
-          comparison_operators: {}
+          aggregate_functions:
+            avg:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+              type: custom
+            bit_and:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+              type: custom
+            bit_or:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+              type: custom
+            bit_xor:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: int8
+                  type: named
+              type: custom
+            max:
+              type: max
+            min:
+              type: min
+            stddev:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+              type: custom
+            stddev_pop:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+              type: custom
+            stddev_samp:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+              type: custom
+            sum:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+              type: custom
+            var_pop:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+              type: custom
+            var_samp:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+              type: custom
+            variance:
+              result_type:
+                type: nullable
+                underlying_type:
+                  name: numeric
+                  type: named
+              type: custom
+          comparison_operators:
+            _eq:
+              type: equal
+            _gt:
+              type: greater_than
+            _gte:
+              type: greater_than_or_equal
+            _in:
+              type: in
+            _lt:
+              type: less_than
+            _lte:
+              type: less_than_or_equal
+            _neq:
+              argument_type:
+                name: int8
+                type: named
+              type: custom
           extraction_functions: {}
           representation:
             type: int64

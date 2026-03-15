@@ -1,0 +1,164 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: DashboardCategorySpend
+  fields:
+    - name: category
+      type: String_1
+    - name: companyId
+      type: Uuid
+    - name: periodKey
+      type: String_1
+    - name: ratio
+      type: Bigdecimal
+    - name: totalSpent
+      type: Bigdecimal
+  graphql:
+    typeName: DashboardCategorySpend
+    inputTypeName: DashboardCategorySpendInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: dashboard_category_spend
+      fieldMapping:
+        category:
+          column:
+            name: category
+        companyId:
+          column:
+            name: company_id
+        periodKey:
+          column:
+            name: period_key
+        ratio:
+          column:
+            name: ratio
+        totalSpent:
+          column:
+            name: total_spent
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: DashboardCategorySpend
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - category
+          - companyId
+          - periodKey
+          - ratio
+          - totalSpent
+
+---
+kind: BooleanExpressionType
+version: v1
+definition:
+  name: DashboardCategorySpendBoolExp
+  operand:
+    object:
+      type: DashboardCategorySpend
+      comparableFields:
+        - fieldName: category
+          booleanExpressionType: TextBoolExp
+        - fieldName: companyId
+          booleanExpressionType: UuidBoolExp
+        - fieldName: periodKey
+          booleanExpressionType: TextBoolExp
+        - fieldName: ratio
+          booleanExpressionType: NumericBoolExp
+        - fieldName: totalSpent
+          booleanExpressionType: NumericBoolExp
+      comparableRelationships: []
+  logicalOperators:
+    enable: true
+  isNull:
+    enable: true
+  graphql:
+    typeName: DashboardCategorySpendBoolExp
+
+---
+kind: AggregateExpression
+version: v1
+definition:
+  name: DashboardCategorySpendAggExp
+  operand:
+    object:
+      aggregatedType: DashboardCategorySpend
+      aggregatableFields:
+        - fieldName: category
+          aggregateExpression: TextAggExp
+        - fieldName: companyId
+          aggregateExpression: UuidAggExp
+        - fieldName: periodKey
+          aggregateExpression: TextAggExp
+        - fieldName: ratio
+          aggregateExpression: NumericAggExp
+        - fieldName: totalSpent
+          aggregateExpression: NumericAggExp
+  count:
+    enable: true
+    returnType: Int64
+  graphql:
+    selectTypeName: DashboardCategorySpendAggExp
+
+---
+kind: OrderByExpression
+version: v1
+definition:
+  name: DashboardCategorySpendOrderByExp
+  operand:
+    object:
+      orderedType: DashboardCategorySpend
+      orderableFields:
+        - fieldName: category
+          orderByExpression: String1OrderByExp
+        - fieldName: companyId
+          orderByExpression: UuidOrderByExp
+        - fieldName: periodKey
+          orderByExpression: String1OrderByExp
+        - fieldName: ratio
+          orderByExpression: BigdecimalOrderByExp
+        - fieldName: totalSpent
+          orderByExpression: BigdecimalOrderByExp
+      orderableRelationships: []
+  graphql:
+    expressionTypeName: DashboardCategorySpendOrderByExp
+
+---
+kind: Model
+version: v2
+definition:
+  name: DashboardCategorySpend
+  objectType: DashboardCategorySpend
+  source:
+    dataConnectorName: my_pg
+    collection: dashboard_category_spend
+  filterExpressionType: DashboardCategorySpendBoolExp
+  aggregateExpression: DashboardCategorySpendAggExp
+  orderByExpression: DashboardCategorySpendOrderByExp
+  graphql:
+    selectMany:
+      queryRootField: dashboardCategorySpend
+      subscription:
+        rootField: dashboardCategorySpend
+    selectUniques: []
+    filterInputTypeName: DashboardCategorySpendFilterInput
+    aggregate:
+      queryRootField: dashboardCategorySpendAggregate
+      subscription:
+        rootField: dashboardCategorySpendAggregate
+
+---
+kind: ModelPermissions
+version: v1
+definition:
+  modelName: DashboardCategorySpend
+  permissions:
+    - role: admin
+      select:
+        filter: null
+        allowSubscriptions: true
+

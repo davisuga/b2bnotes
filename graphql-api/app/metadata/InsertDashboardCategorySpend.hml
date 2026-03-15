@@ -1,0 +1,127 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardCategorySpendObject
+  fields:
+    - name: category
+      type: String_1
+    - name: companyId
+      type: Uuid
+    - name: periodKey
+      type: String_1
+    - name: ratio
+      type: Bigdecimal
+    - name: totalSpent
+      type: Bigdecimal
+  graphql:
+    typeName: InsertDashboardCategorySpendObject
+    inputTypeName: InsertDashboardCategorySpendObjectInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_category_spend_object
+      fieldMapping:
+        category:
+          column:
+            name: category
+        companyId:
+          column:
+            name: company_id
+        periodKey:
+          column:
+            name: period_key
+        ratio:
+          column:
+            name: ratio
+        totalSpent:
+          column:
+            name: total_spent
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardCategorySpendObject
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - category
+          - companyId
+          - periodKey
+          - ratio
+          - totalSpent
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertDashboardCategorySpendResponse
+  description: Responses from the 'insert_dashboard_category_spend' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[DashboardCategorySpend!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: InsertDashboardCategorySpendResponse
+    inputTypeName: InsertDashboardCategorySpendResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_dashboard_category_spend_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertDashboardCategorySpendResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: InsertDashboardCategorySpend
+  outputType: InsertDashboardCategorySpendResponse!
+  arguments:
+    - name: objects
+      type: "[InsertDashboardCategorySpendObject!]!"
+    - name: postCheck
+      type: DashboardCategorySpendBoolExp
+      description: Insert permission predicate over the 'dashboard_category_spend'
+        collection
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: insert_dashboard_category_spend
+    argumentMapping:
+      objects: objects
+      postCheck: post_check
+  graphql:
+    rootFieldName: insertDashboardCategorySpend
+    rootFieldKind: Mutation
+  description: Insert into the dashboard_category_spend table
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: InsertDashboardCategorySpend
+  permissions:
+    - role: admin
+      allowExecution: true
+

@@ -1,0 +1,149 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateSpendPoliciesByIdUpdateColumns
+  description: Update the columns of the 'spend_policies' collection
+  fields:
+    - name: category
+      type: UpdateColumnSpendPoliciesCategory
+      description: Update the 'category' column in the 'spend_policies' collection.
+    - name: companyId
+      type: UpdateColumnSpendPoliciesCompanyId
+      description: Update the 'company_id' column in the 'spend_policies' collection.
+    - name: createdAt
+      type: UpdateColumnSpendPoliciesCreatedAt
+      description: Update the 'created_at' column in the 'spend_policies' collection.
+    - name: id
+      type: UpdateColumnSpendPoliciesId
+      description: Update the 'id' column in the 'spend_policies' collection.
+    - name: maxPerMonth
+      type: UpdateColumnSpendPoliciesMaxPerMonth
+      description: Update the 'max_per_month' column in the 'spend_policies' collection.
+    - name: maxPerTransaction
+      type: UpdateColumnSpendPoliciesMaxPerTransaction
+      description: Update the 'max_per_transaction' column in the 'spend_policies'
+        collection.
+  graphql:
+    typeName: UpdateSpendPoliciesByIdUpdateColumns
+    inputTypeName: UpdateSpendPoliciesByIdUpdateColumnsInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_spend_policies_by_id_update_columns
+      fieldMapping:
+        category:
+          column:
+            name: category
+        companyId:
+          column:
+            name: company_id
+        createdAt:
+          column:
+            name: created_at
+        id:
+          column:
+            name: id
+        maxPerMonth:
+          column:
+            name: max_per_month
+        maxPerTransaction:
+          column:
+            name: max_per_transaction
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateSpendPoliciesByIdUpdateColumns
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - category
+          - companyId
+          - createdAt
+          - id
+          - maxPerMonth
+          - maxPerTransaction
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: UpdateSpendPoliciesByIdResponse
+  description: Responses from the 'update_spend_policies_by_id' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[SpendPolicies!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: UpdateSpendPoliciesByIdResponse
+    inputTypeName: UpdateSpendPoliciesByIdResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: update_spend_policies_by_id_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: UpdateSpendPoliciesByIdResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: UpdateSpendPoliciesById
+  outputType: UpdateSpendPoliciesByIdResponse!
+  arguments:
+    - name: keyId
+      type: Uuid!
+    - name: postCheck
+      type: SpendPoliciesBoolExp
+      description: Update permission post-condition predicate over the
+        'spend_policies' collection
+    - name: preCheck
+      type: SpendPoliciesBoolExp
+      description: Update permission pre-condition predicate over the 'spend_policies'
+        collection
+    - name: updateColumns
+      type: UpdateSpendPoliciesByIdUpdateColumns!
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: update_spend_policies_by_id
+    argumentMapping:
+      keyId: key_id
+      postCheck: post_check
+      preCheck: pre_check
+      updateColumns: update_columns
+  graphql:
+    rootFieldName: updateSpendPoliciesById
+    rootFieldKind: Mutation
+  description: Update any row on the 'spend_policies' collection using the 'id' key
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: UpdateSpendPoliciesById
+  permissions:
+    - role: admin
+      allowExecution: true
+

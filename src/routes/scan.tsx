@@ -21,15 +21,17 @@ import { AnimatePresence, motion } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import {
-  analyzeReceiptFromR2,
   createReceiptUploadUrl,
   getScanBootstrap,
   saveReceiptDraft,
+  startReceiptParsing,
+  streamReceiptParsingStatus,
 } from "@/features/scan/server"
 import {
   createEmptyReceiptDraft,
   createEmptyReceiptItem,
   toEditableReceiptDraft,
+  type AnalyzedReceiptDraft,
   type EditableReceiptDraft,
 } from "@/features/scan/types"
 import {
@@ -68,8 +70,11 @@ function ScanRoute() {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null)
   const bootstrapServerFn = useServerFn(getScanBootstrap)
   const createUploadUrlServerFn = useServerFn(createReceiptUploadUrl)
-  const analyzeReceiptServerFn = useServerFn(analyzeReceiptFromR2)
   const saveReceiptServerFn = useServerFn(saveReceiptDraft)
+  const startReceiptParsingServerFn = useServerFn(startReceiptParsing)
+  const streamReceiptParsingStatusServerFn = useServerFn(
+    streamReceiptParsingStatus
+  )
 
   const [step, setStep] = React.useState<ScanStep>("capture")
   const [selectedUserId, setSelectedUserId] = React.useState("")
@@ -77,6 +82,9 @@ function ScanRoute() {
   const [uploadedObjectKey, setUploadedObjectKey] = React.useState<
     string | null
   >(null)
+  const [draftReceiptId, setDraftReceiptId] = React.useState<string | null>(
+    null
+  )
   const [selectedFileName, setSelectedFileName] = React.useState("")
   const [draft, setDraft] = React.useState<EditableReceiptDraft>(
     createEmptyReceiptDraft
@@ -146,6 +154,93 @@ function ScanRoute() {
     }
   }, [step])
 
+  React.useEffect(() => {
+    if (step !== "analyzing" || !draftReceiptId) {
+      return
+    }
+
+    const abortController = new AbortController()
+    const textDecoder = new TextDecoder()
+    let buffer = ""
+    let isCancelled = false
+
+    async function streamParsingStatus() {
+      const response = await streamReceiptParsingStatusServerFn({
+        data: draftReceiptId,
+        signal: abortController.signal,
+      })
+
+      if (!(response instanceof Response) || !response.body) {
+        throw new Error(
+          "Não foi possível acompanhar o processamento do recibo em tempo real."
+        )
+      }
+
+      const reader = response.body.getReader()
+
+      while (!isCancelled) {
+        const { done, value } = await reader.read()
+
+        if (done) {
+          break
+        }
+
+        buffer += textDecoder.decode(value, { stream: true })
+
+        while (buffer.includes("\n")) {
+          const lineBreakIndex = buffer.indexOf("\n")
+          const line = buffer.slice(0, lineBreakIndex).trim()
+          buffer = buffer.slice(lineBreakIndex + 1)
+
+          if (!line) {
+            continue
+          }
+
+          const event = JSON.parse(line) as {
+            draft: AnalyzedReceiptDraft | null
+            receiptId: string
+            status: string
+          }
+
+          setDraftReceiptId(event.receiptId)
+
+          if (event.status === "extracted" && event.draft) {
+            setDraft(toEditableReceiptDraft(event.draft))
+            setErrorState(null)
+            setStep("review")
+            return
+          }
+
+          if (event.status === "flagged") {
+            setErrorState({
+              allowManualEntry: true,
+              message: t("scan.errorFallback"),
+            })
+            setStep("error")
+            return
+          }
+        }
+      }
+    }
+
+    void streamParsingStatus().catch((error) => {
+      if (abortController.signal.aborted || isCancelled) {
+        return
+      }
+
+      setErrorState({
+        allowManualEntry: true,
+        message: toErrorMessage(error, t("scan.errorFallback")),
+      })
+      setStep("error")
+    })
+
+    return () => {
+      isCancelled = true
+      abortController.abort()
+    }
+  }, [draftReceiptId, step, streamReceiptParsingStatusServerFn, t])
+
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       if (!selectedUserId) {
@@ -190,7 +285,7 @@ function ScanRoute() {
     },
   })
 
-  const analyzeMutation = useMutation({
+  const startParsingMutation = useMutation({
     mutationFn: async () => {
       if (!selectedUserId) {
         throw new Error("Selecione um funcionário antes de extrair o recibo.")
@@ -200,17 +295,17 @@ function ScanRoute() {
         throw new Error("Envie a imagem do recibo antes de iniciar a extração.")
       }
 
-      return analyzeReceiptServerFn({
+      return startReceiptParsingServerFn({
         data: {
           objectKey: uploadedObjectKey,
+          receiptId: draftReceiptId ?? undefined,
           userId: selectedUserId,
         },
       })
     },
     onSuccess: (result) => {
-      setDraft(toEditableReceiptDraft(result))
+      setDraftReceiptId(result.receiptId)
       setErrorState(null)
-      setStep("review")
     },
     onError: (error) => {
       setErrorState({
@@ -230,6 +325,7 @@ function ScanRoute() {
         data: {
           items: draft.items,
           objectKey: uploadedObjectKey ?? undefined,
+          receiptId: draftReceiptId ?? undefined,
           receiptDate: draft.receiptDate,
           totalAmount: draft.totalAmount,
           userId: selectedUserId,
@@ -258,7 +354,9 @@ function ScanRoute() {
   const users = bootstrapQuery.data?.users ?? []
   const selectedUser = users.find((user) => user.id === selectedUserId)
   const isAnalyzeDisabled =
-    !uploadedObjectKey || uploadMutation.isPending || analyzeMutation.isPending
+    !uploadedObjectKey ||
+    uploadMutation.isPending ||
+    startParsingMutation.isPending
   const canSave =
     Boolean(
       selectedUserId &&
@@ -276,6 +374,7 @@ function ScanRoute() {
     setPreviewUrl(null)
     setSelectedFileName("")
     setStep("capture")
+    setDraftReceiptId(null)
     setUploadedObjectKey(null)
   }
 
@@ -371,7 +470,7 @@ function ScanRoute() {
   function handleAnalyze() {
     setErrorState(null)
     setStep("analyzing")
-    analyzeMutation.mutate()
+    startParsingMutation.mutate()
   }
 
   function handleSave() {
@@ -559,7 +658,8 @@ function ScanRoute() {
                   onClick={handleAnalyze}
                   type="button"
                 >
-                  {uploadMutation.isPending || analyzeMutation.isPending ? (
+                  {uploadMutation.isPending ||
+                  startParsingMutation.isPending ? (
                     <Loader2 className="mr-2 animate-spin" size={18} />
                   ) : (
                     <Sparkles className="mr-2" size={18} />

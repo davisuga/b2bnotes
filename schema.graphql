@@ -114,6 +114,606 @@ input CompaniesOrderByExp {
   name: OrderBy
 }
 
+type DashboardAlerts {
+  alertId: String1
+  alertType: String1
+  amount: Bigdecimal
+  category: String1
+  companyId: Uuid
+  countValue: Int64
+  employeeCount: Int64
+  limitAmount: Bigdecimal
+  maxPrice: Bigdecimal
+  minPrice: Bigdecimal
+  percentDelta: Bigdecimal
+  periodKey: String1
+  priority: Bigdecimal
+  productName: String1
+  receiptId: Uuid
+  teamMedian: Float64
+  teamTotalSpent: Bigdecimal
+  userId: Uuid
+  userName: String1
+  vendorName: String1
+  vendorTaxId: String1
+}
+
+type DashboardAlertsAggExp {
+  _count: Int64!
+  alertId: TextAggExp!
+  alertType: TextAggExp!
+  amount: NumericAggExp!
+  category: TextAggExp!
+  companyId: UuidAggExp!
+  countValue: Int8AggExp!
+  employeeCount: Int8AggExp!
+  limitAmount: NumericAggExp!
+  maxPrice: NumericAggExp!
+  minPrice: NumericAggExp!
+  percentDelta: NumericAggExp!
+  periodKey: TextAggExp!
+  priority: NumericAggExp!
+  productName: TextAggExp!
+  receiptId: UuidAggExp!
+  teamMedian: Float8AggExp!
+  teamTotalSpent: NumericAggExp!
+  userId: UuidAggExp!
+  userName: TextAggExp!
+  vendorName: TextAggExp!
+  vendorTaxId: TextAggExp!
+}
+
+input DashboardAlertsBoolExp {
+  _and: [DashboardAlertsBoolExp!]
+  _not: DashboardAlertsBoolExp
+  _or: [DashboardAlertsBoolExp!]
+  alertId: TextBoolExp
+  alertType: TextBoolExp
+  amount: NumericBoolExp
+  category: TextBoolExp
+  companyId: UuidBoolExp
+  countValue: Int8BoolExp
+  employeeCount: Int8BoolExp
+  limitAmount: NumericBoolExp
+  maxPrice: NumericBoolExp
+  minPrice: NumericBoolExp
+  percentDelta: NumericBoolExp
+  periodKey: TextBoolExp
+  priority: NumericBoolExp
+  productName: TextBoolExp
+  receiptId: UuidBoolExp
+  teamMedian: Float8BoolExp
+  teamTotalSpent: NumericBoolExp
+  userId: UuidBoolExp
+  userName: TextBoolExp
+  vendorName: TextBoolExp
+  vendorTaxId: TextBoolExp
+}
+
+input DashboardAlertsFilterInput {
+  limit: Int
+  offset: Int
+  order_by: [DashboardAlertsOrderByExp!]
+  where: DashboardAlertsBoolExp
+}
+
+input DashboardAlertsOrderByExp {
+  alertId: OrderBy
+  alertType: OrderBy
+  amount: OrderBy
+  category: OrderBy
+  companyId: OrderBy
+  countValue: OrderBy
+  employeeCount: OrderBy
+  limitAmount: OrderBy
+  maxPrice: OrderBy
+  minPrice: OrderBy
+  percentDelta: OrderBy
+  periodKey: OrderBy
+  priority: OrderBy
+  productName: OrderBy
+  receiptId: OrderBy
+  teamMedian: OrderBy
+  teamTotalSpent: OrderBy
+  userId: OrderBy
+  userName: OrderBy
+  vendorName: OrderBy
+  vendorTaxId: OrderBy
+}
+
+type DashboardCategorySpend {
+  category: String1
+  companyId: Uuid
+  periodKey: String1
+  ratio: Bigdecimal
+  totalSpent: Bigdecimal
+}
+
+type DashboardCategorySpendAggExp {
+  _count: Int64!
+  category: TextAggExp!
+  companyId: UuidAggExp!
+  periodKey: TextAggExp!
+  ratio: NumericAggExp!
+  totalSpent: NumericAggExp!
+}
+
+input DashboardCategorySpendBoolExp {
+  _and: [DashboardCategorySpendBoolExp!]
+  _not: DashboardCategorySpendBoolExp
+  _or: [DashboardCategorySpendBoolExp!]
+  category: TextBoolExp
+  companyId: UuidBoolExp
+  periodKey: TextBoolExp
+  ratio: NumericBoolExp
+  totalSpent: NumericBoolExp
+}
+
+input DashboardCategorySpendFilterInput {
+  limit: Int
+  offset: Int
+  order_by: [DashboardCategorySpendOrderByExp!]
+  where: DashboardCategorySpendBoolExp
+}
+
+input DashboardCategorySpendOrderByExp {
+  category: OrderBy
+  companyId: OrderBy
+  periodKey: OrderBy
+  ratio: OrderBy
+  totalSpent: OrderBy
+}
+
+type DashboardEmployeeSpend {
+  companyId: Uuid
+  periodKey: String1
+  receiptCount: Int64
+  topCategory: String1
+  totalSpent: Bigdecimal
+  userId: Uuid
+  userName: String1
+}
+
+type DashboardEmployeeSpendAggExp {
+  _count: Int64!
+  companyId: UuidAggExp!
+  periodKey: TextAggExp!
+  receiptCount: Int8AggExp!
+  topCategory: TextAggExp!
+  totalSpent: NumericAggExp!
+  userId: UuidAggExp!
+  userName: TextAggExp!
+}
+
+input DashboardEmployeeSpendBoolExp {
+  _and: [DashboardEmployeeSpendBoolExp!]
+  _not: DashboardEmployeeSpendBoolExp
+  _or: [DashboardEmployeeSpendBoolExp!]
+  companyId: UuidBoolExp
+  periodKey: TextBoolExp
+  receiptCount: Int8BoolExp
+  topCategory: TextBoolExp
+  totalSpent: NumericBoolExp
+  userId: UuidBoolExp
+  userName: TextBoolExp
+}
+
+input DashboardEmployeeSpendFilterInput {
+  limit: Int
+  offset: Int
+  order_by: [DashboardEmployeeSpendOrderByExp!]
+  where: DashboardEmployeeSpendBoolExp
+}
+
+input DashboardEmployeeSpendOrderByExp {
+  companyId: OrderBy
+  periodKey: OrderBy
+  receiptCount: OrderBy
+  topCategory: OrderBy
+  totalSpent: OrderBy
+  userId: OrderBy
+  userName: OrderBy
+}
+
+type DashboardProducts {
+  companyId: Uuid
+  employeeCount: Int64
+  maxUnitPrice: Bigdecimal
+  minUnitPrice: Bigdecimal
+  periodKey: String1
+  productName: String1
+  purchaseCount: Int64
+  totalQuantity: Bigdecimal
+  totalSpent: Bigdecimal
+}
+
+type DashboardProductsAggExp {
+  _count: Int64!
+  companyId: UuidAggExp!
+  employeeCount: Int8AggExp!
+  maxUnitPrice: NumericAggExp!
+  minUnitPrice: NumericAggExp!
+  periodKey: TextAggExp!
+  productName: TextAggExp!
+  purchaseCount: Int8AggExp!
+  totalQuantity: NumericAggExp!
+  totalSpent: NumericAggExp!
+}
+
+input DashboardProductsBoolExp {
+  _and: [DashboardProductsBoolExp!]
+  _not: DashboardProductsBoolExp
+  _or: [DashboardProductsBoolExp!]
+  companyId: UuidBoolExp
+  employeeCount: Int8BoolExp
+  maxUnitPrice: NumericBoolExp
+  minUnitPrice: NumericBoolExp
+  periodKey: TextBoolExp
+  productName: TextBoolExp
+  purchaseCount: Int8BoolExp
+  totalQuantity: NumericBoolExp
+  totalSpent: NumericBoolExp
+}
+
+input DashboardProductsFilterInput {
+  limit: Int
+  offset: Int
+  order_by: [DashboardProductsOrderByExp!]
+  where: DashboardProductsBoolExp
+}
+
+input DashboardProductsOrderByExp {
+  companyId: OrderBy
+  employeeCount: OrderBy
+  maxUnitPrice: OrderBy
+  minUnitPrice: OrderBy
+  periodKey: OrderBy
+  productName: OrderBy
+  purchaseCount: OrderBy
+  totalQuantity: OrderBy
+  totalSpent: OrderBy
+}
+
+type DashboardReceiptHistory {
+  companyId: Uuid
+  createdAt: Timestamptz
+  flaggedReason: String1
+  imageUrl: String1
+  itemCount: Int64
+  periodKey: String1
+  primaryCategory: String1
+  rawText: String1
+  receiptDate: Date
+  receiptId: Uuid
+  status: String1
+  totalAmount: Bigdecimal
+  userId: Uuid
+  userName: String1
+  vendorName: String1
+  vendorTaxId: String1
+  vendorTaxIdValid: Boolean1
+}
+
+type DashboardReceiptHistoryAggExp {
+  _count: Int64!
+  companyId: UuidAggExp!
+  createdAt: TimestamptzAggExp!
+  flaggedReason: TextAggExp!
+  imageUrl: TextAggExp!
+  itemCount: Int8AggExp!
+  periodKey: TextAggExp!
+  primaryCategory: TextAggExp!
+  rawText: TextAggExp!
+  receiptDate: DateAggExp!
+  receiptId: UuidAggExp!
+  status: TextAggExp!
+  totalAmount: NumericAggExp!
+  userId: UuidAggExp!
+  userName: TextAggExp!
+  vendorName: TextAggExp!
+  vendorTaxId: TextAggExp!
+  vendorTaxIdValid: BoolAggExp!
+}
+
+input DashboardReceiptHistoryBoolExp {
+  _and: [DashboardReceiptHistoryBoolExp!]
+  _not: DashboardReceiptHistoryBoolExp
+  _or: [DashboardReceiptHistoryBoolExp!]
+  companyId: UuidBoolExp
+  createdAt: TimestamptzBoolExp
+  flaggedReason: TextBoolExp
+  imageUrl: TextBoolExp
+  itemCount: Int8BoolExp
+  periodKey: TextBoolExp
+  primaryCategory: TextBoolExp
+  rawText: TextBoolExp
+  receiptDate: DateBoolExp
+  receiptId: UuidBoolExp
+  status: TextBoolExp
+  totalAmount: NumericBoolExp
+  userId: UuidBoolExp
+  userName: TextBoolExp
+  vendorName: TextBoolExp
+  vendorTaxId: TextBoolExp
+  vendorTaxIdValid: BoolBoolExp
+}
+
+input DashboardReceiptHistoryFilterInput {
+  limit: Int
+  offset: Int
+  order_by: [DashboardReceiptHistoryOrderByExp!]
+  where: DashboardReceiptHistoryBoolExp
+}
+
+input DashboardReceiptHistoryOrderByExp {
+  companyId: OrderBy
+  createdAt: OrderBy
+  flaggedReason: OrderBy
+  imageUrl: OrderBy
+  itemCount: OrderBy
+  periodKey: OrderBy
+  primaryCategory: OrderBy
+  rawText: OrderBy
+  receiptDate: OrderBy
+  receiptId: OrderBy
+  status: OrderBy
+  totalAmount: OrderBy
+  userId: OrderBy
+  userName: OrderBy
+  vendorName: OrderBy
+  vendorTaxId: OrderBy
+  vendorTaxIdValid: OrderBy
+}
+
+type DashboardReceiptItemsPeriodized {
+  category: String1
+  companyId: Uuid
+  createdAt: Timestamptz
+  dashboardCategory: String1
+  flaggedReason: String1
+  imageUrl: String1
+  itemId: Uuid
+  normalizedDescription: String1
+  periodKey: String1
+  quantity: Bigdecimal
+  rawDescription: String1
+  rawText: String1
+  receiptDate: Date
+  receiptId: Uuid
+  sourceText: String1
+  status: String1
+  totalAmount: Bigdecimal
+  totalPrice: Bigdecimal
+  unitPrice: Bigdecimal
+  userId: Uuid
+  userName: String1
+  vendorName: String1
+  vendorTaxId: String1
+  vendorTaxIdValid: Boolean1
+}
+
+type DashboardReceiptItemsPeriodizedAggExp {
+  _count: Int64!
+  category: TextAggExp!
+  companyId: UuidAggExp!
+  createdAt: TimestamptzAggExp!
+  dashboardCategory: TextAggExp!
+  flaggedReason: TextAggExp!
+  imageUrl: TextAggExp!
+  itemId: UuidAggExp!
+  normalizedDescription: TextAggExp!
+  periodKey: TextAggExp!
+  quantity: NumericAggExp!
+  rawDescription: TextAggExp!
+  rawText: TextAggExp!
+  receiptDate: DateAggExp!
+  receiptId: UuidAggExp!
+  sourceText: TextAggExp!
+  status: TextAggExp!
+  totalAmount: NumericAggExp!
+  totalPrice: NumericAggExp!
+  unitPrice: NumericAggExp!
+  userId: UuidAggExp!
+  userName: TextAggExp!
+  vendorName: TextAggExp!
+  vendorTaxId: TextAggExp!
+  vendorTaxIdValid: BoolAggExp!
+}
+
+input DashboardReceiptItemsPeriodizedBoolExp {
+  _and: [DashboardReceiptItemsPeriodizedBoolExp!]
+  _not: DashboardReceiptItemsPeriodizedBoolExp
+  _or: [DashboardReceiptItemsPeriodizedBoolExp!]
+  category: TextBoolExp
+  companyId: UuidBoolExp
+  createdAt: TimestamptzBoolExp
+  dashboardCategory: TextBoolExp
+  flaggedReason: TextBoolExp
+  imageUrl: TextBoolExp
+  itemId: UuidBoolExp
+  normalizedDescription: TextBoolExp
+  periodKey: TextBoolExp
+  quantity: NumericBoolExp
+  rawDescription: TextBoolExp
+  rawText: TextBoolExp
+  receiptDate: DateBoolExp
+  receiptId: UuidBoolExp
+  sourceText: TextBoolExp
+  status: TextBoolExp
+  totalAmount: NumericBoolExp
+  totalPrice: NumericBoolExp
+  unitPrice: NumericBoolExp
+  userId: UuidBoolExp
+  userName: TextBoolExp
+  vendorName: TextBoolExp
+  vendorTaxId: TextBoolExp
+  vendorTaxIdValid: BoolBoolExp
+}
+
+input DashboardReceiptItemsPeriodizedFilterInput {
+  limit: Int
+  offset: Int
+  order_by: [DashboardReceiptItemsPeriodizedOrderByExp!]
+  where: DashboardReceiptItemsPeriodizedBoolExp
+}
+
+input DashboardReceiptItemsPeriodizedOrderByExp {
+  category: OrderBy
+  companyId: OrderBy
+  createdAt: OrderBy
+  dashboardCategory: OrderBy
+  flaggedReason: OrderBy
+  imageUrl: OrderBy
+  itemId: OrderBy
+  normalizedDescription: OrderBy
+  periodKey: OrderBy
+  quantity: OrderBy
+  rawDescription: OrderBy
+  rawText: OrderBy
+  receiptDate: OrderBy
+  receiptId: OrderBy
+  sourceText: OrderBy
+  status: OrderBy
+  totalAmount: OrderBy
+  totalPrice: OrderBy
+  unitPrice: OrderBy
+  userId: OrderBy
+  userName: OrderBy
+  vendorName: OrderBy
+  vendorTaxId: OrderBy
+  vendorTaxIdValid: OrderBy
+}
+
+type DashboardReceiptsPeriodized {
+  companyId: Uuid
+  createdAt: Timestamptz
+  flaggedReason: String1
+  imageUrl: String1
+  periodKey: String1
+  rawText: String1
+  receiptDate: Date
+  receiptId: Uuid
+  status: String1
+  totalAmount: Bigdecimal
+  userId: Uuid
+  userName: String1
+  vendorName: String1
+  vendorTaxId: String1
+  vendorTaxIdValid: Boolean1
+}
+
+type DashboardReceiptsPeriodizedAggExp {
+  _count: Int64!
+  companyId: UuidAggExp!
+  createdAt: TimestamptzAggExp!
+  flaggedReason: TextAggExp!
+  imageUrl: TextAggExp!
+  periodKey: TextAggExp!
+  rawText: TextAggExp!
+  receiptDate: DateAggExp!
+  receiptId: UuidAggExp!
+  status: TextAggExp!
+  totalAmount: NumericAggExp!
+  userId: UuidAggExp!
+  userName: TextAggExp!
+  vendorName: TextAggExp!
+  vendorTaxId: TextAggExp!
+  vendorTaxIdValid: BoolAggExp!
+}
+
+input DashboardReceiptsPeriodizedBoolExp {
+  _and: [DashboardReceiptsPeriodizedBoolExp!]
+  _not: DashboardReceiptsPeriodizedBoolExp
+  _or: [DashboardReceiptsPeriodizedBoolExp!]
+  companyId: UuidBoolExp
+  createdAt: TimestamptzBoolExp
+  flaggedReason: TextBoolExp
+  imageUrl: TextBoolExp
+  periodKey: TextBoolExp
+  rawText: TextBoolExp
+  receiptDate: DateBoolExp
+  receiptId: UuidBoolExp
+  status: TextBoolExp
+  totalAmount: NumericBoolExp
+  userId: UuidBoolExp
+  userName: TextBoolExp
+  vendorName: TextBoolExp
+  vendorTaxId: TextBoolExp
+  vendorTaxIdValid: BoolBoolExp
+}
+
+input DashboardReceiptsPeriodizedFilterInput {
+  limit: Int
+  offset: Int
+  order_by: [DashboardReceiptsPeriodizedOrderByExp!]
+  where: DashboardReceiptsPeriodizedBoolExp
+}
+
+input DashboardReceiptsPeriodizedOrderByExp {
+  companyId: OrderBy
+  createdAt: OrderBy
+  flaggedReason: OrderBy
+  imageUrl: OrderBy
+  periodKey: OrderBy
+  rawText: OrderBy
+  receiptDate: OrderBy
+  receiptId: OrderBy
+  status: OrderBy
+  totalAmount: OrderBy
+  userId: OrderBy
+  userName: OrderBy
+  vendorName: OrderBy
+  vendorTaxId: OrderBy
+  vendorTaxIdValid: OrderBy
+}
+
+type DashboardSummary {
+  companyId: Uuid
+  periodKey: String1
+  receiptsProcessed: Int64
+  totalSpent: Bigdecimal
+  uniqueEmployees: Int64
+  uniqueProducts: Int64
+}
+
+type DashboardSummaryAggExp {
+  _count: Int64!
+  companyId: UuidAggExp!
+  periodKey: TextAggExp!
+  receiptsProcessed: Int8AggExp!
+  totalSpent: NumericAggExp!
+  uniqueEmployees: Int8AggExp!
+  uniqueProducts: Int8AggExp!
+}
+
+input DashboardSummaryBoolExp {
+  _and: [DashboardSummaryBoolExp!]
+  _not: DashboardSummaryBoolExp
+  _or: [DashboardSummaryBoolExp!]
+  companyId: UuidBoolExp
+  periodKey: TextBoolExp
+  receiptsProcessed: Int8BoolExp
+  totalSpent: NumericBoolExp
+  uniqueEmployees: Int8BoolExp
+  uniqueProducts: Int8BoolExp
+}
+
+input DashboardSummaryFilterInput {
+  limit: Int
+  offset: Int
+  order_by: [DashboardSummaryOrderByExp!]
+  where: DashboardSummaryBoolExp
+}
+
+input DashboardSummaryOrderByExp {
+  companyId: OrderBy
+  periodKey: OrderBy
+  receiptsProcessed: OrderBy
+  totalSpent: OrderBy
+  uniqueEmployees: OrderBy
+  uniqueProducts: OrderBy
+}
+
 scalar Date
 
 type DateAggExp {
@@ -135,6 +735,24 @@ input DateBoolExp {
   _neq: Date
   _not: DateBoolExp
   _or: [DateBoolExp!]
+}
+
+"""
+Responses from the 'delete_category_spend_limits_by_category_and_company_id' procedure
+"""
+type DeleteCategorySpendLimitsByCategoryAndCompanyIdResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [CategorySpendLimits!]!
+}
+
+"""Responses from the 'delete_category_spend_limits_by_id' procedure"""
+type DeleteCategorySpendLimitsByIdResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [CategorySpendLimits!]!
 }
 
 """Responses from the 'delete_companies_by_id' procedure"""
@@ -161,6 +779,24 @@ type DeleteReceiptsByIdResponse {
   returning: [Receipts!]!
 }
 
+"""
+Responses from the 'delete_spend_policies_by_category_and_company_id' procedure
+"""
+type DeleteSpendPoliciesByCategoryAndCompanyIdResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [SpendPolicies!]!
+}
+
+"""Responses from the 'delete_spend_policies_by_id' procedure"""
+type DeleteSpendPoliciesByIdResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [SpendPolicies!]!
+}
+
 """Responses from the 'delete_users_by_email' procedure"""
 type DeleteUsersByEmailResponse {
   """The number of rows affected by the mutation"""
@@ -178,6 +814,37 @@ type DeleteUsersByIdResponse {
 }
 
 scalar Enum
+
+type Float8AggExp {
+  _count: Int64!
+  _count_distinct: Int64!
+  avg: Float64
+  max: Float64
+  min: Float64
+  stddev: Float64
+  stddev_pop: Float64
+  stddev_samp: Float64
+  sum: Float64
+  var_pop: Float64
+  var_samp: Float64
+  variance: Float64
+}
+
+input Float8BoolExp {
+  _and: [Float8BoolExp!]
+  _eq: Float64
+  _gt: Float64
+  _gte: Float64
+  _in: [Float64!]
+  _is_null: Boolean
+  _lt: Float64
+  _lte: Float64
+  _neq: Float64
+  _not: Float8BoolExp
+  _or: [Float8BoolExp!]
+}
+
+scalar Float64
 
 input InsertCategorySpendLimitsObjectInput {
   category: String1!
@@ -209,13 +876,209 @@ type InsertCompaniesResponse {
   returning: [Companies!]!
 }
 
+input InsertDashboardAlertsObjectInput {
+  alertId: String1
+  alertType: String1
+  amount: Bigdecimal
+  category: String1
+  companyId: Uuid
+  countValue: Int64
+  employeeCount: Int64
+  limitAmount: Bigdecimal
+  maxPrice: Bigdecimal
+  minPrice: Bigdecimal
+  percentDelta: Bigdecimal
+  periodKey: String1
+  priority: Bigdecimal
+  productName: String1
+  receiptId: Uuid
+  teamMedian: Float64
+  teamTotalSpent: Bigdecimal
+  userId: Uuid
+  userName: String1
+  vendorName: String1
+  vendorTaxId: String1
+}
+
+"""Responses from the 'insert_dashboard_alerts' procedure"""
+type InsertDashboardAlertsResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [DashboardAlerts!]!
+}
+
+input InsertDashboardCategorySpendObjectInput {
+  category: String1
+  companyId: Uuid
+  periodKey: String1
+  ratio: Bigdecimal
+  totalSpent: Bigdecimal
+}
+
+"""Responses from the 'insert_dashboard_category_spend' procedure"""
+type InsertDashboardCategorySpendResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [DashboardCategorySpend!]!
+}
+
+input InsertDashboardEmployeeSpendObjectInput {
+  companyId: Uuid
+  periodKey: String1
+  receiptCount: Int64
+  topCategory: String1
+  totalSpent: Bigdecimal
+  userId: Uuid
+  userName: String1
+}
+
+"""Responses from the 'insert_dashboard_employee_spend' procedure"""
+type InsertDashboardEmployeeSpendResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [DashboardEmployeeSpend!]!
+}
+
+input InsertDashboardProductsObjectInput {
+  companyId: Uuid
+  employeeCount: Int64
+  maxUnitPrice: Bigdecimal
+  minUnitPrice: Bigdecimal
+  periodKey: String1
+  productName: String1
+  purchaseCount: Int64
+  totalQuantity: Bigdecimal
+  totalSpent: Bigdecimal
+}
+
+"""Responses from the 'insert_dashboard_products' procedure"""
+type InsertDashboardProductsResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [DashboardProducts!]!
+}
+
+input InsertDashboardReceiptHistoryObjectInput {
+  companyId: Uuid
+  createdAt: Timestamptz
+  flaggedReason: String1
+  imageUrl: String1
+  itemCount: Int64
+  periodKey: String1
+  primaryCategory: String1
+  rawText: String1
+  receiptDate: Date
+  receiptId: Uuid
+  status: String1
+  totalAmount: Bigdecimal
+  userId: Uuid
+  userName: String1
+  vendorName: String1
+  vendorTaxId: String1
+  vendorTaxIdValid: Boolean1
+}
+
+"""Responses from the 'insert_dashboard_receipt_history' procedure"""
+type InsertDashboardReceiptHistoryResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [DashboardReceiptHistory!]!
+}
+
+input InsertDashboardReceiptItemsPeriodizedObjectInput {
+  category: String1
+  companyId: Uuid
+  createdAt: Timestamptz
+  dashboardCategory: String1
+  flaggedReason: String1
+  imageUrl: String1
+  itemId: Uuid
+  normalizedDescription: String1
+  periodKey: String1
+  quantity: Bigdecimal
+  rawDescription: String1
+  rawText: String1
+  receiptDate: Date
+  receiptId: Uuid
+  sourceText: String1
+  status: String1
+  totalAmount: Bigdecimal
+  totalPrice: Bigdecimal
+  unitPrice: Bigdecimal
+  userId: Uuid
+  userName: String1
+  vendorName: String1
+  vendorTaxId: String1
+  vendorTaxIdValid: Boolean1
+}
+
+"""
+Responses from the 'insert_dashboard_receipt_items_periodized' procedure
+"""
+type InsertDashboardReceiptItemsPeriodizedResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [DashboardReceiptItemsPeriodized!]!
+}
+
+input InsertDashboardReceiptsPeriodizedObjectInput {
+  companyId: Uuid
+  createdAt: Timestamptz
+  flaggedReason: String1
+  imageUrl: String1
+  periodKey: String1
+  rawText: String1
+  receiptDate: Date
+  receiptId: Uuid
+  status: String1
+  totalAmount: Bigdecimal
+  userId: Uuid
+  userName: String1
+  vendorName: String1
+  vendorTaxId: String1
+  vendorTaxIdValid: Boolean1
+}
+
+"""Responses from the 'insert_dashboard_receipts_periodized' procedure"""
+type InsertDashboardReceiptsPeriodizedResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [DashboardReceiptsPeriodized!]!
+}
+
+input InsertDashboardSummaryObjectInput {
+  companyId: Uuid
+  periodKey: String1
+  receiptsProcessed: Int64
+  totalSpent: Bigdecimal
+  uniqueEmployees: Int64
+  uniqueProducts: Int64
+}
+
+"""Responses from the 'insert_dashboard_summary' procedure"""
+type InsertDashboardSummaryResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [DashboardSummary!]!
+}
+
 input InsertReceiptItemsObjectInput {
   category: String1
   createdAt: Timestamptz
   description: String1!
   id: Uuid
   isPriceAnomaly: Boolean1
+  normalizedDescription: String1!
   quantity: Bigdecimal
+  rawDescription: String1!
   receiptId: Uuid!
   totalPrice: Bigdecimal!
   unitPrice: Bigdecimal!
@@ -232,8 +1095,10 @@ type InsertReceiptItemsResponse {
 input InsertReceiptsObjectInput {
   companyId: Uuid!
   createdAt: Timestamptz
+  flaggedReason: String1
   id: Uuid
   imageUrl: String1
+  rawText: String1
   receiptDate: Date!
   status: String1
   totalAmount: Bigdecimal!
@@ -249,6 +1114,23 @@ type InsertReceiptsResponse {
   affectedRows: Int32!
   """Data from rows affected by the mutation"""
   returning: [Receipts!]!
+}
+
+input InsertSpendPoliciesObjectInput {
+  category: String1!
+  companyId: Uuid!
+  createdAt: Timestamptz
+  id: Uuid
+  maxPerMonth: Bigdecimal
+  maxPerTransaction: Bigdecimal
+}
+
+"""Responses from the 'insert_spend_policies' procedure"""
+type InsertSpendPoliciesResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [SpendPolicies!]!
 }
 
 input InsertUsersObjectInput {
@@ -268,11 +1150,64 @@ type InsertUsersResponse {
   returning: [Users!]!
 }
 
+type Int8AggExp {
+  _count: Int64!
+  _count_distinct: Int64!
+  avg: Bigdecimal
+  bit_and: Int64
+  bit_or: Int64
+  bit_xor: Int64
+  max: Int64
+  min: Int64
+  stddev: Bigdecimal
+  stddev_pop: Bigdecimal
+  stddev_samp: Bigdecimal
+  sum: Bigdecimal
+  var_pop: Bigdecimal
+  var_samp: Bigdecimal
+  variance: Bigdecimal
+}
+
+input Int8BoolExp {
+  _and: [Int8BoolExp!]
+  _eq: Int64
+  _gt: Int64
+  _gte: Int64
+  _in: [Int64!]
+  _is_null: Boolean
+  _lt: Int64
+  _lte: Int64
+  _neq: Int64
+  _not: Int8BoolExp
+  _or: [Int8BoolExp!]
+}
+
 scalar Int32
 
 scalar Int64
 
 type Mutation {
+  """
+  Delete any row on the 'category_spend_limits' collection using the 'category' and 'company_id' keys
+  """
+  deleteCategorySpendLimitsByCategoryAndCompanyId(
+    keyCategory: String1!
+    keyCompanyId: Uuid!
+    """
+    Delete permission predicate over the 'category_spend_limits' collection
+    """
+    preCheck: CategorySpendLimitsBoolExp
+  ): DeleteCategorySpendLimitsByCategoryAndCompanyIdResponse!
+  """
+  Delete any row on the 'category_spend_limits' collection using the 'id' key
+  """
+  deleteCategorySpendLimitsById(
+    keyId: Uuid!
+    """
+    Delete permission predicate over the 'category_spend_limits' collection
+    """
+    preCheck: CategorySpendLimitsBoolExp
+  ): DeleteCategorySpendLimitsByIdResponse!
   """Delete any row on the 'companies' collection using the 'id' key"""
   deleteCompaniesById(
     keyId: Uuid!
@@ -291,6 +1226,21 @@ type Mutation {
     """Delete permission predicate over the 'receipts' collection"""
     preCheck: ReceiptsBoolExp
   ): DeleteReceiptsByIdResponse!
+  """
+  Delete any row on the 'spend_policies' collection using the 'category' and 'company_id' keys
+  """
+  deleteSpendPoliciesByCategoryAndCompanyId(
+    keyCategory: String1!
+    keyCompanyId: Uuid!
+    """Delete permission predicate over the 'spend_policies' collection"""
+    preCheck: SpendPoliciesBoolExp
+  ): DeleteSpendPoliciesByCategoryAndCompanyIdResponse!
+  """Delete any row on the 'spend_policies' collection using the 'id' key"""
+  deleteSpendPoliciesById(
+    keyId: Uuid!
+    """Delete permission predicate over the 'spend_policies' collection"""
+    preCheck: SpendPoliciesBoolExp
+  ): DeleteSpendPoliciesByIdResponse!
   """Delete any row on the 'users' collection using the 'email' key"""
   deleteUsersByEmail(
     keyEmail: String1!
@@ -317,6 +1267,64 @@ type Mutation {
     """Insert permission predicate over the 'companies' collection"""
     postCheck: CompaniesBoolExp
   ): InsertCompaniesResponse!
+  """Insert into the dashboard_alerts table"""
+  insertDashboardAlerts(
+    objects: [InsertDashboardAlertsObjectInput!]!
+    """Insert permission predicate over the 'dashboard_alerts' collection"""
+    postCheck: DashboardAlertsBoolExp
+  ): InsertDashboardAlertsResponse!
+  """Insert into the dashboard_category_spend table"""
+  insertDashboardCategorySpend(
+    objects: [InsertDashboardCategorySpendObjectInput!]!
+    """
+    Insert permission predicate over the 'dashboard_category_spend' collection
+    """
+    postCheck: DashboardCategorySpendBoolExp
+  ): InsertDashboardCategorySpendResponse!
+  """Insert into the dashboard_employee_spend table"""
+  insertDashboardEmployeeSpend(
+    objects: [InsertDashboardEmployeeSpendObjectInput!]!
+    """
+    Insert permission predicate over the 'dashboard_employee_spend' collection
+    """
+    postCheck: DashboardEmployeeSpendBoolExp
+  ): InsertDashboardEmployeeSpendResponse!
+  """Insert into the dashboard_products table"""
+  insertDashboardProducts(
+    objects: [InsertDashboardProductsObjectInput!]!
+    """Insert permission predicate over the 'dashboard_products' collection"""
+    postCheck: DashboardProductsBoolExp
+  ): InsertDashboardProductsResponse!
+  """Insert into the dashboard_receipt_history table"""
+  insertDashboardReceiptHistory(
+    objects: [InsertDashboardReceiptHistoryObjectInput!]!
+    """
+    Insert permission predicate over the 'dashboard_receipt_history' collection
+    """
+    postCheck: DashboardReceiptHistoryBoolExp
+  ): InsertDashboardReceiptHistoryResponse!
+  """Insert into the dashboard_receipt_items_periodized table"""
+  insertDashboardReceiptItemsPeriodized(
+    objects: [InsertDashboardReceiptItemsPeriodizedObjectInput!]!
+    """
+    Insert permission predicate over the 'dashboard_receipt_items_periodized' collection
+    """
+    postCheck: DashboardReceiptItemsPeriodizedBoolExp
+  ): InsertDashboardReceiptItemsPeriodizedResponse!
+  """Insert into the dashboard_receipts_periodized table"""
+  insertDashboardReceiptsPeriodized(
+    objects: [InsertDashboardReceiptsPeriodizedObjectInput!]!
+    """
+    Insert permission predicate over the 'dashboard_receipts_periodized' collection
+    """
+    postCheck: DashboardReceiptsPeriodizedBoolExp
+  ): InsertDashboardReceiptsPeriodizedResponse!
+  """Insert into the dashboard_summary table"""
+  insertDashboardSummary(
+    objects: [InsertDashboardSummaryObjectInput!]!
+    """Insert permission predicate over the 'dashboard_summary' collection"""
+    postCheck: DashboardSummaryBoolExp
+  ): InsertDashboardSummaryResponse!
   """Insert into the receipt_items table"""
   insertReceiptItems(
     objects: [InsertReceiptItemsObjectInput!]!
@@ -329,12 +1337,34 @@ type Mutation {
     """Insert permission predicate over the 'receipts' collection"""
     postCheck: ReceiptsBoolExp
   ): InsertReceiptsResponse!
+  """Insert into the spend_policies table"""
+  insertSpendPolicies(
+    objects: [InsertSpendPoliciesObjectInput!]!
+    """Insert permission predicate over the 'spend_policies' collection"""
+    postCheck: SpendPoliciesBoolExp
+  ): InsertSpendPoliciesResponse!
   """Insert into the users table"""
   insertUsers(
     objects: [InsertUsersObjectInput!]!
     """Insert permission predicate over the 'users' collection"""
     postCheck: UsersBoolExp
   ): InsertUsersResponse!
+  """
+  Update any row on the 'category_spend_limits' collection using the 'category' and 'company_id' keys
+  """
+  updateCategorySpendLimitsByCategoryAndCompanyId(
+    keyCategory: String1!
+    keyCompanyId: Uuid!
+    """
+    Update permission post-condition predicate over the 'category_spend_limits' collection
+    """
+    postCheck: CategorySpendLimitsBoolExp
+    """
+    Update permission pre-condition predicate over the 'category_spend_limits' collection
+    """
+    preCheck: CategorySpendLimitsBoolExp
+    updateColumns: UpdateCategorySpendLimitsByCategoryAndCompanyIdUpdateColumnsInput!
+  ): UpdateCategorySpendLimitsByCategoryAndCompanyIdResponse!
   """
   Update any row on the 'category_spend_limits' collection using the 'id' key
   """
@@ -389,6 +1419,35 @@ type Mutation {
     preCheck: ReceiptsBoolExp
     updateColumns: UpdateReceiptsByIdUpdateColumnsInput!
   ): UpdateReceiptsByIdResponse!
+  """
+  Update any row on the 'spend_policies' collection using the 'category' and 'company_id' keys
+  """
+  updateSpendPoliciesByCategoryAndCompanyId(
+    keyCategory: String1!
+    keyCompanyId: Uuid!
+    """
+    Update permission post-condition predicate over the 'spend_policies' collection
+    """
+    postCheck: SpendPoliciesBoolExp
+    """
+    Update permission pre-condition predicate over the 'spend_policies' collection
+    """
+    preCheck: SpendPoliciesBoolExp
+    updateColumns: UpdateSpendPoliciesByCategoryAndCompanyIdUpdateColumnsInput!
+  ): UpdateSpendPoliciesByCategoryAndCompanyIdResponse!
+  """Update any row on the 'spend_policies' collection using the 'id' key"""
+  updateSpendPoliciesById(
+    keyId: Uuid!
+    """
+    Update permission post-condition predicate over the 'spend_policies' collection
+    """
+    postCheck: SpendPoliciesBoolExp
+    """
+    Update permission pre-condition predicate over the 'spend_policies' collection
+    """
+    preCheck: SpendPoliciesBoolExp
+    updateColumns: UpdateSpendPoliciesByIdUpdateColumnsInput!
+  ): UpdateSpendPoliciesByIdResponse!
   """Update any row on the 'users' collection using the 'email' key"""
   updateUsersByEmail(
     keyEmail: String1!
@@ -453,12 +1512,32 @@ type Query {
   companies(limit: Int, offset: Int, order_by: [CompaniesOrderByExp!], where: CompaniesBoolExp): [Companies!]
   companiesAggregate(filter_input: CompaniesFilterInput): CompaniesAggExp
   companiesById(id: Uuid!): Companies
+  dashboardAlerts(limit: Int, offset: Int, order_by: [DashboardAlertsOrderByExp!], where: DashboardAlertsBoolExp): [DashboardAlerts!]
+  dashboardAlertsAggregate(filter_input: DashboardAlertsFilterInput): DashboardAlertsAggExp
+  dashboardCategorySpend(limit: Int, offset: Int, order_by: [DashboardCategorySpendOrderByExp!], where: DashboardCategorySpendBoolExp): [DashboardCategorySpend!]
+  dashboardCategorySpendAggregate(filter_input: DashboardCategorySpendFilterInput): DashboardCategorySpendAggExp
+  dashboardEmployeeSpend(limit: Int, offset: Int, order_by: [DashboardEmployeeSpendOrderByExp!], where: DashboardEmployeeSpendBoolExp): [DashboardEmployeeSpend!]
+  dashboardEmployeeSpendAggregate(filter_input: DashboardEmployeeSpendFilterInput): DashboardEmployeeSpendAggExp
+  dashboardProducts(limit: Int, offset: Int, order_by: [DashboardProductsOrderByExp!], where: DashboardProductsBoolExp): [DashboardProducts!]
+  dashboardProductsAggregate(filter_input: DashboardProductsFilterInput): DashboardProductsAggExp
+  dashboardReceiptHistory(limit: Int, offset: Int, order_by: [DashboardReceiptHistoryOrderByExp!], where: DashboardReceiptHistoryBoolExp): [DashboardReceiptHistory!]
+  dashboardReceiptHistoryAggregate(filter_input: DashboardReceiptHistoryFilterInput): DashboardReceiptHistoryAggExp
+  dashboardReceiptItemsPeriodized(limit: Int, offset: Int, order_by: [DashboardReceiptItemsPeriodizedOrderByExp!], where: DashboardReceiptItemsPeriodizedBoolExp): [DashboardReceiptItemsPeriodized!]
+  dashboardReceiptItemsPeriodizedAggregate(filter_input: DashboardReceiptItemsPeriodizedFilterInput): DashboardReceiptItemsPeriodizedAggExp
+  dashboardReceiptsPeriodized(limit: Int, offset: Int, order_by: [DashboardReceiptsPeriodizedOrderByExp!], where: DashboardReceiptsPeriodizedBoolExp): [DashboardReceiptsPeriodized!]
+  dashboardReceiptsPeriodizedAggregate(filter_input: DashboardReceiptsPeriodizedFilterInput): DashboardReceiptsPeriodizedAggExp
+  dashboardSummary(limit: Int, offset: Int, order_by: [DashboardSummaryOrderByExp!], where: DashboardSummaryBoolExp): [DashboardSummary!]
+  dashboardSummaryAggregate(filter_input: DashboardSummaryFilterInput): DashboardSummaryAggExp
   receiptItems(limit: Int, offset: Int, order_by: [ReceiptItemsOrderByExp!], where: ReceiptItemsBoolExp): [ReceiptItems!]
   receiptItemsAggregate(filter_input: ReceiptItemsFilterInput): ReceiptItemsAggExp
   receiptItemsById(id: Uuid!): ReceiptItems
   receipts(limit: Int, offset: Int, order_by: [ReceiptsOrderByExp!], where: ReceiptsBoolExp): [Receipts!]
   receiptsAggregate(filter_input: ReceiptsFilterInput): ReceiptsAggExp
   receiptsById(id: Uuid!): Receipts
+  spendPolicies(limit: Int, offset: Int, order_by: [SpendPoliciesOrderByExp!], where: SpendPoliciesBoolExp): [SpendPolicies!]
+  spendPoliciesAggregate(filter_input: SpendPoliciesFilterInput): SpendPoliciesAggExp
+  spendPoliciesById(id: Uuid!): SpendPolicies
+  spendPoliciesBySpendPoliciesCompanyIdCategoryKey(category: String1!, companyId: Uuid!): SpendPolicies
   users(limit: Int, offset: Int, order_by: [UsersOrderByExp!], where: UsersBoolExp): [Users!]
   usersAggregate(filter_input: UsersFilterInput): UsersAggExp
   usersByEmail(email: String1!): Users
@@ -471,7 +1550,9 @@ type ReceiptItems {
   description: String1!
   id: Uuid!
   isPriceAnomaly: Boolean1
+  normalizedDescription: String1!
   quantity: Bigdecimal
+  rawDescription: String1!
   receipt: Receipts
   receiptId: Uuid!
   totalPrice: Bigdecimal!
@@ -485,7 +1566,9 @@ type ReceiptItemsAggExp {
   description: TextAggExp!
   id: UuidAggExp!
   isPriceAnomaly: BoolAggExp!
+  normalizedDescription: TextAggExp!
   quantity: NumericAggExp!
+  rawDescription: TextAggExp!
   receiptId: UuidAggExp!
   totalPrice: NumericAggExp!
   unitPrice: NumericAggExp!
@@ -500,7 +1583,9 @@ input ReceiptItemsBoolExp {
   description: TextBoolExp
   id: UuidBoolExp
   isPriceAnomaly: BoolBoolExp
+  normalizedDescription: TextBoolExp
   quantity: NumericBoolExp
+  rawDescription: TextBoolExp
   receipt: ReceiptsBoolExp
   receiptId: UuidBoolExp
   totalPrice: NumericBoolExp
@@ -520,7 +1605,9 @@ input ReceiptItemsOrderByExp {
   description: OrderBy
   id: OrderBy
   isPriceAnomaly: OrderBy
+  normalizedDescription: OrderBy
   quantity: OrderBy
+  rawDescription: OrderBy
   receipt: ReceiptsOrderByExp
   receiptId: OrderBy
   totalPrice: OrderBy
@@ -531,8 +1618,10 @@ type Receipts {
   company: Companies
   companyId: Uuid!
   createdAt: Timestamptz
+  flaggedReason: String1
   id: Uuid!
   imageUrl: String1
+  rawText: String1
   receiptDate: Date!
   receiptItems(limit: Int, offset: Int, order_by: [ReceiptItemsOrderByExp!], where: ReceiptItemsBoolExp): [ReceiptItems!]
   receiptItemsAggregate(filter_input: ReceiptItemsFilterInput): ReceiptItemsAggExp!
@@ -549,8 +1638,10 @@ type ReceiptsAggExp {
   _count: Int64!
   companyId: UuidAggExp!
   createdAt: TimestamptzAggExp!
+  flaggedReason: TextAggExp!
   id: UuidAggExp!
   imageUrl: TextAggExp!
+  rawText: TextAggExp!
   receiptDate: DateAggExp!
   status: TextAggExp!
   totalAmount: NumericAggExp!
@@ -567,8 +1658,10 @@ input ReceiptsBoolExp {
   company: CompaniesBoolExp
   companyId: UuidBoolExp
   createdAt: TimestamptzBoolExp
+  flaggedReason: TextBoolExp
   id: UuidBoolExp
   imageUrl: TextBoolExp
+  rawText: TextBoolExp
   receiptDate: DateBoolExp
   receiptItems: ReceiptItemsBoolExp
   status: TextBoolExp
@@ -591,8 +1684,10 @@ input ReceiptsOrderByExp {
   company: CompaniesOrderByExp
   companyId: OrderBy
   createdAt: OrderBy
+  flaggedReason: OrderBy
   id: OrderBy
   imageUrl: OrderBy
+  rawText: OrderBy
   receiptDate: OrderBy
   status: OrderBy
   totalAmount: OrderBy
@@ -601,6 +1696,53 @@ input ReceiptsOrderByExp {
   vendorName: OrderBy
   vendorTaxId: OrderBy
   vendorTaxIdValid: OrderBy
+}
+
+type SpendPolicies {
+  category: String1!
+  companyId: Uuid!
+  createdAt: Timestamptz
+  id: Uuid!
+  maxPerMonth: Bigdecimal
+  maxPerTransaction: Bigdecimal
+}
+
+type SpendPoliciesAggExp {
+  _count: Int64!
+  category: TextAggExp!
+  companyId: UuidAggExp!
+  createdAt: TimestamptzAggExp!
+  id: UuidAggExp!
+  maxPerMonth: NumericAggExp!
+  maxPerTransaction: NumericAggExp!
+}
+
+input SpendPoliciesBoolExp {
+  _and: [SpendPoliciesBoolExp!]
+  _not: SpendPoliciesBoolExp
+  _or: [SpendPoliciesBoolExp!]
+  category: TextBoolExp
+  companyId: UuidBoolExp
+  createdAt: TimestamptzBoolExp
+  id: UuidBoolExp
+  maxPerMonth: NumericBoolExp
+  maxPerTransaction: NumericBoolExp
+}
+
+input SpendPoliciesFilterInput {
+  limit: Int
+  offset: Int
+  order_by: [SpendPoliciesOrderByExp!]
+  where: SpendPoliciesBoolExp
+}
+
+input SpendPoliciesOrderByExp {
+  category: OrderBy
+  companyId: OrderBy
+  createdAt: OrderBy
+  id: OrderBy
+  maxPerMonth: OrderBy
+  maxPerTransaction: OrderBy
 }
 
 scalar String1
@@ -613,12 +1755,32 @@ type Subscription {
   companies(limit: Int, offset: Int, order_by: [CompaniesOrderByExp!], where: CompaniesBoolExp): [Companies!]
   companiesAggregate(filter_input: CompaniesFilterInput): CompaniesAggExp
   companiesById(id: Uuid!): Companies
+  dashboardAlerts(limit: Int, offset: Int, order_by: [DashboardAlertsOrderByExp!], where: DashboardAlertsBoolExp): [DashboardAlerts!]
+  dashboardAlertsAggregate(filter_input: DashboardAlertsFilterInput): DashboardAlertsAggExp
+  dashboardCategorySpend(limit: Int, offset: Int, order_by: [DashboardCategorySpendOrderByExp!], where: DashboardCategorySpendBoolExp): [DashboardCategorySpend!]
+  dashboardCategorySpendAggregate(filter_input: DashboardCategorySpendFilterInput): DashboardCategorySpendAggExp
+  dashboardEmployeeSpend(limit: Int, offset: Int, order_by: [DashboardEmployeeSpendOrderByExp!], where: DashboardEmployeeSpendBoolExp): [DashboardEmployeeSpend!]
+  dashboardEmployeeSpendAggregate(filter_input: DashboardEmployeeSpendFilterInput): DashboardEmployeeSpendAggExp
+  dashboardProducts(limit: Int, offset: Int, order_by: [DashboardProductsOrderByExp!], where: DashboardProductsBoolExp): [DashboardProducts!]
+  dashboardProductsAggregate(filter_input: DashboardProductsFilterInput): DashboardProductsAggExp
+  dashboardReceiptHistory(limit: Int, offset: Int, order_by: [DashboardReceiptHistoryOrderByExp!], where: DashboardReceiptHistoryBoolExp): [DashboardReceiptHistory!]
+  dashboardReceiptHistoryAggregate(filter_input: DashboardReceiptHistoryFilterInput): DashboardReceiptHistoryAggExp
+  dashboardReceiptItemsPeriodized(limit: Int, offset: Int, order_by: [DashboardReceiptItemsPeriodizedOrderByExp!], where: DashboardReceiptItemsPeriodizedBoolExp): [DashboardReceiptItemsPeriodized!]
+  dashboardReceiptItemsPeriodizedAggregate(filter_input: DashboardReceiptItemsPeriodizedFilterInput): DashboardReceiptItemsPeriodizedAggExp
+  dashboardReceiptsPeriodized(limit: Int, offset: Int, order_by: [DashboardReceiptsPeriodizedOrderByExp!], where: DashboardReceiptsPeriodizedBoolExp): [DashboardReceiptsPeriodized!]
+  dashboardReceiptsPeriodizedAggregate(filter_input: DashboardReceiptsPeriodizedFilterInput): DashboardReceiptsPeriodizedAggExp
+  dashboardSummary(limit: Int, offset: Int, order_by: [DashboardSummaryOrderByExp!], where: DashboardSummaryBoolExp): [DashboardSummary!]
+  dashboardSummaryAggregate(filter_input: DashboardSummaryFilterInput): DashboardSummaryAggExp
   receiptItems(limit: Int, offset: Int, order_by: [ReceiptItemsOrderByExp!], where: ReceiptItemsBoolExp): [ReceiptItems!]
   receiptItemsAggregate(filter_input: ReceiptItemsFilterInput): ReceiptItemsAggExp
   receiptItemsById(id: Uuid!): ReceiptItems
   receipts(limit: Int, offset: Int, order_by: [ReceiptsOrderByExp!], where: ReceiptsBoolExp): [Receipts!]
   receiptsAggregate(filter_input: ReceiptsFilterInput): ReceiptsAggExp
   receiptsById(id: Uuid!): Receipts
+  spendPolicies(limit: Int, offset: Int, order_by: [SpendPoliciesOrderByExp!], where: SpendPoliciesBoolExp): [SpendPolicies!]
+  spendPoliciesAggregate(filter_input: SpendPoliciesFilterInput): SpendPoliciesAggExp
+  spendPoliciesById(id: Uuid!): SpendPolicies
+  spendPoliciesBySpendPoliciesCompanyIdCategoryKey(category: String1!, companyId: Uuid!): SpendPolicies
   users(limit: Int, offset: Int, order_by: [UsersOrderByExp!], where: UsersBoolExp): [Users!]
   usersAggregate(filter_input: UsersFilterInput): UsersAggExp
   usersByEmail(email: String1!): Users
@@ -677,6 +1839,38 @@ input TimestamptzBoolExp {
   _neq: Timestamptz
   _not: TimestamptzBoolExp
   _or: [TimestamptzBoolExp!]
+}
+
+"""
+Responses from the 'update_category_spend_limits_by_category_and_company_id' procedure
+"""
+type UpdateCategorySpendLimitsByCategoryAndCompanyIdResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [CategorySpendLimits!]!
+}
+
+"""Update the columns of the 'category_spend_limits' collection"""
+input UpdateCategorySpendLimitsByCategoryAndCompanyIdUpdateColumnsInput {
+  """
+  Update the 'category' column in the 'category_spend_limits' collection.
+  """
+  category: UpdateColumnCategorySpendLimitsCategoryInput
+  """
+  Update the 'company_id' column in the 'category_spend_limits' collection.
+  """
+  companyId: UpdateColumnCategorySpendLimitsCompanyIdInput
+  """
+  Update the 'created_at' column in the 'category_spend_limits' collection.
+  """
+  createdAt: UpdateColumnCategorySpendLimitsCreatedAtInput
+  """Update the 'id' column in the 'category_spend_limits' collection."""
+  id: UpdateColumnCategorySpendLimitsIdInput
+  """
+  Update the 'max_receipt_amount' column in the 'category_spend_limits' collection.
+  """
+  maxReceiptAmount: UpdateColumnCategorySpendLimitsMaxReceiptAmountInput
 }
 
 """Responses from the 'update_category_spend_limits_by_id' procedure"""
@@ -793,10 +1987,24 @@ input UpdateColumnReceiptItemsIsPriceAnomalyInput {
   set: Boolean1
 }
 
+"""
+Update the 'normalized_description' column in the 'receipt_items' collection
+"""
+input UpdateColumnReceiptItemsNormalizedDescriptionInput {
+  """Set the column to this value"""
+  set: String1!
+}
+
 """Update the 'quantity' column in the 'receipt_items' collection"""
 input UpdateColumnReceiptItemsQuantityInput {
   """Set the column to this value"""
   set: Bigdecimal
+}
+
+"""Update the 'raw_description' column in the 'receipt_items' collection"""
+input UpdateColumnReceiptItemsRawDescriptionInput {
+  """Set the column to this value"""
+  set: String1!
 }
 
 """Update the 'receipt_id' column in the 'receipt_items' collection"""
@@ -829,6 +2037,12 @@ input UpdateColumnReceiptsCreatedAtInput {
   set: Timestamptz
 }
 
+"""Update the 'flagged_reason' column in the 'receipts' collection"""
+input UpdateColumnReceiptsFlaggedReasonInput {
+  """Set the column to this value"""
+  set: String1
+}
+
 """Update the 'id' column in the 'receipts' collection"""
 input UpdateColumnReceiptsIdInput {
   """Set the column to this value"""
@@ -837,6 +2051,12 @@ input UpdateColumnReceiptsIdInput {
 
 """Update the 'image_url' column in the 'receipts' collection"""
 input UpdateColumnReceiptsImageUrlInput {
+  """Set the column to this value"""
+  set: String1
+}
+
+"""Update the 'raw_text' column in the 'receipts' collection"""
+input UpdateColumnReceiptsRawTextInput {
   """Set the column to this value"""
   set: String1
 }
@@ -881,6 +2101,44 @@ input UpdateColumnReceiptsVendorTaxIdInput {
 input UpdateColumnReceiptsVendorTaxIdValidInput {
   """Set the column to this value"""
   set: Boolean1!
+}
+
+"""Update the 'category' column in the 'spend_policies' collection"""
+input UpdateColumnSpendPoliciesCategoryInput {
+  """Set the column to this value"""
+  set: String1!
+}
+
+"""Update the 'company_id' column in the 'spend_policies' collection"""
+input UpdateColumnSpendPoliciesCompanyIdInput {
+  """Set the column to this value"""
+  set: Uuid!
+}
+
+"""Update the 'created_at' column in the 'spend_policies' collection"""
+input UpdateColumnSpendPoliciesCreatedAtInput {
+  """Set the column to this value"""
+  set: Timestamptz
+}
+
+"""Update the 'id' column in the 'spend_policies' collection"""
+input UpdateColumnSpendPoliciesIdInput {
+  """Set the column to this value"""
+  set: Uuid!
+}
+
+"""Update the 'max_per_month' column in the 'spend_policies' collection"""
+input UpdateColumnSpendPoliciesMaxPerMonthInput {
+  """Set the column to this value"""
+  set: Bigdecimal
+}
+
+"""
+Update the 'max_per_transaction' column in the 'spend_policies' collection
+"""
+input UpdateColumnSpendPoliciesMaxPerTransactionInput {
+  """Set the column to this value"""
+  set: Bigdecimal
 }
 
 """Update the 'company_id' column in the 'users' collection"""
@@ -959,8 +2217,14 @@ input UpdateReceiptItemsByIdUpdateColumnsInput {
   Update the 'is_price_anomaly' column in the 'receipt_items' collection.
   """
   isPriceAnomaly: UpdateColumnReceiptItemsIsPriceAnomalyInput
+  """
+  Update the 'normalized_description' column in the 'receipt_items' collection.
+  """
+  normalizedDescription: UpdateColumnReceiptItemsNormalizedDescriptionInput
   """Update the 'quantity' column in the 'receipt_items' collection."""
   quantity: UpdateColumnReceiptItemsQuantityInput
+  """Update the 'raw_description' column in the 'receipt_items' collection."""
+  rawDescription: UpdateColumnReceiptItemsRawDescriptionInput
   """Update the 'receipt_id' column in the 'receipt_items' collection."""
   receiptId: UpdateColumnReceiptItemsReceiptIdInput
   """Update the 'total_price' column in the 'receipt_items' collection."""
@@ -983,10 +2247,14 @@ input UpdateReceiptsByIdUpdateColumnsInput {
   companyId: UpdateColumnReceiptsCompanyIdInput
   """Update the 'created_at' column in the 'receipts' collection."""
   createdAt: UpdateColumnReceiptsCreatedAtInput
+  """Update the 'flagged_reason' column in the 'receipts' collection."""
+  flaggedReason: UpdateColumnReceiptsFlaggedReasonInput
   """Update the 'id' column in the 'receipts' collection."""
   id: UpdateColumnReceiptsIdInput
   """Update the 'image_url' column in the 'receipts' collection."""
   imageUrl: UpdateColumnReceiptsImageUrlInput
+  """Update the 'raw_text' column in the 'receipts' collection."""
+  rawText: UpdateColumnReceiptsRawTextInput
   """Update the 'receipt_date' column in the 'receipts' collection."""
   receiptDate: UpdateColumnReceiptsReceiptDateInput
   """Update the 'status' column in the 'receipts' collection."""
@@ -1001,6 +2269,60 @@ input UpdateReceiptsByIdUpdateColumnsInput {
   vendorTaxId: UpdateColumnReceiptsVendorTaxIdInput
   """Update the 'vendor_tax_id_valid' column in the 'receipts' collection."""
   vendorTaxIdValid: UpdateColumnReceiptsVendorTaxIdValidInput
+}
+
+"""
+Responses from the 'update_spend_policies_by_category_and_company_id' procedure
+"""
+type UpdateSpendPoliciesByCategoryAndCompanyIdResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [SpendPolicies!]!
+}
+
+"""Update the columns of the 'spend_policies' collection"""
+input UpdateSpendPoliciesByCategoryAndCompanyIdUpdateColumnsInput {
+  """Update the 'category' column in the 'spend_policies' collection."""
+  category: UpdateColumnSpendPoliciesCategoryInput
+  """Update the 'company_id' column in the 'spend_policies' collection."""
+  companyId: UpdateColumnSpendPoliciesCompanyIdInput
+  """Update the 'created_at' column in the 'spend_policies' collection."""
+  createdAt: UpdateColumnSpendPoliciesCreatedAtInput
+  """Update the 'id' column in the 'spend_policies' collection."""
+  id: UpdateColumnSpendPoliciesIdInput
+  """Update the 'max_per_month' column in the 'spend_policies' collection."""
+  maxPerMonth: UpdateColumnSpendPoliciesMaxPerMonthInput
+  """
+  Update the 'max_per_transaction' column in the 'spend_policies' collection.
+  """
+  maxPerTransaction: UpdateColumnSpendPoliciesMaxPerTransactionInput
+}
+
+"""Responses from the 'update_spend_policies_by_id' procedure"""
+type UpdateSpendPoliciesByIdResponse {
+  """The number of rows affected by the mutation"""
+  affectedRows: Int32!
+  """Data from rows affected by the mutation"""
+  returning: [SpendPolicies!]!
+}
+
+"""Update the columns of the 'spend_policies' collection"""
+input UpdateSpendPoliciesByIdUpdateColumnsInput {
+  """Update the 'category' column in the 'spend_policies' collection."""
+  category: UpdateColumnSpendPoliciesCategoryInput
+  """Update the 'company_id' column in the 'spend_policies' collection."""
+  companyId: UpdateColumnSpendPoliciesCompanyIdInput
+  """Update the 'created_at' column in the 'spend_policies' collection."""
+  createdAt: UpdateColumnSpendPoliciesCreatedAtInput
+  """Update the 'id' column in the 'spend_policies' collection."""
+  id: UpdateColumnSpendPoliciesIdInput
+  """Update the 'max_per_month' column in the 'spend_policies' collection."""
+  maxPerMonth: UpdateColumnSpendPoliciesMaxPerMonthInput
+  """
+  Update the 'max_per_transaction' column in the 'spend_policies' collection.
+  """
+  maxPerTransaction: UpdateColumnSpendPoliciesMaxPerTransactionInput
 }
 
 """Responses from the 'update_users_by_email' procedure"""

@@ -1,0 +1,132 @@
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertSpendPoliciesObject
+  fields:
+    - name: category
+      type: String_1!
+    - name: companyId
+      type: Uuid!
+    - name: createdAt
+      type: Timestamptz
+    - name: id
+      type: Uuid
+    - name: maxPerMonth
+      type: Bigdecimal
+    - name: maxPerTransaction
+      type: Bigdecimal
+  graphql:
+    typeName: InsertSpendPoliciesObject
+    inputTypeName: InsertSpendPoliciesObjectInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_spend_policies_object
+      fieldMapping:
+        category:
+          column:
+            name: category
+        companyId:
+          column:
+            name: company_id
+        createdAt:
+          column:
+            name: created_at
+        id:
+          column:
+            name: id
+        maxPerMonth:
+          column:
+            name: max_per_month
+        maxPerTransaction:
+          column:
+            name: max_per_transaction
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertSpendPoliciesObject
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - category
+          - companyId
+          - createdAt
+          - id
+          - maxPerMonth
+          - maxPerTransaction
+
+---
+kind: ObjectType
+version: v1
+definition:
+  name: InsertSpendPoliciesResponse
+  description: Responses from the 'insert_spend_policies' procedure
+  fields:
+    - name: affectedRows
+      type: Int32!
+      description: The number of rows affected by the mutation
+    - name: returning
+      type: "[SpendPolicies!]!"
+      description: Data from rows affected by the mutation
+  graphql:
+    typeName: InsertSpendPoliciesResponse
+    inputTypeName: InsertSpendPoliciesResponseInput
+  dataConnectorTypeMapping:
+    - dataConnectorName: my_pg
+      dataConnectorObjectType: insert_spend_policies_response
+      fieldMapping:
+        affectedRows:
+          column:
+            name: affected_rows
+        returning:
+          column:
+            name: returning
+
+---
+kind: TypePermissions
+version: v1
+definition:
+  typeName: InsertSpendPoliciesResponse
+  permissions:
+    - role: admin
+      output:
+        allowedFields:
+          - affectedRows
+          - returning
+
+---
+kind: Command
+version: v1
+definition:
+  name: InsertSpendPolicies
+  outputType: InsertSpendPoliciesResponse!
+  arguments:
+    - name: objects
+      type: "[InsertSpendPoliciesObject!]!"
+    - name: postCheck
+      type: SpendPoliciesBoolExp
+      description: Insert permission predicate over the 'spend_policies' collection
+  source:
+    dataConnectorName: my_pg
+    dataConnectorCommand:
+      procedure: insert_spend_policies
+    argumentMapping:
+      objects: objects
+      postCheck: post_check
+  graphql:
+    rootFieldName: insertSpendPolicies
+    rootFieldKind: Mutation
+  description: Insert into the spend_policies table
+
+---
+kind: CommandPermissions
+version: v1
+definition:
+  commandName: InsertSpendPolicies
+  permissions:
+    - role: admin
+      allowExecution: true
+
