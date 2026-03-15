@@ -38,7 +38,7 @@ const resources = {
     translation: {
       app: {
         htmlLang: APP_LOCALE,
-        title: "ReceiptIQ",
+        title: "Track",
         nav: {
           capture: "Captura",
           dashboard: "Painel",
@@ -68,7 +68,7 @@ const resources = {
         loading: "Carregando painel...",
         unavailableTitle: "Painel indisponível",
         unavailableFallback: "Não foi possível carregar os dados de recibos.",
-        badge: "ReceiptIQ",
+        badge: "Track",
         heroTitle: "Visibilidade e controle",
         heroDescription:
           "Acompanhe gastos por pessoa, produto, categoria e período para entender exatamente para onde o dinheiro está indo.",

@@ -1,4 +1,4 @@
-# ReceiptIQ
+# Track
 
 Aplicação para captura, extração e auditoria de recibos com:
 
