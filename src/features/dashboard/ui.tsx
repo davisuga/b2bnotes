@@ -24,6 +24,7 @@ import { Card } from "@/components/ui/card"
 import {
   currencyFormatter,
   dateFormatter,
+  dateTimeFormatter,
   default as i18n,
   numberFormatter,
   preciseCurrencyFormatter,
@@ -768,6 +769,20 @@ export function MiniStat({ label, value }: { label: string; value: string }) {
 
 export function formatDate(value: string) {
   return dateFormatter.format(new Date(`${value}T00:00:00`))
+}
+
+export function formatDateTime(value: string | null | undefined) {
+  if (!value) {
+    return "—"
+  }
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return "—"
+  }
+
+  return dateTimeFormatter.format(date)
 }
 
 export function formatReceiptCode(value: string) {

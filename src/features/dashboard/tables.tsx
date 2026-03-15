@@ -7,14 +7,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
+import { Search } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type {
   ColumnDef,
   ColumnFiltersState,
   PaginationState,
   SortingState,
 } from "@tanstack/react-table"
-import { Search } from "lucide-react"
-import { useTranslation } from "react-i18next"
 
 import type {
   DashboardEmployeeRow,
@@ -25,6 +25,7 @@ import {
   SortableHeader,
   TablePagination,
   formatDate,
+  formatDateTime,
   formatReceiptCode,
 } from "@/features/dashboard/ui"
 import { currencyFormatter, numberFormatter } from "@/lib/i18n"
@@ -44,8 +45,9 @@ type ReceiptHistoryTableRow = {
   categoryLabel: string
   id: string
   itemCount: number
+  printedAt: string
   receiptCode: string
-  receiptDate: string
+  uploadedAt: string | null
   userName: string
   vendorName: string
 }
@@ -313,7 +315,7 @@ export function ReceiptHistoryTable({
   const [searchValue, setSearchValue] = React.useState("")
   const deferredSearchValue = React.useDeferredValue(searchValue)
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "receiptDate", desc: true },
+    { id: "uploadedAt", desc: true },
   ])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -331,8 +333,9 @@ export function ReceiptHistoryTable({
         categoryLabel: receipt.primaryCategory,
         id: receipt.id,
         itemCount: receipt.itemCount,
+        printedAt: receipt.receiptDate,
         receiptCode: formatReceiptCode(receipt.id),
-        receiptDate: receipt.receiptDate,
+        uploadedAt: receipt.createdAt,
         userName: receipt.userName,
         vendorName: receipt.vendorName,
       })),
@@ -362,13 +365,30 @@ export function ReceiptHistoryTable({
         ),
       },
       {
-        accessorKey: "receiptDate",
+        accessorKey: "uploadedAt",
         header: ({ column }) => (
-          <SortableHeader column={column} label={t("dashboard.table.date")} />
+          <SortableHeader
+            column={column}
+            label={t("dashboard.table.uploadDateTime")}
+          />
         ),
         cell: ({ row }) => (
           <span className="text-sm text-text-primary">
-            {formatDate(row.original.receiptDate)}
+            {formatDateTime(row.original.uploadedAt)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "printedAt",
+        header: ({ column }) => (
+          <SortableHeader
+            column={column}
+            label={t("dashboard.table.printedDateTime")}
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="text-sm text-text-primary">
+            {formatDate(row.original.printedAt)}
           </span>
         ),
       },
@@ -464,8 +484,10 @@ export function ReceiptHistoryTable({
       return [
         row.original.id,
         row.original.receiptCode,
-        row.original.receiptDate,
-        formatDate(row.original.receiptDate),
+        row.original.uploadedAt ?? "",
+        formatDateTime(row.original.uploadedAt),
+        row.original.printedAt,
+        formatDate(row.original.printedAt),
         row.original.userName,
         row.original.vendorName,
         row.original.categoryLabel,

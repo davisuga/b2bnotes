@@ -25,6 +25,14 @@ export const dateFormatter = new Intl.DateTimeFormat(APP_LOCALE, {
   year: "numeric",
 })
 
+export const dateTimeFormatter = new Intl.DateTimeFormat(APP_LOCALE, {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+})
+
 const resources = {
   [APP_LOCALE]: {
     translation: {
@@ -125,6 +133,8 @@ const resources = {
           allCategories: "Todas as categorias",
           receipt: "Recibo",
           date: "Data",
+          uploadDateTime: "Upload em",
+          printedDateTime: "Impresso em",
           employee: "Funcionário",
           receipts: "Recibos",
           merchant: "Fornecedor",
