@@ -31,6 +31,8 @@ import {
 
 type OcrProvider = "gemini" | "modal"
 
+type ScanLogLevel = "error" | "info" | "warn"
+
 const ScanBootstrapQuery = graphql(`
   query ScanBootstrap {
     users(order_by: [{ fullName: Asc }]) {
@@ -242,6 +244,50 @@ const duplicateFlaggedReason = "duplicate"
 const personalPurchaseFlaggedReason = "personal_purchase"
 const parseFailedFlaggedReason = "parse_failed"
 const personalExpenseConfidenceThreshold = 0.85
+
+function serializeScanError(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+    }
+  }
+
+  return {
+    value: String(error),
+  }
+}
+
+function logScanEvent(
+  level: ScanLogLevel,
+  event: string,
+  details: Record<string, unknown> = {}
+) {
+  if (process.env.NODE_ENV === "test") {
+    return
+  }
+
+  const payload = {
+    details,
+    event,
+    level,
+    scope: "receipt-scan",
+    timestamp: new Date().toISOString(),
+  }
+
+  if (level === "error") {
+    console.error(JSON.stringify(payload))
+    return
+  }
+
+  if (level === "warn") {
+    console.warn(JSON.stringify(payload))
+    return
+  }
+
+  console.info(JSON.stringify(payload))
+}
 
 const personalExpenseClassificationSchema = z.object({
   confidence: z.number().min(0).max(1),
@@ -651,6 +697,11 @@ async function ensureProcessingReceipt(input: {
 }
 
 async function parseReceiptText(ocrText: string) {
+  logScanEvent("info", "parse-text.started", {
+    model: getParserModel(),
+    ocrTextLength: ocrText.length,
+  })
+
   const provider = getParserProvider()
   const { output } = await generateText({
     model: provider(getParserModel()),
@@ -677,6 +728,13 @@ ${ocrText}
     `.trim(),
   })
 
+  logScanEvent("info", "parse-text.completed", {
+    itemCount: output.items.length,
+    receiptDate: output.receiptDate,
+    totalAmount: output.totalAmount,
+    vendorName: output.vendorName,
+  })
+
   return output
 }
 
@@ -684,6 +742,12 @@ async function runGeminiVisionOcr(input: {
   buffer: Buffer
   contentType?: string
 }) {
+  logScanEvent("info", "ocr.gemini.started", {
+    bufferBytes: input.buffer.length,
+    contentType: input.contentType ?? null,
+    model: getGoogleVisionModel(),
+  })
+
   const visionProvider = getGoogleVisionProvider()
   const { text } = await generateText({
     model: visionProvider(getGoogleVisionModel()),
@@ -714,10 +778,19 @@ Rules:
     ],
   })
 
+  logScanEvent("info", "ocr.gemini.completed", {
+    textLength: text.length,
+  })
+
   return text
 }
 
 async function runModalOcr(input: { buffer: Buffer }) {
+  logScanEvent("info", "ocr.modal.started", {
+    bufferBytes: input.buffer.length,
+    endpoint: modalOcrEndpoint,
+  })
+
   const response = await fetch(modalOcrEndpoint, {
     method: "POST",
     headers: {
@@ -729,6 +802,10 @@ async function runModalOcr(input: { buffer: Buffer }) {
   })
 
   if (!response.ok) {
+    logScanEvent("warn", "ocr.modal.http-error", {
+      status: response.status,
+      statusText: response.statusText,
+    })
     throw new Error(
       "O OCR do recibo falhou. Tente outra foto ou preencha os itens manualmente."
     )
@@ -737,10 +814,17 @@ async function runModalOcr(input: { buffer: Buffer }) {
   const payload = (await response.json()) as { error?: string; text?: string }
 
   if (payload.error) {
+    logScanEvent("warn", "ocr.modal.payload-error", {
+      error: payload.error,
+    })
     throw new Error(
       "O OCR do recibo falhou. Tente outra foto ou preencha os itens manualmente."
     )
   }
+
+  logScanEvent("info", "ocr.modal.completed", {
+    textLength: (payload.text ?? "").length,
+  })
 
   return payload.text ?? ""
 }
@@ -766,6 +850,11 @@ async function runOcr(input: {
     )
   }
 
+  logScanEvent("info", "ocr.cleaned", {
+    cleanedTextLength: cleanedText.length,
+    provider: input.provider,
+  })
+
   return cleanedText
 }
 
@@ -778,7 +867,17 @@ function resolveOcrProvider(): OcrProvider {
 }
 
 async function runOcrFromR2(input: { objectKey: string }) {
+  logScanEvent("info", "ocr.download.started", {
+    objectKey: input.objectKey,
+  })
+
   const storedObject = await downloadReceiptObject(input.objectKey)
+
+  logScanEvent("info", "ocr.download.completed", {
+    bufferBytes: storedObject.buffer.length,
+    contentType: storedObject.contentType ?? null,
+    objectKey: input.objectKey,
+  })
 
   return runOcr({
     buffer: storedObject.buffer,
@@ -865,10 +964,21 @@ async function runReceiptParsingJob(input: {
   let ocrText: string | null = null
 
   try {
+    logScanEvent("info", "job.started", {
+      objectKey: input.objectKey,
+      receiptId: input.receiptId,
+      runtime: process.env.VERCEL ? "vercel" : "node",
+    })
+
     ocrText = await runOcrFromR2({ objectKey: input.objectKey })
     const parsedDraft = await parseReceiptText(ocrText)
 
     await replaceReceiptItems(input.receiptId, parsedDraft.items)
+    logScanEvent("info", "job.items-saved", {
+      itemCount: parsedDraft.items.length,
+      receiptId: input.receiptId,
+    })
+
     await updateReceipt({
       flaggedReason: null,
       rawText: ocrText,
@@ -879,11 +989,31 @@ async function runReceiptParsingJob(input: {
       vendorName: parsedDraft.vendorName,
       vendorTaxId: parsedDraft.vendorTaxId,
     })
-  } catch {
+
+    logScanEvent("info", "job.completed", {
+      receiptId: input.receiptId,
+      status: parsedReceiptStatus,
+      totalAmount: parsedDraft.totalAmount,
+      vendorName: parsedDraft.vendorName,
+    })
+  } catch (error) {
+    logScanEvent("error", "job.failed", {
+      error: serializeScanError(error),
+      hasRawText: Boolean(ocrText),
+      objectKey: input.objectKey,
+      receiptId: input.receiptId,
+    })
+
     await clearReceiptItems(input.receiptId)
     await updateReceipt({
       flaggedReason: parseFailedFlaggedReason,
       rawText: ocrText,
+      receiptId: input.receiptId,
+      status: failedReceiptStatus,
+    })
+
+    logScanEvent("warn", "job.flagged", {
+      flaggedReason: parseFailedFlaggedReason,
       receiptId: input.receiptId,
       status: failedReceiptStatus,
     })
@@ -1018,12 +1148,25 @@ export const getScanBootstrap = createServerFn({ method: "GET" }).handler(
 export const createReceiptUploadUrl = createServerFn({ method: "POST" })
   .inputValidator((input) => createReceiptUploadInputSchema.parse(input))
   .handler(async ({ data }) => {
+    logScanEvent("info", "upload-url.requested", {
+      contentType: data.contentType,
+      fileName: data.fileName,
+      userId: data.userId,
+    })
+
     return createPresignedReceiptUploadUrl(data)
   })
 
 export const startReceiptParsing = createServerFn({ method: "POST" })
   .inputValidator((input) => analyzeReceiptInputSchema.parse(input))
   .handler(async ({ data }) => {
+    logScanEvent("info", "start-parsing.requested", {
+      objectKey: data.objectKey,
+      receiptId: data.receiptId ?? null,
+      runtime: process.env.VERCEL ? "vercel" : "node",
+      userId: data.userId,
+    })
+
     const user = await fetchUserContext(data.userId)
     const imageReference = getStoredImageReference(data.objectKey)
     const receipt = await ensureProcessingReceipt({
@@ -1033,7 +1176,19 @@ export const startReceiptParsing = createServerFn({ method: "POST" })
       userId: data.userId,
     })
 
+    logScanEvent("info", "start-parsing.receipt-ready", {
+      companyId: user.companyId,
+      imageReference,
+      objectKey: data.objectKey,
+      receiptId: receipt.id,
+    })
+
     void runReceiptParsingJob({
+      objectKey: data.objectKey,
+      receiptId: receipt.id,
+    })
+
+    logScanEvent("info", "start-parsing.job-dispatched", {
       objectKey: data.objectKey,
       receiptId: receipt.id,
     })
@@ -1052,12 +1207,20 @@ export const streamReceiptParsingStatus = createServerFn({ method: "GET" })
       start(controller) {
         let closed = false
 
+        logScanEvent("info", "status-stream.opened", {
+          receiptId: data,
+          runtime: process.env.VERCEL ? "vercel" : "node",
+        })
+
         const close = () => {
           if (closed) {
             return
           }
 
           closed = true
+          logScanEvent("info", "status-stream.closed", {
+            receiptId: data,
+          })
           controller.close()
         }
 
@@ -1067,6 +1230,10 @@ export const streamReceiptParsingStatus = createServerFn({ method: "GET" })
           {
             next: (payload) => {
               if (payload.errors?.length) {
+                logScanEvent("error", "status-stream.subscription-errors", {
+                  errors: payload.errors.map((error) => error.message),
+                  receiptId: data,
+                })
                 controller.error(
                   new Error(
                     payload.errors
@@ -1082,11 +1249,20 @@ export const streamReceiptParsingStatus = createServerFn({ method: "GET" })
               const receipt = payload.data?.receiptsById
 
               if (!receipt) {
+                logScanEvent("error", "status-stream.missing-receipt", {
+                  receiptId: data,
+                })
                 controller.error(
                   new Error("Não foi possível acompanhar o recibo solicitado.")
                 )
                 return
               }
+
+              logScanEvent("info", "status-stream.event", {
+                itemCount: receipt.receiptItems?.length ?? 0,
+                receiptId: receipt.id,
+                status: receipt.status ?? processingReceiptStatus,
+              })
 
               controller.enqueue(
                 encoder.encode(`${JSON.stringify(toStreamPayload(receipt))}\n`)
@@ -1101,6 +1277,10 @@ export const streamReceiptParsingStatus = createServerFn({ method: "GET" })
               }
             },
             error: (error) => {
+              logScanEvent("error", "status-stream.subscription-failed", {
+                error: serializeScanError(error),
+                receiptId: data,
+              })
               controller.error(
                 error instanceof Error
                   ? error

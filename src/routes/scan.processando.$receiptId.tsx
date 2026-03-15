@@ -1,16 +1,45 @@
 import * as React from "react"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useServerFn } from "@tanstack/react-start"
 import { useTranslation } from "react-i18next"
 import { Loader2, Plus, TriangleAlert, Upload } from "lucide-react"
 import { motion } from "motion/react"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { streamReceiptParsingStatus } from "@/features/scan/server"
 import { toErrorMessage } from "@/features/scan/utils"
+import type { TypedDocumentString } from "@/graphql/graphql"
+import { subscribeClient } from "@/graphql/subscribe-client"
 
 type ProcessingState = "processing" | "flagged" | "error"
+
+const ReceiptProcessingSubscription = `
+  subscription ScanReceiptProcessing($id: Uuid!) {
+    receiptsById(id: $id) {
+      id
+      status
+      vendorName
+      vendorTaxId
+      receiptDate
+      totalAmount
+      receiptItems(order_by: [{ totalPrice: Desc }, { description: Asc }]) {
+        id
+        description
+        category
+        quantity
+        unitPrice
+        totalPrice
+      }
+    }
+  }
+` as unknown as TypedDocumentString<
+  {
+    receiptsById?: {
+      id: string
+      status?: string | null
+    } | null
+  },
+  { id: string }
+>
 
 export const Route = createFileRoute("/scan/processando/$receiptId")({
   component: ScanProcessingRoute,
@@ -20,60 +49,46 @@ function ScanProcessingRoute() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { receiptId } = Route.useParams()
-  const streamReceiptParsingStatusServerFn = useServerFn(
-    streamReceiptParsingStatus
-  )
   const [state, setState] = React.useState<ProcessingState>("processing")
   const [errorMessage, setErrorMessage] = React.useState("")
 
   React.useEffect(() => {
-    const abortController = new AbortController()
-    const textDecoder = new TextDecoder()
-    let buffer = ""
     let cancelled = false
+    let completed = false
 
-    async function watchReceipt() {
-      const response = await streamReceiptParsingStatusServerFn({
-        data: receiptId,
-        signal: abortController.signal,
-      })
-
-      if (!(response instanceof Response) || !response.body) {
-        throw new Error(
-          "Não foi possível acompanhar o processamento do recibo em tempo real."
-        )
-      }
-
-      const reader = response.body.getReader()
-
-      while (!cancelled) {
-        const { done, value } = await reader.read()
-
-        if (done) {
-          break
-        }
-
-        buffer += textDecoder.decode(value, { stream: true })
-
-        while (buffer.includes("\n")) {
-          const lineBreakIndex = buffer.indexOf("\n")
-          const line = buffer.slice(0, lineBreakIndex).trim()
-          buffer = buffer.slice(lineBreakIndex + 1)
-
-          if (!line) {
-            continue
+    const unsubscribe = subscribeClient(
+      ReceiptProcessingSubscription,
+      { id: receiptId },
+      {
+        next: async (payload) => {
+          if (cancelled) {
+            return
           }
 
-          const event = JSON.parse(line) as {
-            draft: unknown
-            receiptId: string
-            status: string
+          if (payload.errors?.length) {
+            setErrorMessage(
+              payload.errors
+                .map((error) => error.message)
+                .filter(Boolean)
+                .join("\n") || t("scan.errorFallback")
+            )
+            setState("error")
+            return
           }
 
-          if (event.status === "extracted") {
+          const receipt = payload.data?.receiptsById
+
+          if (!receipt) {
+            setErrorMessage(t("scan.errorFallback"))
+            setState("error")
+            return
+          }
+
+          if (receipt.status === "extracted") {
+            completed = true
             await navigate({
               params: {
-                receiptId: event.receiptId,
+                receiptId: receipt.id,
               },
               replace: true,
               to: "/scan/revisar/$receiptId",
@@ -81,28 +96,35 @@ function ScanProcessingRoute() {
             return
           }
 
-          if (event.status === "flagged") {
+          if (receipt.status === "flagged") {
+            completed = true
             setState("flagged")
+          }
+        },
+        error: (error) => {
+          if (cancelled) {
             return
           }
-        }
-      }
-    }
 
-    void watchReceipt().catch((error) => {
-      if (abortController.signal.aborted || cancelled) {
-        return
-      }
+          setErrorMessage(toErrorMessage(error, t("scan.errorFallback")))
+          setState("error")
+        },
+        complete: () => {
+          if (cancelled || completed) {
+            return
+          }
 
-      setErrorMessage(toErrorMessage(error, t("scan.errorFallback")))
-      setState("error")
-    })
+          setErrorMessage(t("scan.errorFallback"))
+          setState("error")
+        },
+      }
+    )
 
     return () => {
       cancelled = true
-      abortController.abort()
+      unsubscribe()
     }
-  }, [navigate, receiptId, streamReceiptParsingStatusServerFn, t])
+  }, [navigate, receiptId, t])
 
   if (state === "processing") {
     return (

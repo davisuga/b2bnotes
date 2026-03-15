@@ -52,6 +52,8 @@ Crie ou ajuste `./.env` com algo neste formato:
 ```dotenv
 GRAPHQL_URL=http://localhost:3280/graphql
 GRAPHQL_AUTH_TOKEN=
+VITE_GRAPHQL_URL=http://localhost:3280/graphql
+VITE_GRAPHQL_AUTH_TOKEN=
 
 APP_MY_PG_CONNECTION_URI=postgres://USER:PASSWORD@HOST:5432/DBNAME
 
@@ -74,6 +76,8 @@ Observações:
 
 - `GRAPHQL_URL` deve apontar para o engine local do DDN.
 - `GRAPHQL_AUTH_TOKEN` é opcional no código. Se seu engine local exigir token, preencha.
+- `VITE_GRAPHQL_URL` é usada pelas subscriptions do navegador na tela de processamento.
+- `VITE_GRAPHQL_AUTH_TOKEN` so deve ser usada se voce aceitar expor esse token ao browser. Se o endpoint for publico, deixe vazia.
 - `APP_MY_PG_CONNECTION_URI` também é usada no fluxo de atualização de schema.
 - para upload direto do navegador, o bucket R2 precisa de CORS liberando o origin da app local e o metodo `PUT`.
 - para parsing de recibos, basta Google ou OpenAI. Não precisa configurar os dois.
